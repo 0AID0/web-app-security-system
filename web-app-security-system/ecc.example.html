@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECC Шифрование/дешифрование</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-image: url(2ed335b16e62c39b6d5b7725ff09d5e9.gif);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+            color: white;
+        }
+
+        header {
+            background: url(5a) no-repeat center center/cover;
+            color: #ffffff;
+            padding: 40px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+        }
+
+        header p {
+            font-size: 1.2em;
+            margin: 10px 0 20px;
+            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h1, h2, h3, h4 {
+            color: #ffffff;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        h2, h3, h4 {
+            margin-top: 25px;
+            color: #4da6ff;
+        }
+
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 25px;
+            background: rgba(77, 166, 255, 0.8);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background: rgba(59, 140, 196, 0.9);
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(77, 166, 255, 0.5);
+        }
+
+        form {
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        form:hover {
+            transform: translateY(-3px);
+        }
+
+        input[type="text"], textarea, select {
+            width: calc(100% - 24px);
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            font-size: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4da6ff;
+            box-shadow: 0 0 10px rgba(77, 166, 255, 0.5);
+        }
+
+        button {
+            padding: 12px 25px;
+            background: rgba(77, 166, 255, 0.8);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: rgba(59, 140, 196, 0.9);
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(77, 166, 255, 0.5);
+        }
+
+        .button-secondary {
+            background: rgba(46, 204, 113, 0.8);
+        }
+
+        .button-secondary:hover {
+            background: rgba(39, 174, 96, 0.9);
+        }
+
+        .button-danger {
+            background: rgba(231, 76, 60, 0.8);
+        }
+
+        .button-danger:hover {
+            background: rgba(192, 57, 43, 0.9);
+        }
+
+        .button-purple {
+            background: rgba(155, 89, 182, 0.8);
+        }
+
+        .button-purple:hover {
+            background: rgba(142, 68, 173, 0.9);
+        }
+
+        .result-box {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4da6ff;
+            transition: all 0.3s;
+        }
+
+        .result-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .copy-btn {
+            background: rgba(102, 102, 102, 0.8);
+            padding: 8px 15px;
+            font-size: 14px;
+            margin-left: 10px;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(68, 68, 68, 0.9);
+            transform: scale(1.05);
+        }
+
+        .info-box {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 5px;
+            margin: 25px 0;
+            border-left: 4px solid #666;
+            transition: all 0.3s;
+        }
+
+        .info-box:hover {
+            background: rgba(0, 0, 0, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .tab {
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: rgba(241, 241, 241, 0.1);
+            border-radius: 5px 5px 0 0;
+        }
+
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            color: #ffffff;
+            margin: 0;
+            border-radius: 0;
+            font-weight: normal;
+        }
+
+        .tab button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .tab button.active {
+            background-color: rgba(77, 166, 255, 0.8);
+            color: white;
+            font-weight: bold;
+        }
+
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            animation: fadeEffect 1s;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes fadeEffect {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+
+        .key-management {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .key-input {
+            width: calc(100% - 24px);
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            font-size: 16px;
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+
+        .columns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .column {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .column:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background: rgba(0, 0, 0, 0.3);
+            color: #ffffff;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(53, 66, 74, 0.9);
+            color: #ffffff;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            transition: all 0.3s;
+            font-size: 18px;
+            z-index: 99;
+        }
+
+        .back-to-top:hover {
+            background: rgba(44, 62, 80, 0.9);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(77, 166, 255, 0.5);
+        }
+
+        .technology-icon {
+            margin-right: 10px;
+            color: #4da6ff;
+        }
+
+        .status {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            transition: all 0.3s;
+        }
+
+        .status.success {
+            background: rgba(39, 174, 96, 0.2);
+            color: #2ecc71;
+            display: block;
+            border-left: 4px solid #2ecc71;
+        }
+
+        .status.error {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            display: block;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .curve-selector {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+
+        .curve-selector label {
+            margin-right: 15px;
+            font-weight: 500;
+            color: #ffffff;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/elliptic/6.5.1/elliptic.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1><i class="fas fa-lock technology-icon"></i> ECC Шифрование и Дешифрование</h1>
+            <p>Криптография на эллиптических кривых с открытым и закрытым ключом</p>
+            <nav>
+                <ul>
+                    <li><a href="index.html"><i class="fas fa-home"></i> Главная</a></li>
+                    <li><a href="about.html"><i class="fas fa-info-circle"></i> О проекте</a></li>
+                    <li><a href="Technologies.html"><i class="fas fa-microchip"></i> Технологии</a></li>
+                    <li><a href="contact.html"><i class="fas fa-envelope"></i> Контакты</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="info-box">
+            <p><strong><i class="fas fa-shield-alt"></i> ECC</strong> — криптографический алгоритм с открытым ключом, основанный на алгебраической структуре эллиптических кривых. Обеспечивает аналогичную безопасность RSA при значительно меньших размерах ключей, что делает её идеальной для мобильных устройств.</p>
+            <p><i class="fas fa-info-circle"></i> В этом демо используется библиотека elliptic для реализации ECC в браузере.</p>
+        </div>
+
+        <div class="tab">
+            <button class="tablinks active" onclick="openTab(event, 'keys-tab')"><i class="fas fa-key"></i> Управление ключами</button>
+            <button class="tablinks" onclick="openTab(event, 'sign-tab')"><i class="fas fa-signature"></i> Подпись сообщений</button>
+            <button class="tablinks" onclick="openTab(event, 'encrypt-tab')"><i class="fas fa-lock"></i> Шифрование</button>
+        </div>
+
+        <div id="keys-tab" class="tabcontent active">
+            <div class="columns">
+                <div class="column">
+                    <h2><i class="fas fa-key"></i> Управление ключами</h2>
+                    
+                    <div class="curve-selector">
+                        <label for="curveSelect"><i class="fas fa-project-diagram"></i> Выберите эллиптическую кривую:</label>
+                        <select id="curveSelect">
+                            <option value="secp256k1">secp256k1 (используется в Bitcoin)</option>
+                            <option value="p256">NIST P-256</option>
+                            <option value="p384">NIST P-384</option>
+                            <option value="p521">NIST P-521</option>
+                        </select>
+                    </div>
+                    
+                    <div class="key-management">
+                        <button onclick="generateKeys()"><i class="fas fa-key"></i> Сгенерировать ключи</button>
+                        <button class="button-danger" onclick="clearAll()"><i class="fas fa-trash"></i> Очистить все</button>
+                    </div>
+                    
+                    <div class="info-box">
+                        <p><strong><i class="fas fa-info-circle"></i> Информация:</strong> Ключи сохраняются в localStorage вашего браузера и будут доступны при следующем посещении.</p>
+                    </div>
+                    
+                    <h3><i class="fas fa-file-import"></i> Импорт ключей</h3>
+                    <textarea id="importPrivateKey" placeholder="Введите закрытый ключ (hex)..." rows="3"></textarea>
+                    <textarea id="importPublicKey" placeholder="Введите открытый ключ (hex)..." rows="3"></textarea>
+                    <button onclick="importKeys()"><i class="fas fa-file-import"></i> Импортировать ключи</button>
+                    
+                    <div id="keys-status" class="status"></div>
+                </div>
+                
+                <div class="column">
+                    <h3><i class="fas fa-key"></i> Текущий закрытый ключ:</h3>
+                    <div class="result-box">
+                        <pre id="privateKeyFull">Не сгенерирован</pre>
+                        <button class="copy-btn" onclick="copyToClipboard('privateKeyFull')"><i class="fas fa-copy"></i> Копировать</button>
+                    </div>
+                    
+                    <h3><i class="fas fa-key"></i> Текущий открытый ключ:</h3>
+                    <div class="result-box">
+                        <pre id="publicKeyFull">Не сгенерирован</pre>
+                        <button class="copy-btn" onclick="copyToClipboard('publicKeyFull')"><i class="fas fa-copy"></i> Копировать</button>
+                    </div>
+                    
+                    <div class="info-box">
+                        <p style="color: #e74c3c;"><strong><i class="fas fa-exclamation-triangle"></i> Внимание:</strong> Никогда не передавайте закрытый ключ другим лицам! Он должен храниться в секрете.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="sign-tab" class="tabcontent">
+            <div class="columns">
+                <div class="column">
+                    <h2><i class="fas fa-signature"></i> Подпись сообщения</h2>
+                    <textarea id="message" placeholder="Введите сообщение для подписи..." rows="6">Пример сообщения для подписи</textarea>
+                    
+                    <div class="key-management">
+                        <button class="button-secondary" onclick="signMessage()"><i class="fas fa-signature"></i> Подписать</button>
+                        <button onclick="verifySignature()"><i class="fas fa-check-circle"></i> Проверить</button>
+                    </div>
+                    
+                    <div id="sign-status" class="status"></div>
+                </div>
+                
+                <div class="column">
+                    <h3><i class="fas fa-key"></i> Закрытый ключ:</h3>
+                    <textarea id="privateKeyInput" placeholder="Введите закрытый ключ для подписи..." rows="3"></textarea>
+                    
+                    <h3><i class="fas fa-key"></i> Открытый ключ:</h3>
+                    <textarea id="publicKeyInput" placeholder="Введите открытый ключ для проверки..." rows="3"></textarea>
+                    
+                    <h3><i class="fas fa-signature"></i> Подпись:</h3>
+                    <div class="result-box">
+                        <pre id="signatureOutput"></pre>
+                        <button class="copy-btn" onclick="copyToClipboard('signatureOutput')"><i class="fas fa-copy"></i> Копировать</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="encrypt-tab" class="tabcontent">
+            <div class="columns">
+                <div class="column">
+                    <h2><i class="fas fa-lock"></i> Шифрование сообщения</h2>
+                    <textarea id="encryptMessage" placeholder="Введите сообщение для шифрования..." rows="6">Пример сообщения для шифрования</textarea>
+                    
+                    <h3><i class="fas fa-key"></i> Открытый ключ получателя:</h3>
+                    <textarea id="recipientPublicKey" placeholder="Введите открытый ключ получателя..." rows="3"></textarea>
+                    
+                    <div class="key-management">
+                        <button class="button-purple" onclick="encryptMessage()"><i class="fas fa-lock"></i> Зашифровать</button>
+                        <button class="button-purple" onclick="decryptMessage()"><i class="fas fa-unlock"></i> Расшифровать</button>
+                    </div>
+                    
+                    <div id="encrypt-status" class="status"></div>
+                </div>
+                
+                <div class="column">
+                    <h3><i class="fas fa-key"></i> Ваш закрытый ключ:</h3>
+                    <textarea id="decryptPrivateKey" placeholder="Введите ваш закрытый ключ для расшифрования..." rows="3"></textarea>
+                    
+                    <h3><i class="fas fa-lock"></i> Зашифрованные данные:</h3>
+                    <div class="result-box">
+                        <pre id="encryptedData"></pre>
+                        <button class="copy-btn" onclick="copyToClipboard('encryptedData')"><i class="fas fa-copy"></i> Копировать</button>
+                    </div>
+                    
+                    <h3><i class="fas fa-unlock"></i> Расшифрованное сообщение:</h3>
+                    <div class="result-box">
+                        <pre id="decryptedMessage"></pre>
+                        <button class="copy-btn" onclick="copyToClipboard('decryptedMessage')"><i class="fas fa-copy"></i> Копировать</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <p><strong><i class="fas fa-exclamation-triangle"></i> Ограничения:</strong> Это демонстрационная реализация ECC в JavaScript. Для производственного использования рассмотрите более надежные решения.</p>
+        </div>
+
+        <a href="Technologies.html" class="back-button"><i class="fas fa-arrow-left"></i> Вернуться к списку технологий</a>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Системы кибербезопасности. Все права защищены.</p>
+    </footer>
+
+    <button class="back-to-top" onclick="scrollToTop()"><i class="fas fa-arrow-up"></i></button>
+
+    <script>
+        let ec, keyPair, privateKey, publicKey, signature, encryptedData;
+        const curves = {
+            'secp256k1': { name: 'secp256k1', desc: 'Используется в Bitcoin' },
+            'p256': { name: 'p256', desc: 'NIST P-256 (secp256r1)' },
+            'p384': { name: 'p384', desc: 'NIST P-384 (secp384r1)' },
+            'p521': { name: 'p521', desc: 'NIST P-521 (secp521r1)' }
+        };
+        
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.querySelector('.container').classList.add('visible');
+            }, 300);
+
+            initCurve('secp256k1');
+            loadKeysFromStorage();
+            addExampleData();
+        });
+        
+        function addExampleData() {
+            const examplePrivateKey = "3a1076bf45ab87712ad64ccb3b10217737f7faacbf2872e88fdd9a537d8fe266";
+            const examplePublicKey = "04" + 
+                "5d7e2807f6a5e73b7a3f8a3c9a3b7a3f8a3c9a3b7a3f8a3c9a3b7a3f8a3c9a3" + 
+                "b7a3f8a3c9a3b7a3f8a3c9a3b7a3f8a3c9a3b7a3f8a3c9a3b7a3f8a3c9a3b7";
+                
+            document.getElementById('importPrivateKey').value = examplePrivateKey;
+            document.getElementById('importPublicKey').value = examplePublicKey;
+            document.getElementById('privateKeyInput').value = examplePrivateKey;
+            document.getElementById('publicKeyInput').value = examplePublicKey;
+            document.getElementById('recipientPublicKey').value = examplePublicKey;
+            document.getElementById('decryptPrivateKey').value = examplePrivateKey;
+        }
+        
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName('tabcontent');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].style.display = 'none';
+                tabContents[i].classList.remove('active');
+            }
+            
+            const tabs = document.getElementsByClassName('tablinks');
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            
+            document.getElementById(tabName).style.display = 'block';
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+        
+        function initCurve(curveName) {
+            const EC = elliptic.ec;
+            ec = new EC(curveName);
+            showStatus('keys-status', `Инициализирована кривая: ${curveName} (${curves[curveName].desc})`, 'success');
+        }
+        
+        function generateKeys() {
+            const curveName = document.getElementById('curveSelect').value;
+            initCurve(curveName);
+            
+            showStatus('keys-status', 'Генерация ключей...', 'success');
+            
+            setTimeout(() => {
+                try {
+                    keyPair = ec.genKeyPair();
+                    privateKey = keyPair.getPrivate('hex');
+                    publicKey = keyPair.getPublic('hex');
+                    
+                    document.getElementById('privateKeyFull').textContent = privateKey;
+                    document.getElementById('publicKeyFull').textContent = publicKey;
+                    document.getElementById('privateKeyInput').value = privateKey;
+                    document.getElementById('publicKeyInput').value = publicKey;
+                    document.getElementById('decryptPrivateKey').value = privateKey;
+                    
+                    localStorage.setItem('eccPrivateKey', privateKey);
+                    localStorage.setItem('eccPublicKey', publicKey);
+                    localStorage.setItem('eccCurve', curveName);
+                    
+                    showStatus('keys-status', `Ключи успешно сгенерированы для кривой ${curveName}`, 'success');
+                } catch (error) {
+                    console.error('Ошибка генерации ключей:', error);
+                    showStatus('keys-status', 'Ошибка генерации ключей. Попробуйте еще раз.', 'error');
+                }
+            }, 100);
+        }
+        
+        function signMessage() {
+            const message = document.getElementById('message').value.trim();
+            if (!message) {
+                showStatus('sign-status', 'Введите сообщение для подписи', 'error');
+                return;
+            }
+            
+            const privateKeyInput = document.getElementById('privateKeyInput').value.trim();
+            if (!privateKeyInput) {
+                showStatus('sign-status', 'Введите закрытый ключ', 'error');
+                return;
+            }
+            
+            try {
+                keyPair = ec.keyFromPrivate(privateKeyInput, 'hex');
+                signature = keyPair.sign(message).toDER('hex');
+                
+                document.getElementById('signatureOutput').textContent = signature;
+                showStatus('sign-status', 'Сообщение успешно подписано', 'success');
+            } catch (error) {
+                console.error('Ошибка подписи:', error);
+                showStatus('sign-status', 'Ошибка подписи: ' + error.message, 'error');
+            }
+        }
+        
+        function verifySignature() {
+            const message = document.getElementById('message').value.trim();
+            if (!message) {
+                showStatus('sign-status', 'Введите сообщение для проверки', 'error');
+                return;
+            }
+            
+            const publicKeyInput = document.getElementById('publicKeyInput').value.trim();
+            const signatureInput = document.getElementById('signatureOutput').textContent.trim();
+            
+            if (!publicKeyInput || !signatureInput) {
+                showStatus('sign-status', 'Введите открытый ключ и подпись', 'error');
+                return;
+            }
+            
+            try {
+                keyPair = ec.keyFromPublic(publicKeyInput, 'hex');
+                const isValid = keyPair.verify(message, signatureInput);
+                
+                showStatus('sign-status', `Подпись ${isValid ? 'действительна' : 'недействительна'}`, isValid ? 'success' : 'error');
+            } catch (error) {
+                console.error('Ошибка проверки подписи:', error);
+                showStatus('sign-status', 'Ошибка проверки подписи: ' + error.message, 'error');
+            }
+        }
+        
+        function encryptMessage() {
+            const message = document.getElementById('encryptMessage').value.trim();
+            if (!message) {
+                showStatus('encrypt-status', 'Введите сообщение для шифрования', 'error');
+                return;
+            }
+            
+            const recipientPublicKey = document.getElementById('recipientPublicKey').value.trim();
+            if (!recipientPublicKey) {
+                showStatus('encrypt-status', 'Введите открытый ключ получателя', 'error');
+                return;
+            }
+            
+            try {
+                // Генерируем временную пару ключей для отправителя
+                const tempKeyPair = ec.genKeyPair();
+                const tempPublicKey = tempKeyPair.getPublic('hex');
+                
+                // Получаем открытый ключ получателя
+                const recipientKey = ec.keyFromPublic(recipientPublicKey, 'hex').getPublic();
+                
+                // Вычисляем общий секрет (ECDH)
+                const sharedSecret = tempKeyPair.derive(recipientKey).toString(16);
+                
+                // Генерируем IV (Initialization Vector)
+                const iv = CryptoJS.lib.WordArray.random(16);
+                
+                // Преобразуем общий секрет в ключ для AES
+                const aesKey = CryptoJS.SHA256(sharedSecret).toString();
+                
+                // Шифруем сообщение с использованием AES-CBC
+                const encrypted = CryptoJS.AES.encrypt(message, aesKey, { 
+                    iv: iv,
+                    mode: CryptoJS.mode.CBC,
+                    padding: CryptoJS.pad.Pkcs7
+                });
+                
+                encryptedData = {
+                    ciphertext: encrypted.toString(),
+                    iv: iv.toString(),
+                    tempPublicKey: tempPublicKey
+                };
+                
+                document.getElementById('encryptedData').textContent = JSON.stringify(encryptedData, null, 2);
+                showStatus('encrypt-status', 'Сообщение успешно зашифровано', 'success');
+            } catch (error) {
+                console.error('Ошибка шифрования:', error);
+                showStatus('encrypt-status', 'Ошибка шифрования: ' + error.message, 'error');
+            }
+        }
+        
+        function decryptMessage() {
+            const encryptedJson = document.getElementById('encryptedData').textContent.trim();
+            if (!encryptedJson) {
+                showStatus('encrypt-status', 'Нет данных для расшифрования', 'error');
+                return;
+            }
+            
+            const privateKeyInput = document.getElementById('decryptPrivateKey').value.trim();
+            if (!privateKeyInput) {
+                showStatus('encrypt-status', 'Введите ваш закрытый ключ', 'error');
+                return;
+            }
+            
+            try {
+                const encryptedData = JSON.parse(encryptedJson);
+                
+                // Получаем временный открытый ключ отправителя
+                const senderPublicKey = ec.keyFromPublic(encryptedData.tempPublicKey, 'hex').getPublic();
+                
+                // Используем наш закрытый ключ для вычисления общего секрета
+                keyPair = ec.keyFromPrivate(privateKeyInput, 'hex');
+                const sharedSecret = keyPair.derive(senderPublicKey).toString(16);
+                
+                // Преобразуем общий секрет в ключ для AES
+                const aesKey = CryptoJS.SHA256(sharedSecret).toString();
+                
+                // Создаем IV из сохраненного значения
+                const iv = CryptoJS.enc.Hex.parse(encryptedData.iv);
+                
+                // Расшифровываем сообщение
+                const decrypted = CryptoJS.AES.decrypt(
+                    encryptedData.ciphertext, 
+                    aesKey, 
+                    { 
+                        iv: iv,
+                        mode: CryptoJS.mode.CBC,
+                        padding: CryptoJS.pad.Pkcs7
+                    }
+                );
+                
+                // Преобразуем результат в читаемый текст
+                const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
+                
+                if (!decryptedText) {
+                    throw new Error('Не удалось расшифровать сообщение. Проверьте ключи.');
+                }
+                
+                document.getElementById('decryptedMessage').textContent = decryptedText;
+                showStatus('encrypt-status', 'Сообщение успешно расшифровано', 'success');
+            } catch (error) {
+                console.error('Ошибка расшифрования:', error);
+                showStatus('encrypt-status', 'Ошибка расшифрования: ' + error.message, 'error');
+                document.getElementById('decryptedMessage').textContent = 'Ошибка расшифрования: ' + error.message;
+            }
+        }
+        
+        function importKeys() {
+            const importPrivateKey = document.getElementById('importPrivateKey').value.trim();
+            const importPublicKey = document.getElementById('importPublicKey').value.trim();
+            
+            if (!importPrivateKey && !importPublicKey) {
+                showStatus('keys-status', 'Введите хотя бы один ключ для импорта', 'error');
+                return;
+            }
+            
+            try {
+                if (importPrivateKey) {
+                    keyPair = ec.keyFromPrivate(importPrivateKey, 'hex');
+                    privateKey = importPrivateKey;
+                    document.getElementById('privateKeyFull').textContent = privateKey;
+                    document.getElementById('privateKeyInput').value = privateKey;
+                    document.getElementById('decryptPrivateKey').value = privateKey;
+                }
+                
+                if (importPublicKey) {
+                    keyPair = ec.keyFromPublic(importPublicKey, 'hex');
+                    publicKey = importPublicKey;
+                    document.getElementById('publicKeyFull').textContent = publicKey;
+                    document.getElementById('publicKeyInput').value = publicKey;
+                    document.getElementById('recipientPublicKey').value = publicKey;
+                }
+                
+                if (importPrivateKey) localStorage.setItem('eccPrivateKey', privateKey);
+                if (importPublicKey) localStorage.setItem('eccPublicKey', publicKey);
+                
+                showStatus('keys-status', 'Ключи успешно импортированы', 'success');
+            } catch (error) {
+                console.error('Ошибка импорта ключей:', error);
+                showStatus('keys-status', 'Ошибка импорта: ' + error.message, 'error');
+            }
+        }
+        
+        function loadKeysFromStorage() {
+            const savedPrivateKey = localStorage.getItem('eccPrivateKey');
+            const savedPublicKey = localStorage.getItem('eccPublicKey');
+            const savedCurve = localStorage.getItem('eccCurve');
+            
+            if (savedPrivateKey && savedPublicKey && savedCurve) {
+                privateKey = savedPrivateKey;
+                publicKey = savedPublicKey;
+                
+                document.getElementById('privateKeyFull').textContent = privateKey;
+                document.getElementById('publicKeyFull').textContent = publicKey;
+                document.getElementById('privateKeyInput').value = privateKey;
+                document.getElementById('publicKeyInput').value = publicKey;
+                document.getElementById('decryptPrivateKey').value = privateKey;
+                document.getElementById('recipientPublicKey').value = publicKey;
+                document.getElementById('curveSelect').value = savedCurve;
+                
+                initCurve(savedCurve);
+                showStatus('keys-status', `Загружены сохраненные ключи для кривой ${savedCurve}`, 'success');
+            }
+        }
+        
+        function clearAll() {
+            if (confirm('Вы уверены, что хотите очистить все данные? Это удалит все ключи и сообщения.')) {
+                privateKey = '';
+                publicKey = '';
+                signature = '';
+                encryptedData = null;
+                
+                localStorage.removeItem('eccPrivateKey');
+                localStorage.removeItem('eccPublicKey');
+                localStorage.removeItem('eccCurve');
+                
+                const clearElements = [
+                    'message', 'privateKeyInput', 'publicKeyInput', 
+                    'importPrivateKey', 'importPublicKey',
+                    'privateKeyFull', 'publicKeyFull', 'signatureOutput',
+                    'encryptMessage', 'recipientPublicKey', 'decryptPrivateKey',
+                    'encryptedData', 'decryptedMessage'
+                ];
+                
+                clearElements.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) element.value = '';
+                    if (element && element.textContent) element.textContent = '';
+                });
+                
+                showStatus('keys-status', 'Все данные очищены', 'success');
+            }
+        }
+        
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            const text = element.textContent || element.value;
+            
+            if (!text || text.trim() === '') {
+                showStatus('keys-status', 'Нет данных для копирования', 'error');
+                return;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showStatus('keys-status', 'Скопировано в буфер обмена', 'success');
+            }).catch(err => {
+                console.error('Ошибка при копировании:', err);
+                showStatus('keys-status', 'Ошибка при копировании: ' + err, 'error');
+            });
+        }
+        
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            element.textContent = message;
+            element.className = 'status ' + type;
+            element.style.display = 'block';
+            
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        function scrollToTop() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        window.onscroll = function() {
+            const button = document.querySelector('.back-to-top');
+            if (button) {
+                if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                    button.style.display = "block";
+                } else {
+                    button.style.display = "none";
+                }
+            }
+        };
+
+        document.getElementById('curveSelect').addEventListener('change', function() {
+            const curveName = this.value;
+            initCurve(curveName);
+        });
+    </script>
+</body>
+</html>

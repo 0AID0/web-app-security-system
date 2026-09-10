@@ -1,0 +1,2085 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT (JSON Web Tokens) | Интерактивное руководство</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-image: url(2ed335b16e62c39b6d5b7725ff09d5e9.gif);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+            color: white;
+        }
+
+        header {
+            background: url(5a) no-repeat center center/cover;
+            color: #ffffff;
+            padding: 40px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        section {
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.103);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            border: 2px solid rgba(0, 0, 0, 0.3);
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        section:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        h1, h2, h3 {
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+        }
+
+        h2 {
+            margin: 35px 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.8rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            margin: 25px 0 15px;
+            font-size: 1.4rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .interactive-demo {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 25px;
+            margin: 25px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            max-width: 400px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 500;
+            color: white;
+        }
+
+        input, textarea, select {
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 16px;
+            transition: all 0.3s;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4361ee;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
+        }
+
+        button {
+            padding: 14px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #4361ee;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3a0ca3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-secondary {
+            background: #3f37c9;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #2a2a9d;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #ef233c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d90429;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #4361ee;
+            color: white;
+        }
+
+        .btn-outline:hover {
+            background: rgba(67, 97, 238, 0.2);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 18px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 15px 0;
+            position: relative;
+            color: #f8f9fa;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+            color: white;
+        }
+
+        pre:hover .copy-btn {
+            opacity: 1;
+        }
+
+        .token-display {
+            word-wrap: break-word;
+            margin: 18px 0;
+            padding: 15px;
+            background: rgba(67, 97, 238, 0.1);
+            border-radius: 8px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            border-left: 4px solid #4361ee;
+            position: relative;
+            color: white;
+        }
+
+        .token-actions {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .token-action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: white;
+        }
+
+        .token-action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            line-height: 1.5;
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 4px solid;
+        }
+
+        .alert i {
+            font-size: 20px;
+            margin-top: 2px;
+        }
+
+        .alert-content {
+            flex: 1;
+            color: white;
+        }
+
+        .alert-warning {
+            border-left-color: #ff9f1c;
+            background: rgba(255, 159, 28, 0.1);
+        }
+
+        .alert-success {
+            border-left-color: #2ec4b6;
+            background: rgba(46, 196, 182, 0.1);
+        }
+
+        .alert-danger {
+            border-left-color: #ef233c;
+            background: rgba(239, 35, 60, 0.1);
+        }
+
+        .alert-info {
+            border-left-color: #4361ee;
+            background: rgba(67, 97, 238, 0.1);
+        }
+
+        .http-example {
+            background: rgba(45, 45, 45, 0.8);
+            color: #f8f9fa;
+            padding: 18px;
+            border-radius: 8px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            overflow-x: auto;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .http-method {
+            color: #569CD6;
+            font-weight: bold;
+        }
+
+        .http-header {
+            color: #9CDCFE;
+        }
+
+        .http-token {
+            color: #CE9178;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 30px 0;
+            padding: 14px 26px;
+            background: #4361ee;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: #3a0ca3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+
+        .token-expiry {
+            margin-top: 12px;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .token-structure {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .token-part {
+            padding: 14px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            font-family: 'Fira Code', 'Consolas', monospace;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s;
+            color: white;
+        }
+
+        .token-part:hover {
+            transform: translateX(5px);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .badge-primary {
+            background: #4361ee;
+            color: white;
+        }
+
+        .badge-success {
+            background: #2ec4b6;
+            color: white;
+        }
+
+        .badge-warning {
+            background: #ff9f1c;
+            color: black;
+        }
+
+        .badge-danger {
+            background: #ef233c;
+            color: white;
+        }
+
+        .badge-secondary {
+            background: #3f37c9;
+            color: white;
+        }
+
+        .utility-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 15px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        th {
+            background: rgba(67, 97, 238, 0.5);
+            color: white;
+            text-align: left;
+            padding: 12px 15px;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        tr:hover {
+            background: rgba(67, 97, 238, 0.2);
+        }
+
+        .tab-container {
+            margin: 25px 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.6);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: white;
+            border-bottom: 3px solid #4361ee;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .token-validator {
+            margin: 25px 0;
+        }
+
+        .validator-input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-family: 'Fira Code', 'Consolas', monospace;
+            margin-bottom: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+
+        .validator-result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 4px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .validator-result.valid {
+            border-left: 4px solid #2ec4b6;
+            background: rgba(46, 196, 182, 0.1);
+        }
+
+        .validator-result.invalid {
+            border-left: 4px solid #ef233c;
+            background: rgba(239, 35, 60, 0.1);
+        }
+
+        .token-generator {
+            margin: 25px 0;
+        }
+
+        .generator-form {
+            max-width: 100%;
+        }
+
+        .generator-result {
+            margin-top: 20px;
+        }
+
+        .floating-alerts {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(67, 97, 238, 0.8);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            transition: all 0.3s;
+            font-size: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .back-to-top:hover {
+            background: #3a0ca3;
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .utility-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1><i class="fas fa-lock"></i> JWT (JSON Web Tokens)</h1>
+            <p>Интерактивное руководство по безопасной аутентификации</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <section id="about-jwt" class="visible">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-info-circle"></i> Основы JWT</h2>
+                    <div class="badge badge-primary">RFC 7519</div>
+                </div>
+                <p>JSON Web Token (JWT) — это открытый стандарт для создания токенов доступа, основанный на формате JSON. Обеспечивает безопасную передачу информации между сторонами в виде JSON-объекта.</p>
+                
+                <h3>Структура JWT:</h3>
+                <div class="token-structure">
+                    <div class="token-part">
+                        <span class="badge badge-primary">Header</span>
+                        <code>{"alg": "HS256", "typ": "JWT"}</code> - алгоритм подписи и тип токена
+                    </div>
+                    <div class="token-part">
+                        <span class="badge badge-secondary">Payload</span>
+                        <code>{"sub": "123", "name": "John", "iat": 1516239022}</code> - данные пользователя и метаданные
+                    </div>
+                    <div class="token-part">
+                        <span class="badge badge-danger">Signature</span>
+                        <code>HMACSHA256(base64UrlEncode(header) + "." + base64UrlEncode(payload), secret)</code> - подпись для верификации
+                    </div>
+                </div>
+                
+                <div class="tab-container">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" onclick="openTab(event, 'tab-example')">Пример</button>
+                        <button class="tab-btn" onclick="openTab(event, 'tab-use-cases')">Использование</button>
+                        <button class="tab-btn" onclick="openTab(event, 'tab-algorithms')">Алгоритмы</button>
+                    </div>
+                    
+                    <div id="tab-example" class="tab-content active">
+                        <pre>
+// Пример JWT:
+<span style="color: #CE9178;">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9</span>.<span style="color: #569CD6;">eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ</span>.<span style="color: #9CDCFE;">SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</span>
+                        </pre>
+                        <button class="btn-outline" onclick="decodeExampleToken()">
+                            <i class="fas fa-code"></i> Декодировать пример
+                        </button>
+                    </div>
+                    
+                    <div id="tab-use-cases" class="tab-content">
+                        <ul style="margin-left: 20px;">
+                            <li><strong>Аутентификация</strong> - после входа сервер возвращает JWT, который клиент использует для последующих запросов</li>
+                            <li><strong>Обмен информацией</strong> - безопасная передача данных между сторонами</li>
+                            <li><strong>Авторизация</strong> - проверка прав доступа на основе данных в токене</li>
+                            <li><strong>Одноразовые действия</strong> - например, ссылки для сброса пароля</li>
+                        </ul>
+                    </div>
+                    
+                    <div id="tab-algorithms" class="tab-content">
+                        <table>
+                            <tr>
+                                <th>Алгоритм</th>
+                                <th>Тип</th>
+                                <th>Описание</th>
+                            </tr>
+                            <tr>
+                                <td>HS256</td>
+                                <td>HMAC</td>
+                                <td>Симметричное шифрование с общим секретом</td>
+                            </tr>
+                            <tr>
+                                <td>RS256</td>
+                                <td>RSA</td>
+                                <td>Асимметричное шифрование с приватным/публичным ключом</td>
+                            </tr>
+                            <tr>
+                                <td>ES256</td>
+                                <td>ECDSA</td>
+                                <td>Асимметричное шифрование на эллиптических кривых</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="interactive-demo" class="visible">
+            <div class="card">
+                <h2><i class="fas fa-user-shield"></i> Интерактивная демонстрация</h2>
+                
+                <div class="interactive-demo">
+                    <div id="auth-status" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <p>Вы авторизованы как: <strong id="username-display"></strong> <span class="badge" id="user-role-badge"></span></p>
+                                <p class="token-expiry">
+                                    <i class="fas fa-clock"></i>
+                                    Срок действия токена: <span id="token-expiry"></span>
+                                </p>
+                            </div>
+                            <button class="btn-danger" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i> Выйти
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <form id="login-form" onsubmit="handleLogin(event)">
+                        <h3>Демонстрация входа</h3>
+                        <div class="form-group">
+                            <label for="username">Логин:</label>
+                            <input type="text" id="username" placeholder="Введите логин" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Пароль:</label>
+                            <input type="password" id="password" placeholder="Введите пароль" required>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn-primary" type="submit">
+                                <i class="fas fa-sign-in-alt"></i> Войти
+                            </button>
+                            <button class="btn-secondary" type="button" onclick="fillDemoCredentials()">
+                                <i class="fas fa-magic"></i> Демо-данные
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div id="token-info" style="display: none;">
+                        <h4><i class="fas fa-key"></i> Текущий JWT:</h4>
+                        <div class="token-display" id="current-token">
+                            <div class="token-actions">
+                                <button class="token-action-btn" title="Копировать" onclick="copyToClipboard('current-token')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button class="token-action-btn" title="Проверить" onclick="validateCurrentToken()">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <h4><i class="fas fa-code"></i> Декодированный Payload:</h4>
+                        <pre id="decoded-payload"></pre>
+                        
+                        <div class="utility-buttons">
+                            <button class="btn-outline" onclick="refreshToken()">
+                                <i class="fas fa-sync-alt"></i> Обновить токен
+                            </button>
+                            <button class="btn-outline" onclick="invalidateToken()">
+                                <i class="fas fa-ban"></i> Инвалидировать токен
+                            </button>
+                        </div>
+                        
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div class="alert-content">
+                                <strong>Внимание:</strong> В реальном приложении токены должны:
+                                <ul style="margin: 8px 0 0 20px;">
+                                    <li>Храниться в secure/httpOnly cookies или localStorage с защитой от XSS</li>
+                                    <li>Иметь ограниченный срок действия (15-30 минут для access token)</li>
+                                    <li>Содержать только необходимые данные (не хранить пароли и другую чувствительную информацию)</li>
+                                    <li>Передаваться только по HTTPS</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="utilities" class="visible">
+            <div class="card">
+                <h2><i class="fas fa-tools"></i> Полезные утилиты</h2>
+                
+                <div class="tab-container">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" onclick="openTab(event, 'tab-validator')">Валидатор</button>
+                        <button class="tab-btn" onclick="openTab(event, 'tab-generator')">Генератор</button>
+                        <button class="tab-btn" onclick="openTab(event, 'tab-decoder')">Декодер</button>
+                    </div>
+                    
+                    <div id="tab-validator" class="tab-content active">
+                        <div class="token-validator">
+                            <h3>Проверка JWT</h3>
+                            <p>Вставьте JWT для проверки его валидности и срока действия:</p>
+                            <textarea class="validator-input" id="token-to-validate" rows="3" placeholder="Введите JWT..."></textarea>
+                            <div class="btn-group">
+                                <button class="btn-primary" onclick="validateToken()">
+                                    <i class="fas fa-check-circle"></i> Проверить токен
+                                </button>
+                                <button class="btn-secondary" onclick="pasteFromClipboard('token-to-validate')">
+                                    <i class="fas fa-paste"></i> Вставить из буфера
+                                </button>
+                                <button class="btn-outline" onclick="document.getElementById('token-to-validate').value = ''">
+                                    <i class="fas fa-trash"></i> Очистить
+                                </button>
+                            </div>
+                            <div id="validator-result" class="validator-result" style="display: none;">
+                                <h4>Результат проверки:</h4>
+                                <div id="validator-result-content"></div>
+                                <div id="token-visualization" style="margin-top: 15px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-generator" class="tab-content">
+                        <div class="token-generator">
+                            <h3>Генерация JWT</h3>
+                            <p>Создайте собственный JWT с указанными параметрами:</p>
+                            <form class="generator-form" id="token-generator-form">
+                                <div class="form-group">
+                                    <label for="gen-subject">Subject (sub):</label>
+                                    <input type="text" id="gen-subject" placeholder="Идентификатор пользователя">
+                                </div>
+                                <div class="form-group">
+                                    <label for="gen-name">Name:</label>
+                                    <input type="text" id="gen-name" placeholder="Имя пользователя">
+                                </div>
+                                <div class="form-group">
+                                    <label for="gen-role">Role:</label>
+                                    <select id="gen-role">
+                                        <option value="user">User</option>
+                                        <option value="admin">Admin</option>
+                                        <option value="moderator">Moderator</option>
+                                        <option value="custom">Custom</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="custom-role-group" style="display: none;">
+                                    <label for="gen-custom-role">Custom Role:</label>
+                                    <input type="text" id="gen-custom-role" placeholder="Введите свою роль">
+                                </div>
+                                <div class="form-group">
+                                    <label for="gen-expiry">Срок действия (мин):</label>
+                                    <input type="number" id="gen-expiry" value="60" min="1" max="1440">
+                                </div>
+                                <div class="form-group">
+                                    <label for="gen-algorithm">Алгоритм:</label>
+                                    <select id="gen-algorithm">
+                                        <option value="HS256">HS256 (HMAC-SHA256)</option>
+                                        <option value="RS256">RS256 (RSA-SHA256)</option>
+                                        <option value="ES256">ES256 (ECDSA-SHA256)</option>
+                                    </select>
+                                </div>
+                                <div class="btn-group">
+                                    <button class="btn-primary" type="button" onclick="generateCustomToken()">
+                                        <i class="fas fa-key"></i> Сгенерировать токен
+                                    </button>
+                                    <button class="btn-secondary" type="button" onclick="fillDemoTokenData()">
+                                        <i class="fas fa-magic"></i> Демо-данные
+                                    </button>
+                                </div>
+                            </form>
+                            <div class="generator-result" id="generator-result" style="display: none;">
+                                <h4>Ваш JWT:</h4>
+                                <div class="token-display" id="generated-token">
+                                    <div class="token-actions">
+                                        <button class="token-action-btn" title="Копировать" onclick="copyToClipboard('generated-token')">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                        <button class="token-action-btn" title="Проверить" onclick="validateGeneratedToken()">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="token-structure" style="margin: 15px 0;">
+                                    <div class="token-part">
+                                        <span class="badge badge-primary">Header</span>
+                                        <pre id="generated-header"></pre>
+                                    </div>
+                                    <div class="token-part">
+                                        <span class="badge badge-secondary">Payload</span>
+                                        <pre id="generated-payload"></pre>
+                                    </div>
+                                </div>
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    <div class="alert-content">
+                                        <strong>Примечание:</strong> Это демонстрационная генерация. В реальном приложении:
+                                        <ul style="margin: 8px 0 0 20px;">
+                                            <li>Используйте надежные секретные ключи</li>
+                                            <li>Храните ключи в защищенных env-переменных</li>
+                                            <li>Не генерируйте токены на клиенте</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-decoder" class="tab-content">
+                        <div class="token-decoder">
+                            <h3>Декодер JWT</h3>
+                            <p>Вставьте JWT для декодирования его содержимого:</p>
+                            <textarea class="validator-input" id="token-to-decode" rows="3" placeholder="Введите JWT..."></textarea>
+                            <div class="btn-group">
+                                <button class="btn-primary" onclick="decodeToken()">
+                                    <i class="fas fa-code"></i> Декодировать токен
+                                </button>
+                                <button class="btn-secondary" onclick="pasteFromClipboard('token-to-decode')">
+                                    <i class="fas fa-paste"></i> Вставить из буфера
+                                </button>
+                                <button class="btn-outline" onclick="document.getElementById('token-to-decode').value = ''">
+                                    <i class="fas fa-trash"></i> Очистить
+                                </button>
+                            </div>
+                            <div id="decoder-result" style="display: none; margin-top: 20px;">
+                                <div class="token-structure">
+                                    <div class="token-part">
+                                        <span class="badge badge-primary">Header</span>
+                                        <pre id="decoded-header"></pre>
+                                    </div>
+                                    <div class="token-part">
+                                        <span class="badge badge-secondary">Payload</span>
+                                        <pre id="decoded-payload-util"></pre>
+                                    </div>
+                                </div>
+                                <div id="decoded-token-visualization" style="margin-top: 15px;"></div>
+                                <button class="btn-outline" onclick="copyDecodedToken()" style="margin-top: 10px;">
+                                    <i class="fas fa-copy"></i> Копировать декодированные данные
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="api-section" class="visible">
+            <div class="card">
+                <h2><i class="fas fa-exchange-alt"></i> Работа с API</h2>
+                
+                <div class="demo-section">
+                    <h3>Пример HTTP-запроса с JWT</h3>
+                    <div class="http-example">
+                        <code>
+                            <span class="http-method">GET</span> /api/protected-route <span class="http-header">HTTP/1.1</span><br>
+                            <span class="http-header">Host:</span> example.com<br>
+                            <span class="http-header">Authorization:</span> Bearer <span class="http-token" id="example-token">your.jwt.token</span><br>
+                            <span class="http-header">Content-Type:</span> application/json
+                        </code>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="simulateApiRequest('public')">
+                            <i class="fas fa-paper-plane"></i> Публичный запрос
+                        </button>
+                        <button class="btn-secondary" onclick="simulateApiRequest('protected')">
+                            <i class="fas fa-lock"></i> Защищенный запрос
+                        </button>
+                        <button class="btn-danger" onclick="simulateApiRequest('admin')">
+                            <i class="fas fa-user-shield"></i> Админ запрос
+                        </button>
+                    </div>
+                    <div id="api-response" style="margin-top: 20px;"></div>
+                </div>
+                
+                <div class="demo-section">
+                    <h3>Эмуляция API Endpoints</h3>
+                    <table>
+                        <tr>
+                            <th>Метод</th>
+                            <th>URL</th>
+                            <th>Доступ</th>
+                            <th>Описание</th>
+                        </tr>
+                        <tr>
+                            <td>POST</td>
+                            <td>/api/login</td>
+                            <td>Публичный</td>
+                            <td>Аутентификация, возвращает JWT</td>
+                        </tr>
+                        <tr>
+                            <td>GET</td>
+                            <td>/api/public</td>
+                            <td>Публичный</td>
+                            <td>Публичные данные</td>
+                        </tr>
+                        <tr>
+                            <td>GET</td>
+                            <td>/api/protected</td>
+                            <td>Требуется JWT</td>
+                            <td>Защищенные данные</td>
+                        </tr>
+                        <tr>
+                            <td>GET</td>
+                            <td>/api/admin</td>
+                            <td>Требуется роль admin</td>
+                            <td>Административные данные</td>
+                        </tr>
+                        <tr>
+                            <td>POST</td>
+                            <td>/api/refresh</td>
+                            <td>Требуется refresh token</td>
+                            <td>Обновление access token</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="security" class="visible">
+            <div class="card">
+                <h2><i class="fas fa-shield-alt"></i> Безопасность JWT</h2>
+                
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div class="alert-content">
+                        <strong>Основные угрозы:</strong>
+                        <ul style="margin: 8px 0 0 20px;">
+                            <li><strong>XSS атаки</strong> - если токен хранится в localStorage</li>
+                            <li><strong>CSRF атаки</strong> - если токен хранится в cookies</li>
+                            <li><strong>Перехват токена</strong> - при использовании HTTP вместо HTTPS</li>
+                            <li><strong>Подмена алгоритма</strong> - изменение "alg": "none"</li>
+                            <li><strong>Утечка секретного ключа</strong> - компрометация сервера</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3>Рекомендации по безопасности:</h3>
+                <div class="alert alert-info">
+                    <i class="fas fa-check-circle"></i>
+                    <div class="alert-content">
+                        <ul style="margin: 0;">
+                            <li><strong>Всегда используйте HTTPS</strong> для защиты от перехвата</li>
+                            <li><strong>Храните секретные ключи в env-переменных</strong> на сервере</li>
+                            <li><strong>Используйте короткоживущие access tokens</strong> (15-30 мин) и долгоживущие refresh tokens</li>
+                            <li><strong>Реализуйте отзыв токенов</strong> через blacklist</li>
+                            <li><strong>Проверяйте подпись</strong> каждого токена</li>
+                            <li><strong>Используйте соответствующий алгоритм</strong> (HS256 для монолита, RS256 для микросервисов)</li>
+                            <li><strong>Ограничивайте данные в payload</strong> - не храните чувствительную информацию</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3><i class="fas fa-clock"></i> Сроки действия токенов</h3>
+                <table>
+                    <tr>
+                        <th>Тип токена</th>
+                        <th>Рекомендуемый срок</th>
+                        <th>Хранение</th>
+                        <th>Использование</th>
+                    </tr>
+                    <tr>
+                        <td>Access Token</td>
+                        <td>15-30 минут</td>
+                        <td>Memory (клиент)</td>
+                        <td>Доступ к API</td>
+                    </tr>
+                    <tr>
+                        <td>Refresh Token</td>
+                        <td>7-30 дней</td>
+                        <td>HttpOnly Secure Cookie</td>
+                        <td>Получение нового access token</td>
+                    </tr>
+                    <tr>
+                        <td>ID Token</td>
+                        <td>5-30 минут</td>
+                        <td>Memory (клиент)</td>
+                        <td>Информация о пользователе (OIDC)</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <section id="implementation" class="visible">
+            <div class="card">
+                <h2><i class="fas fa-code"></i> Реализация на Node.js</h2>
+                
+                <div class="tab-container">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" onclick="openTab(event, 'tab-server')">Сервер</button>
+                        <button class="tab-btn" onclick="openTab(event, 'tab-client')">Клиент</button>
+                        <button class="tab-btn" onclick="openTab(event, 'tab-middleware')">Middleware</button>
+                    </div>
+                    
+                    <div id="tab-server" class="tab-content active">
+                        <h3>Генерация и проверка токенов</h3>
+                        <pre>
+const jwt = require('jsonwebtoken');
+const express = require('express');
+const app = express();
+require('dotenv').config();
+
+// Секретные ключи (должны быть в .env)
+const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
+
+// Генерация токенов
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    
+    // Проверка учетных данных (в реальном приложении - проверка в БД)
+    const user = { id: 123, username, role: 'user' };
+    
+    // Access Token (короткоживущий)
+    const accessToken = jwt.sign(
+        { userId: user.id, role: user.role },
+        ACCESS_TOKEN_SECRET,
+        { expiresIn: '15m' }
+    );
+    
+    // Refresh Token (долгоживущий)
+    const refreshToken = jwt.sign(
+        { userId: user.id },
+        REFRESH_TOKEN_SECRET,
+        { expiresIn: '7d' }
+    );
+    
+    // Отправляем access token в ответе, refresh token в httpOnly cookie
+    res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 дней
+    }).json({ accessToken });
+});
+
+// Обновление токена
+app.post('/refresh', (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) return res.sendStatus(401);
+    
+    jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        
+        const newAccessToken = jwt.sign(
+            { userId: user.userId },
+            ACCESS_TOKEN_SECRET,
+            { expiresIn: '15m' }
+        );
+        
+        res.json({ accessToken: newAccessToken });
+    });
+});
+                        </pre>
+                        <button class="btn-outline" onclick="copyCode('tab-server')">
+                            <i class="fas fa-copy"></i> Копировать код
+                        </button>
+                    </div>
+                    
+                    <div id="tab-client" class="tab-content">
+                        <h3>Работа с JWT на клиенте</h3>
+                        <pre>
+                            <script type="module" src="auth.js"></script>
+                            // Хранение токена
+                            const storeToken = (token) => {
+                                localStorage.setItem('accessToken', token);
+                            };
+                            
+                            // Удаление токена (для выхода)
+                            const removeToken = () => {
+                                localStorage.removeItem('accessToken');
+                            };
+                            
+                            // Проверка наличия токена
+                            const hasToken = () => {
+                                return !!localStorage.getItem('accessToken');
+                            };
+                            
+                            // Получение токена
+                            const getToken = () => {
+                                return localStorage.getItem('accessToken');
+                            };
+                            
+                            // Выход из системы
+                            const logout = () => {
+                                removeToken();
+                                // Дополнительные действия при выходе (редирект, очистка состояния и т.д.)
+                                window.location.href = '/login';
+                            };
+                            
+                            // Добавление токена в заголовки и обработка 401 ошибки
+                            const fetchWithAuth = async (url, options = {}) => {
+                                const token = getToken();
+                                if (!token) throw new Error('No token found');
+                                
+                                const headers = {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`,
+                                    ...options.headers
+                                };
+                                
+                                const response = await fetch(url, { 
+                                    ...options, 
+                                    headers,
+                                    credentials: 'include' // Для работы с httpOnly cookies
+                                });
+                                
+                                // Если токен истек, пробуем обновить
+                                if (response.status === 401) {
+                                    const newToken = await refreshToken();
+                                    if (newToken) {
+                                        // Повторяем запрос с новым токеном
+                                        headers.Authorization = `Bearer ${newToken}`;
+                                        return fetch(url, { ...options, headers });
+                                    }
+                                    // Если не удалось обновить - разлогиниваем
+                                    logout();
+                                    throw new Error('Session expired. Please login again.');
+                                }
+                                
+                                // Если другая ошибка
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error! status: ${response.status}`);
+                                }
+                                
+                                return response;
+                            };
+                            
+                            // Обновление токена
+                            const refreshToken = async () => {
+                                try {
+                                    const response = await fetch('/api/refresh', {
+                                        method: 'POST',
+                                        credentials: 'include' // Для отправки httpOnly cookie с refresh token
+                                    });
+                                    
+                                    if (response.ok) {
+                                        const { accessToken } = await response.json();
+                                        storeToken(accessToken);
+                                        return accessToken;
+                                    }
+                                    
+                                    // Если refresh не удался
+                                    return null;
+                                } catch (error) {
+                                    console.error('Refresh token failed:', error);
+                                    return null;
+                                }
+                            };
+                            
+                            // Пример использования
+                            const loadProtectedData = async () => {
+                                try {
+                                    const response = await fetchWithAuth('/api/protected');
+                                    const data = await response.json();
+                                    console.log('Protected data:', data);
+                                    return data;
+                                } catch (error) {
+                                    console.error('Error loading protected data:', error);
+                                    throw error;
+                                }
+                            };
+                            
+                            // Дополнительные полезные функции:
+                            
+                            // Проверка срока действия токена (без валидации подписи)
+                            const isTokenExpired = (token) => {
+                                try {
+                                    const payload = JSON.parse(atob(token.split('.')[1]));
+                                    if (payload.exp && payload.exp < Date.now() / 1000) {
+                                        return true;
+                                    }
+                                    return false;
+                                } catch {
+                                    return true;
+                                }
+                            };
+                            
+                            // Получение данных из токена
+                            const getTokenData = () => {
+                                const token = getToken();
+                                if (!token) return null;
+                                
+                                try {
+                                    return JSON.parse(atob(token.split('.')[1]));
+                                } catch {
+                                    return null;
+                                }
+                            };
+                            
+                            // Инициализация - проверка токена при загрузке
+                            const initAuth = () => {
+                                const token = getToken();
+                                if (token && isTokenExpired(token)) {
+                                    // Пробуем обновить токен при загрузке приложения
+                                    refreshToken().catch(() => logout());
+                                }
+                            };
+                            
+                            // Вызываем инициализацию при загрузке
+                            initAuth();
+                        </pre>
+                        <button class="btn-outline" onclick="copyCode('tab-client')">
+                            <i class="fas fa-copy"></i> Копировать код
+                        </button>
+                    </div>
+                    
+                    <div id="tab-middleware" class="tab-content">
+                        <h3>Middleware для проверки JWT</h3>
+                        <pre>
+// Middleware для проверки JWT
+const authenticateJWT = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    
+    if (!token) return res.sendStatus(401);
+    
+    jwt.verify(token, ACCESS_TOKEN_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+};
+
+// Middleware для проверки ролей
+const checkRole = (role) => {
+    return (req, res, next) => {
+        if (req.user.role !== role) {
+            return res.sendStatus(403);
+        }
+        next();
+    };
+};
+
+// Защищенные маршруты
+app.get('/protected', authenticateJWT, (req, res) => {
+    res.json({ message: `Hello user ${req.user.userId}` });
+});
+
+app.get('/admin', authenticateJWT, checkRole('admin'), (req, res) => {
+    res.json({ message: 'Admin dashboard' });
+});
+
+// Обработка ошибок
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+});
+                        </pre>
+                        <button class="btn-outline" onclick="copyCode('tab-middleware')">
+                            <i class="fas fa-copy"></i> Копировать код
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <a href="Technologies.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Вернуться к технологиям
+        </a>
+    </div>
+
+    <div class="floating-alerts" id="floating-alerts"></div>
+    <button class="back-to-top" onclick="scrollToTop()"><i class="fas fa-arrow-up"></i></button>
+
+    <script>
+        // Имитация базы данных пользователей
+        const mockUsers = {
+            'admin': { 
+                password: 'admin123', 
+                role: 'admin',
+                permissions: ['read', 'write', 'delete', 'manage_users']
+            },
+            'user': { 
+                password: 'user123', 
+                role: 'user',
+                permissions: ['read']
+            },
+            'moderator': {
+                password: 'mod123',
+                role: 'moderator',
+                permissions: ['read', 'write']
+            }
+        };
+
+        // Генерация JWT (упрощенная имитация)
+        function generateJWT(payload) {
+            const header = {
+                alg: 'HS256',
+                typ: 'JWT'
+            };
+            
+            const encodedHeader = btoa(JSON.stringify(header))
+                .replace(/=/g, '')
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_');
+            
+            const encodedPayload = btoa(JSON.stringify(payload))
+                .replace(/=/g, '')
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_');
+            
+            // В реальном приложении здесь должна быть криптографическая подпись
+            const signature = 'simulated_signature_' + Math.random().toString(36).substring(2, 10);
+            
+            return `${encodedHeader}.${encodedPayload}.${signature}`;
+        }
+
+        // Показать уведомление
+        function showAlert(type, message, duration = 3000) {
+            const alertsContainer = document.getElementById('floating-alerts');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.style.animation = 'fadeIn 0.3s';
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 
+                                  type === 'warning' ? 'exclamation-triangle' : 
+                                  'exclamation-circle'}"></i>
+                <div class="alert-content">${escapeHtml(message)}</div>
+                <button onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            alertsContainer.appendChild(alertDiv);
+            
+            if (duration > 0) {
+                setTimeout(() => {
+                    alertDiv.style.animation = 'fadeOut 0.3s';
+                    setTimeout(() => alertDiv.remove(), 300);
+                }, duration);
+            }
+        }
+
+        // Экранирование HTML для защиты от XSS
+        function escapeHtml(unsafe) {
+            if (typeof unsafe !== 'string') return unsafe;
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Копирование текста
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent || element.innerText;
+            
+            navigator.clipboard.writeText(text.trim()).then(() => {
+                showAlert('success', 'Скопировано в буфер обмена!');
+            }).catch(err => {
+                showAlert('danger', 'Ошибка копирования: ' + err);
+            });
+        }
+
+        // Работа с табами
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            
+            const tabButtons = document.getElementsByClassName('tab-btn');
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove('active');
+            }
+            
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        // Заполнение демо-данных
+        function fillDemoCredentials() {
+            document.getElementById('username').value = 'user';
+            document.getElementById('password').value = 'user123';
+            showAlert('info', 'Демо-данные заполнены. Нажмите "Войти".');
+        }
+
+        // Обработка входа
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Имитация проверки на сервере
+            if (mockUsers[username] && mockUsers[username].password === password) {
+                const user = { 
+                    sub: username,
+                    role: mockUsers[username].role,
+                    permissions: mockUsers[username].permissions,
+                    iat: Math.floor(Date.now() / 1000),
+                    exp: Math.floor(Date.now() / 1000) + 3600 // 1 час
+                };
+                
+                const token = generateJWT(user);
+                localStorage.setItem('jwt', token);
+                updateUI(user);
+                
+                showAlert('success', 'Успешный вход! Токен был сгенерирован и сохранен.');
+            } else {
+                showAlert('danger', 'Неверные учетные данные! Попробуйте admin/admin123 или user/user123');
+            }
+        }
+
+        // Обновление интерфейса
+        function updateUI(user) {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('auth-status').style.display = 'block';
+            document.getElementById('token-info').style.display = 'block';
+            
+            document.getElementById('username-display').textContent = escapeHtml(user.sub);
+            
+            const roleBadge = document.getElementById('user-role-badge');
+            roleBadge.textContent = escapeHtml(user.role);
+            
+            // Установка цвета бейджа в зависимости от роли
+            if (user.role === 'admin') {
+                roleBadge.className = 'badge badge-danger';
+            } else if (user.role === 'moderator') {
+                roleBadge.className = 'badge badge-warning';
+            } else {
+                roleBadge.className = 'badge badge-primary';
+            }
+            
+            const expiryDate = new Date(user.exp * 1000);
+            document.getElementById('token-expiry').textContent = 
+                `${expiryDate.toLocaleTimeString()} ${expiryDate.toLocaleDateString()}`;
+            
+            const token = localStorage.getItem('jwt');
+            document.getElementById('current-token').textContent = token;
+            document.getElementById('example-token').textContent = token;
+            
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                document.getElementById('decoded-payload').textContent = 
+                    JSON.stringify(payload, null, 2);
+            } catch (e) {
+                console.error('Ошибка декодирования токена:', e);
+            }
+        }
+
+        // Выход из системы
+        function logout() {
+            localStorage.removeItem('jwt');
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('auth-status').style.display = 'none';
+            document.getElementById('token-info').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            showAlert('warning', 'Вы вышли из системы. Токен был удален.');
+        }
+
+        // Обновление токена
+        function refreshToken() {
+            const currentToken = localStorage.getItem('jwt');
+            if (!currentToken) {
+                showAlert('danger', 'Нет токена для обновления');
+                return;
+            }
+            
+            try {
+                const payload = JSON.parse(atob(currentToken.split('.')[1]));
+                const newPayload = {
+                    ...payload,
+                    iat: Math.floor(Date.now() / 1000),
+                    exp: Math.floor(Date.now() / 1000) + 3600 // Новый срок - 1 час
+                };
+                
+                const newToken = generateJWT(newPayload);
+                localStorage.setItem('jwt', newToken);
+                updateUI(newPayload);
+                showAlert('success', 'Токен обновлен! Новый срок действия установлен.');
+            } catch (e) {
+                showAlert('danger', 'Ошибка обновления токена: ' + e.message);
+            }
+        }
+
+        // Инвалидация токена
+        function invalidateToken() {
+            const currentToken = localStorage.getItem('jwt');
+            if (!currentToken) {
+                showAlert('danger', 'Нет токена для инвалидации');
+                return;
+            }
+            
+            try {
+                const payload = JSON.parse(atob(currentToken.split('.')[1]));
+                const invalidPayload = {
+                    ...payload,
+                    exp: Math.floor(Date.now() / 1000) - 3600 // Установка прошедшей даты
+                };
+                
+                const invalidToken = generateJWT(invalidPayload);
+                localStorage.setItem('jwt', invalidToken);
+                updateUI(invalidPayload);
+                showAlert('warning', 'Токен инвалидирован! Срок действия истек.');
+            } catch (e) {
+                showAlert('danger', 'Ошибка инвалидации токена: ' + e.message);
+            }
+        }
+
+        // Проверка текущего токена
+        function validateCurrentToken() {
+            const token = localStorage.getItem('jwt');
+            if (!token) {
+                showAlert('danger', 'Нет токена для проверки');
+                return;
+            }
+            
+            validateToken(token, 'validator-result');
+        }
+
+        // Валидация токена с визуализацией
+function validateToken(token, resultElementId = 'validator-result') {
+    const tokenInput = token || document.getElementById('token-to-validate').value.trim();
+    if (!tokenInput) {
+        showAlert('danger', 'Введите JWT для проверки');
+        return false;
+    }
+
+    const resultDiv = document.getElementById(resultElementId);
+    resultDiv.style.display = 'block';
+    const visualizationDiv = document.getElementById(resultElementId === 'validator-result' ? 
+        'token-visualization' : 'decoded-token-visualization');
+
+    try {
+        const parts = tokenInput.split('.');
+        if (parts.length !== 3) {
+            throw new Error('Неверный формат JWT. Должно быть 3 части, разделенные точками.');
+        }
+
+        const header = JSON.parse(atob(parts[0]));
+        const payload = JSON.parse(atob(parts[1]));
+
+        // Визуализация токена
+        visualizationDiv.innerHTML = `
+            <div style="margin-bottom: 15px;">
+                <h4>Визуализация токена:</h4>
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <div style="background: rgba(67, 97, 238, 0.2); padding: 10px; border-radius: 5px;">
+                        <strong style="color: #4361ee;">Header</strong> (алгоритм: ${header.alg || 'не указан'})
+                    </div>
+                    <div style="background: rgba(46, 196, 182, 0.2); padding: 10px; border-radius: 5px;">
+                        <strong style="color: #2ec4b6;">Payload</strong> (пользователь: ${payload.sub || 'не указан'})
+                    </div>
+                    <div style="background: rgba(239, 35, 60, 0.2); padding: 10px; border-radius: 5px;">
+                        <strong style="color: #ef233c;">Signature</strong> (проверка подписи: ${header.alg === 'none' ? '❌ отключена' : '✅ включена'})
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Проверка срока действия
+        const now = Math.floor(Date.now() / 1000);
+        let isValid = true;
+        let validationMessages = [];
+
+        if (payload.exp) {
+            if (payload.exp < now) {
+                isValid = false;
+                validationMessages.push(`❌ Токен истек ${new Date(payload.exp * 1000).toLocaleString()}`);
+            } else {
+                const expiresIn = Math.floor((payload.exp - now) / 60); // в минутах
+                validationMessages.push(`✅ Действителен еще ${expiresIn} минут`);
+            }
+        } else {
+            validationMessages.push('⚠️ Срок действия не указан');
+        }
+
+        // Проверка структуры
+        if (!header.alg || !header.typ) {
+            isValid = false;
+            validationMessages.push('❌ Неверный заголовок: отсутствует alg или typ');
+        }
+
+        if (!payload.sub && !payload.iss) {
+            isValid = false;
+            validationMessages.push('❌ Неверный payload: отсутствует sub или iss');
+        }
+
+        // Проверка алгоритма
+        if (header.alg === 'none') {
+            isValid = false;
+            validationMessages.push('❌ Опасность: алгоритм подписи отключен (none)');
+        }
+
+        // Отображение результата
+        resultDiv.className = isValid ? 'validator-result valid' : 'validator-result invalid';
+        document.getElementById('validator-result-content').innerHTML = `
+            <p><strong>Статус:</strong> ${isValid ? '✅ Валидный' : '❌ Невалидный'}</p>
+            <p><strong>Алгоритм:</strong> ${header.alg || 'не указан'}</p>
+            <p><strong>Тип:</strong> ${header.typ || 'не указан'}</p>
+            ${payload.iss ? `<p><strong>Issuer:</strong> ${payload.iss}</p>` : ''}
+            ${payload.sub ? `<p><strong>Subject:</strong> ${payload.sub}</p>` : ''}
+            ${payload.role ? `<p><strong>Роль:</strong> ${payload.role}</p>` : ''}
+            ${payload.aud ? `<p><strong>Audience:</strong> ${Array.isArray(payload.aud) ? payload.aud.join(', ') : payload.aud}</p>` : ''}
+            <p><strong>Выдан:</strong> ${payload.iat ? new Date(payload.iat * 1000).toLocaleString() : 'не указано'}</p>
+            <p><strong>Срок действия:</strong> ${validationMessages.join('<br>')}</p>
+        `;
+
+        if (isValid) {
+            showAlert('success', 'Токен валиден!');
+        } else {
+            showAlert('danger', 'Токен невалиден!');
+        }
+
+        return isValid;
+    } catch (e) {
+        resultDiv.className = 'validator-result invalid';
+        document.getElementById('validator-result-content').innerHTML = `
+            <p><strong>Ошибка:</strong> ${e.message}</p>
+            <p>Токен не соответствует формату JWT</p>
+        `;
+        visualizationDiv.innerHTML = '';
+        showAlert('danger', 'Ошибка проверки токена: ' + e.message);
+        return false;
+    }
+}
+
+// Генерация кастомного токена с улучшенным интерфейсом
+function generateCustomToken() {
+    const subject = document.getElementById('gen-subject').value || 'demo_user';
+    const name = document.getElementById('gen-name').value || 'Demo User';
+    let role = document.getElementById('gen-role').value;
+    const expiryMinutes = parseInt(document.getElementById('gen-expiry').value) || 60;
+    const algorithm = document.getElementById('gen-algorithm').value;
+
+    if (role === 'custom') {
+        role = document.getElementById('gen-custom-role').value || 'custom_role';
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+    const payload = {
+        sub: subject,
+        name: name,
+        role: role,
+        iat: now,
+        exp: now + (expiryMinutes * 60),
+        jti: 'jwt_' + Math.random().toString(36).substring(2, 10) // Уникальный идентификатор
+    };
+
+    const header = {
+        alg: algorithm,
+        typ: "JWT"
+    };
+
+    // В демо-режиме просто имитируем подпись
+    const encodedHeader = btoa(JSON.stringify(header))
+        .replace(/=/g, '')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_');
+    
+    const encodedPayload = btoa(JSON.stringify(payload))
+        .replace(/=/g, '')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_');
+    
+    const signature = 'simulated_signature_' + Math.random().toString(36).substring(2, 10);
+    const token = `${encodedHeader}.${encodedPayload}.${signature}`;
+
+    document.getElementById('generated-token').textContent = token;
+    document.getElementById('generated-header').textContent = JSON.stringify(header, null, 2);
+    document.getElementById('generated-payload').textContent = JSON.stringify(payload, null, 2);
+    document.getElementById('generator-result').style.display = 'block';
+
+    showAlert('success', `Токен сгенерирован! Срок действия: ${expiryMinutes} минут`);
+}
+
+// Декодирование токена с улучшенным выводом
+function decodeToken() {
+    const token = document.getElementById('token-to-decode').value.trim();
+    if (!token) {
+        showAlert('danger', 'Введите JWT для декодирования');
+        return;
+    }
+
+    try {
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+            throw new Error('Неверный формат JWT');
+        }
+
+        const header = JSON.parse(atob(parts[0]));
+        const payload = JSON.parse(atob(parts[1]));
+
+        document.getElementById('decoded-header').textContent = JSON.stringify(header, null, 2);
+        document.getElementById('decoded-payload-util').textContent = JSON.stringify(payload, null, 2);
+        document.getElementById('decoder-result').style.display = 'block';
+
+        // Визуализация декодированного токена
+        validateToken(token, 'decoder-result');
+        
+        showAlert('success', 'Токен успешно декодирован!');
+    } catch (e) {
+        showAlert('danger', 'Ошибка декодирования: ' + e.message);
+    }
+}
+
+// Дополнительные вспомогательные функции
+function pasteFromClipboard(elementId) {
+    navigator.clipboard.readText().then(text => {
+        document.getElementById(elementId).value = text;
+        showAlert('info', 'Текст из буфера вставлен');
+    }).catch(err => {
+        showAlert('danger', 'Не удалось прочитать буфер обмена: ' + err);
+    });
+}
+
+function copyDecodedToken() {
+    const header = document.getElementById('decoded-header').textContent;
+    const payload = document.getElementById('decoded-payload-util').textContent;
+    const text = `Header:\n${header}\n\nPayload:\n${payload}`;
+    
+    navigator.clipboard.writeText(text).then(() => {
+        showAlert('success', 'Декодированные данные скопированы!');
+    }).catch(err => {
+        showAlert('danger', 'Ошибка копирования: ' + err);
+    });
+}
+
+function validateGeneratedToken() {
+    const token = document.getElementById('generated-token').textContent;
+    validateToken(token);
+}
+
+function fillDemoTokenData() {
+    document.getElementById('gen-subject').value = 'demo_user_' + Math.floor(Math.random() * 1000);
+    document.getElementById('gen-name').value = ['Алексей', 'Мария', 'Иван', 'Елена'][Math.floor(Math.random() * 4)];
+    document.getElementById('gen-role').value = ['user', 'admin', 'moderator'][Math.floor(Math.random() * 3)];
+    document.getElementById('gen-expiry').value = [30, 60, 120, 240][Math.floor(Math.random() * 4)];
+    showAlert('info', 'Демо-данные заполнены. Нажмите "Сгенерировать токен".');
+}
+
+// Обработчик изменения роли для показа/скрытия custom-роли
+document.getElementById('gen-role').addEventListener('change', function() {
+    const customRoleGroup = document.getElementById('custom-role-group');
+    customRoleGroup.style.display = this.value === 'custom' ? 'block' : 'none';
+});
+        // Декодирование токена
+        function decodeToken() {
+            const token = document.getElementById('token-to-decode').value.trim();
+            if (!token) {
+                showAlert('danger', 'Введите JWT для декодирования');
+                return;
+            }
+            
+            try {
+                const parts = token.split('.');
+                if (parts.length !== 3) {
+                    throw new Error('Неверный формат JWT');
+                }
+                
+                const header = JSON.parse(atob(parts[0]));
+                const payload = JSON.parse(atob(parts[1]));
+                
+                document.getElementById('decoded-header').textContent = JSON.stringify(header, null, 2);
+                document.getElementById('decoded-payload-util').textContent = JSON.stringify(payload, null, 2);
+                document.getElementById('decoder-result').style.display = 'block';
+                
+                showAlert('success', 'Токен успешно декодирован!');
+            } catch (e) {
+                showAlert('danger', 'Ошибка декодирования: ' + e.message);
+            }
+        }
+
+        // Декодирование примера токена
+        function decodeExampleToken() {
+            const exampleToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+            document.getElementById('token-to-decode').value = exampleToken;
+            decodeToken();
+        }
+
+        // Генерация кастомного токена
+        function generateCustomToken() {
+            const subject = document.getElementById('gen-subject').value || 'demo_user';
+            const name = document.getElementById('gen-name').value || 'Demo User';
+            const role = document.getElementById('gen-role').value;
+            const expiryMinutes = parseInt(document.getElementById('gen-expiry').value) || 60;
+            
+            const now = Math.floor(Date.now() / 1000);
+            const payload = {
+                sub: subject,
+                name: name,
+                role: role,
+                iat: now,
+                exp: now + (expiryMinutes * 60)
+            };
+            
+            const token = generateJWT(payload);
+            
+            document.getElementById('generated-token').textContent = token;
+            document.getElementById('generated-payload').textContent = JSON.stringify(payload, null, 2);
+            document.getElementById('generator-result').style.display = 'block';
+            
+            showAlert('success', `Токен сгенерирован! Срок действия: ${expiryMinutes} минут`);
+        }
+
+        // Симуляция API запроса
+        function simulateApiRequest(type = 'protected') {
+            const token = localStorage.getItem('jwt');
+            const responseDiv = document.getElementById('api-response');
+            
+            if (type === 'public') {
+                responseDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <div class="alert-content">
+                            <strong>Успешный ответ API (публичный):</strong><br>
+                            Статус: 200 OK<br>
+                            Данные: { "message": "Это публичные данные, доступные всем" }
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            if (!token) {
+                responseDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <div class="alert-content">
+                            <strong>Ошибка API:</strong><br>
+                            Статус: 401 Unauthorized<br>
+                            Сообщение: "Требуется аутентификация. Пожалуйста, войдите в систему."
+                        </div>
+                    </div>
+                `;
+                showAlert('danger', 'Сначала выполните вход!');
+                return;
+            }
+            
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                
+                // Проверка срока действия токена
+                if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
+                    responseDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <div class="alert-content">
+                                <strong>Ошибка API:</strong><br>
+                                Статус: 401 Unauthorized<br>
+                                Сообщение: "Token expired. Please refresh your token."
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Проверка прав доступа
+                let accessGranted = false;
+                let message = '';
+                
+                if (type === 'protected') {
+                    accessGranted = payload.permissions && payload.permissions.includes('read');
+                    message = `Добро пожаловать, ${escapeHtml(payload.sub)}! Это защищенные данные.`;
+                } 
+                else if (type === 'admin') {
+                    accessGranted = payload.role === 'admin';
+                    message = `Административная панель. Здравствуйте, ${escapeHtml(payload.sub)}!`;
+                }
+                
+                if (!accessGranted) {
+                    responseDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <div class="alert-content">
+                                <strong>Ошибка API:</strong><br>
+                                Статус: 403 Forbidden<br>
+                                Сообщение: "${type === 'admin' ? 'Требуются права администратора' : 'Недостаточно прав для доступа'}"
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                responseDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <div class="alert-content">
+                            <strong>Успешный ответ API (${escapeHtml(type)}):</strong><br>
+                            Статус: 200 OK<br>
+                            Данные: ${escapeHtml(JSON.stringify({
+                                message: message,
+                                user: payload.sub,
+                                role: payload.role,
+                                permissions: payload.permissions
+                            }, null, 2))}
+                        </div>
+                    </div>
+                `;
+                
+                showAlert('success', `API запрос выполнен успешно (${escapeHtml(type)})`);
+            } catch (e) {
+                responseDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <div class="alert-content">
+                            <strong>Ошибка API:</strong><br>
+                            Статус: 401 Unauthorized<br>
+                            Сообщение: "Invalid token"
+                        </div>
+                    </div>
+                `;
+                showAlert('danger', 'Ошибка обработки токена: ' + escapeHtml(e.message));
+            }
+        }
+
+        // Копирование кода из примеров
+        function copyCode(tabId) {
+            const tabContent = document.getElementById(tabId);
+            const codeBlock = tabContent.querySelector('pre');
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showAlert('success', 'Код скопирован в буфер обмена!');
+            }).catch(err => {
+                showAlert('danger', 'Ошибка копирования: ' + err);
+            });
+        }
+
+        // Прокрутка вверх
+        function scrollToTop() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        // Обработчик прокрутки для кнопки "Наверх"
+        window.onscroll = function() {
+            const button = document.querySelector('.back-to-top');
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                button.style.display = "block";
+            } else {
+                button.style.display = "none";
+            }
+        };
+
+        // Проверка авторизации при загрузке
+        window.onload = () => {
+            const token = localStorage.getItem('jwt');
+            if (token) {
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    
+                    // Проверка срока действия токена
+                    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
+                        localStorage.removeItem('jwt');
+                        showAlert('warning', 'Срок действия вашего токена истек. Пожалуйста, войдите снова.');
+                        return;
+                    }
+                    
+                    updateUI(payload);
+                } catch (e) {
+                    localStorage.removeItem('jwt');
+                    console.error('Ошибка обработки токена:', e);
+                }
+            }
+            
+            // Инициализация кнопок копирования для всех блоков кода
+            document.querySelectorAll('pre').forEach(pre => {
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-btn';
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                copyBtn.onclick = () => {
+                    const code = pre.textContent;
+                    navigator.clipboard.writeText(code).then(() => {
+                        showAlert('success', 'Код скопирован!');
+                    });
+                };
+                pre.appendChild(copyBtn);
+            });
+
+            // Анимация появления секций
+            const sections = document.querySelectorAll("section");
+            sections.forEach((section, index) => {
+                setTimeout(() => {
+                    section.classList.add('visible');
+                }, index * 300);
+            });
+        };
+    </script>
+</body>
+</html>

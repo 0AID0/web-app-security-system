@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Технологии кибербезопасности</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-image: url(2ed335b16e62c39b6d5b7725ff09d5e9.gif);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+            color: white;
+        }
+
+        header {
+            background: url(5a) no-repeat center center/cover;
+            color: #ffffff;
+            padding: 40px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+        }
+
+        header p {
+            font-size: 1.2em;
+            margin: 10px 0 20px;
+            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+        }
+
+        .home-button {
+            display: inline-block;
+            background-color: rgba(53, 66, 74, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+
+        .home-button:hover {
+            background-color: rgba(44, 62, 80, 0.9);
+            transform: scale(1.05);
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+            text-decoration: none;
+        }
+
+        main {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        section {
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.103);
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px #ccc;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            border: 2px solid rgb(0, 0, 0);
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .tech-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: space-between;
+        }
+
+        .tech-card {
+            background: rgba(30, 30, 30, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4da6ff;
+            transition: transform 0.3s;
+            flex: 1 1 calc(33.333% - 20px);
+            min-width: 250px;
+            box-sizing: border-box;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+
+        .tech-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background: rgba(40, 40, 40, 0.8);
+        }
+
+        .tech-card h3 {
+            margin-top: 0;
+            color: #4da6ff;
+        }
+
+        .tech-card p {
+            margin-bottom: 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background: rgba(0, 0, 0, 0);
+            color: #ffffff;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(53, 66, 74, 0.9);
+            color: #ffffff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+            transition: all 0.3s;
+        }
+
+        .back-to-top:hover {
+            background: rgba(44, 62, 80, 0.9);
+            transform: scale(1.1);
+        }
+
+        .technology-icon {
+            margin-right: 10px;
+            color: #f3f3f3;
+            font-size: 1.5em;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 30px 0;
+            }
+            
+            header h1 {
+                font-size: 2em;
+            }
+            
+            nav ul li {
+                margin: 5px 10px;
+            }
+            
+            nav a {
+                font-size: 1em;
+            }
+            
+            .home-button {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+
+            .tech-card {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Технологии кибербезопасности</h1>
+            <p>Современные решения для защиты ваших данных</p>
+            
+            <a href="index.html" class="home-button">На главную</a>
+            
+            <nav>
+                <ul>
+                    <li><a href="index.html">Главная</a></li>
+                    <li><a href="about.html">О проекте</a></li>
+                    <li><a href="Technologies.html">Технологии</a></li>
+                    <li><a href="contact.html">Контакты</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="encryption">
+            <h2><i class="fas fa-lock technology-icon"></i>Шифрование данных</h2>
+            <div class="tech-container">
+                <a href="aes-example.html" class="tech-card">
+                    <h3>AES-256</h3>
+                    <p>Симметричный алгоритм блочного шифрования с длиной ключа 256 бит, обеспечивающий высокий уровень безопасности. Используется для защиты конфиденциальных данных как в хранилищах, так и при передаче.</p>
+                </a>
+                <a href="rsa-examples.html" class="tech-card">
+                    <h3>RSA</h3>
+                    <p>Асимметричный криптографический алгоритм с открытым ключом, используемый для безопасной передачи данных. Особенно полезен для обмена ключами и цифровых подписей.</p>
+                </a>
+                <a href="ecc.example.html" class="tech-card">
+                    <h3>ECC (Elliptic Curve Cryptography)</h3>
+                    <p>Криптография на эллиптических кривых обеспечивает аналогичную безопасность RSA при значительно меньших размерах ключей, что делает её идеальной для мобильных устройств.</p>
+                </a>
+            </div>
+        </section>
+
+        <section id="authentication">
+            <h2><i class="fas fa-key technology-icon"></i>Аутентификация</h2>
+            <div class="tech-container">
+                <a href="JWT.example.html" class="tech-card">
+                    <h3>JWT (JSON Web Tokens)</h3>
+                    <p>Открытый стандарт для создания токенов доступа, основанный на формате JSON. Обеспечивает безопасную передачу информации между сторонами в виде JSON-объекта.</p>
+                </a>
+                <a href="OAuth.html" class="tech-card">
+                    <h3>OAuth 2.0</h3>
+                    <p>Протокол авторизации, позволяющий предоставлять доступ к защищенным ресурсам без передачи паролей. Широко используется для авторизации через социальные сети.</p>
+                </a>
+                <a href="MFA.html" class="tech-card">
+                    <h3>Многофакторная аутентификация (MFA)</h3>
+                    <p>Метод контроля доступа, при котором пользователю для получения доступа необходимо предъявить несколько доказательств аутентификации.</p>
+                </a>
+            </div>
+        </section>
+
+        <section id="database">
+            <h2><i class="fas fa-database technology-icon"></i>Базы данных</h2>
+            <div class="tech-container">
+                <a href="MongoDB.html" class="tech-card">
+                    <h3>MongoDB с шифрованием</h3>
+                    <p>Документоориентированная NoSQL база данных с поддержкой шифрования на уровне поля. Обеспечивает безопасное хранение структурированных и неструктурированных данных.</p>
+                </a>
+                <a href="PostgreSQL.html" class="tech-card">
+                    <h3>PostgreSQL с row-level security</h3>
+                    <p>Реляционная СУБД с поддержкой безопасности на уровне строк, позволяющая точно контролировать доступ к данным для разных пользователей.</p>
+                </a>
+                <a href="Redis.html" class="tech-card">
+                    <h3>Redis с TLS</h3>
+                    <p>Хранилище ключ-значение с поддержкой шифрования трафика через TLS. Обеспечивает безопасное кэширование и работу с временными данными.</p>
+                </a>
+            </div>
+        </section>
+
+        <section id="frameworks">
+            <h2><i class="fas fa-code technology-icon"></i>Фреймворки и инструменты</h2>
+            <div class="tech-container">
+                <a href="NodeJS.html" class="tech-card">
+                    <h3>Node.js</h3>
+                    <p>Серверная платформа для выполнения JavaScript-кода с богатой экосистемой модулей безопасности, таких как Helmet для защиты HTTP-заголовков.</p>
+                </a>
+                <a href="ExpressJS.html" class="tech-card">
+                    <h3>Express.js</h3>
+                    <p>Минималистичный веб-фреймворк для Node.js с поддержкой middleware для безопасности, включая защиту от CSRF, XSS и других атак.</p>
+                </a>
+                <a href="OwaspZAP.html" class="tech-card">
+                    <h3>OWASP ZAP</h3>
+                    <p>Инструмент для тестирования безопасности веб-приложений с открытым исходным кодом. Помогает выявлять уязвимости в приложениях.</p>
+                </a>
+            </div>
+        </section>
+
+        <section id="network">
+            <h2><i class="fas fa-network-wired technology-icon"></i>Сетевая безопасность</h2>
+            <div class="tech-container">
+                <a href="VPN.html" class="tech-card">
+                    <h3>VPN (Virtual Private Network)</h3>
+                    <p>Технология создания защищённого соединения поверх ненадёжной сети. Обеспечивает конфиденциальность и целостность передаваемых данных.</p>
+                </a>
+                <a href="Firewall.html" class="tech-card">
+                    <h3>Firewall</h3>
+                    <p>Система сетевой безопасности, которая отслеживает и контролирует входящий и исходящий сетевой трафик на основе заранее установленных правил безопасности.</p>
+                </a>
+                <a href="IDS.IPS.html" class="tech-card">
+                    <h3>IDS/IPS</h3>
+                    <p>Системы обнаружения и предотвращения вторжений (Intrusion Detection/Prevention Systems) для мониторинга сетевой активности на предмет вредоносных действий.</p>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Системы кибербезопасности. Все права защищены.</p>
+    </footer>
+
+    <button class="back-to-top" onclick="scrollToTop()">Наверх</button>
+
+    <script>
+        window.onscroll = function() {
+            const button = document.querySelector('.back-to-top');
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                button.style.display = "block";
+            } else {
+                button.style.display = "none";
+            }
+        };
+
+        function scrollToTop() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const sections = document.querySelectorAll("section");
+            sections.forEach((section, index) => {
+                setTimeout(() => {
+                    section.classList.add('visible');
+                }, index * 300);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контакты - Системы кибербезопасности</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-image: url(2ed335b16e62c39b6d5b7725ff09d5e9.gif);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+            color: white;
+        }
+
+        header {
+            background: url(5a) no-repeat center center/cover;
+            color: #ffffff;
+            padding: 40px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+        }
+
+        header p {
+            font-size: 1.2em;
+            margin: 10px 0 20px;
+            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h1, h2, h3, h4 {
+            color: #ffffff;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        h2, h3, h4 {
+            margin-top: 25px;
+            color: #4da6ff;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .contact-card {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #4da6ff;
+            transition: all 0.3s;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .contact-icon {
+            font-size: 2.5em;
+            color: #4da6ff;
+            margin-bottom: 15px;
+        }
+
+        .contact-form {
+            margin-top: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #4da6ff;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            font-size: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            transition: all 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4da6ff;
+            box-shadow: 0 0 10px rgba(77, 166, 255, 0.5);
+        }
+
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        button {
+            padding: 12px 25px;
+            background: rgba(77, 166, 255, 0.8);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: rgba(59, 140, 196, 0.9);
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(77, 166, 255, 0.5);
+        }
+
+        .map-container {
+            margin-top: 40px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(0, 0, 0, 0.3);
+        }
+
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            transition: all 0.3s;
+        }
+
+        .status.success {
+            background: rgba(39, 174, 96, 0.2);
+            color: #2ecc71;
+            display: block;
+            border-left: 4px solid #2ecc71;
+        }
+
+        .status.error {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            display: block;
+            border-left: 4px solid #e74c3c;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background: rgba(0, 0, 0, 0.3);
+            color: #ffffff;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(53, 66, 74, 0.9);
+            color: #ffffff;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            transition: all 0.3s;
+            font-size: 18px;
+            z-index: 99;
+        }
+
+        .back-to-top:hover {
+            background: rgba(44, 62, 80, 0.9);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(77, 166, 255, 0.5);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .social-links a {
+            color: white;
+            font-size: 1.5em;
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            color: #4da6ff;
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1><i class="fas fa-envelope technology-icon"></i> Контакты</h1>
+            <p>Свяжитесь с нами для получения дополнительной информации</p>
+            <nav>
+                <ul>
+                    <li><a href="index.html"><i class="fas fa-home"></i> Главная</a></li>
+                    <li><a href="about.html"><i class="fas fa-info-circle"></i> О проекте</a></li>
+                    <li><a href="Technologies.html"><i class="fas fa-microchip"></i> Технологии</a></li>
+                    <li><a href="contact.html"><i class="fas fa-envelope"></i> Контакты</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1><i class="fas fa-headset"></i> Наши контакты</h1>
+        
+        <div class="contact-grid">
+            <div class="contact-card">
+                <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+                <h3>Адрес</h3>
+                <p>г. Москва, ул. Кибербезопасности, д. 256</p>
+                <p>Бизнес-центр "Криптография", офис 1024</p>
+            </div>
+            
+            <div class="contact-card">
+                <div class="contact-icon"><i class="fas fa-phone-alt"></i></div>
+                <h3>Телефоны</h3>
+                <p>+7 (495) 256-78-90</p>
+                <p>+7 (800) 555-35-35 (бесплатно по РФ)</p>
+                <p>Круглосуточная поддержка</p>
+            </div>
+            
+            <div class="contact-card">
+                <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                <h3>Электронная почта</h3>
+                <p>info@cybersecurity.ru</p>
+                <p>support@cybersecurity.ru</p>
+                <p>sales@cybersecurity.ru</p>
+            </div>
+            
+            <div class="contact-card">
+                <div class="contact-icon"><i class="fas fa-clock"></i></div>
+                <h3>Часы работы</h3>
+                <p>Пн-Пт: 9:00 - 18:00</p>
+                <p>Сб-Вс: выходной</p>
+                <p>Техподдержка работает 24/7</p>
+            </div>
+        </div>
+        
+        <div class="contact-form">
+            <h2><i class="fas fa-paper-plane"></i> Форма обратной связи</h2>
+            <form id="feedbackForm">
+                <div class="form-group">
+                    <label for="name"><i class="fas fa-user"></i> Ваше имя</label>
+                    <input type="text" id="name" placeholder="Введите ваше имя" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email"><i class="fas fa-envelope"></i> Электронная почта</label>
+                    <input type="text" id="email" placeholder="Введите ваш email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="subject"><i class="fas fa-tag"></i> Тема сообщения</label>
+                    <select id="subject" required>
+                        <option value="" disabled selected>Выберите тему</option>
+                        <option value="support">Техническая поддержка</option>
+                        <option value="sales">Вопросы по покупке</option>
+                        <option value="partnership">Партнерство</option>
+                        <option value="other">Другое</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message"><i class="fas fa-comment-alt"></i> Ваше сообщение</label>
+                    <textarea id="message" placeholder="Введите ваше сообщение..." required></textarea>
+                </div>
+                
+                <button type="submit"><i class="fas fa-paper-plane"></i> Отправить сообщение</button>
+            </form>
+            
+            <div id="formStatus" class="status"></div>
+        </div>
+        
+        <div class="map-container">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2245.372951144775!2d37.61763331593084!3d55.755826680553136!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46b54a5a738fa419%3A0x7c347d506f52311f!2sRed%20Square!5e0!3m2!1sen!2sru!4v1620000000000!5m2!1sen!2sru" 
+                    width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+        
+        <div class="social-links">
+            <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
+            <a href="#" target="_blank"><i class="fab fa-vk"></i></a>
+            <a href="#" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
+            <a href="#" target="_blank"><i class="fab fa-youtube"></i></a>
+        </div>
+        
+        <a href="index.html" class="back-button"><i class="fas fa-arrow-left"></i> Вернуться на главную</a>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Системы кибербезопасности. Все права защищены.</p>
+    </footer>
+
+    <button class="back-to-top" onclick="scrollToTop()"><i class="fas fa-arrow-up"></i></button>
+
+    <script>
+        // Анимация появления контейнера
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.querySelector('.container').classList.add('visible');
+            }, 300);
+            
+            // Обработчик формы
+            document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const subject = document.getElementById('subject').value;
+                const message = document.getElementById('message').value.trim();
+                
+                if (!name || !email || !subject || !message) {
+                    showStatus('formStatus', 'Пожалуйста, заполните все поля', 'error');
+                    return;
+                }
+                
+                if (!validateEmail(email)) {
+                    showStatus('formStatus', 'Пожалуйста, введите корректный email', 'error');
+                    return;
+                }
+                
+                // Здесь должна быть логика отправки формы
+                // В демо-версии просто показываем сообщение об успехе
+                showStatus('formStatus', 'Ваше сообщение успешно отправлено! Мы свяжемся с вами в ближайшее время.', 'success');
+                this.reset();
+            });
+            
+            // Кнопка "Наверх"
+            window.onscroll = function() {
+                const button = document.querySelector('.back-to-top');
+                if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                    button.style.display = "block";
+                } else {
+                    button.style.display = "none";
+                }
+            };
+        });
+        
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            element.textContent = message;
+            element.className = 'status ' + type;
+            element.style.display = 'block';
+            
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        function scrollToTop() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+    </script>
+</body>
+</html>

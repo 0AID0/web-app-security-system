@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth 2.0 | Полное интерактивное руководство</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4285F4;
+            --primary-dark: #3367d6;
+            --secondary: #34A853;
+            --danger: #EA4335;
+            --warning: #FBBC05;
+            --dark: #202124;
+            --light: #f8f9fa;
+            --gray: #5f6368;
+            --light-gray: #f1f3f4;
+        }
+        
+        body {
+            background-image: url(2ed335b16e62c39b6d5b7725ff09d5e9.gif);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+            color: white;
+        }
+        
+        header {
+            background: url(5a) no-repeat center center/cover;
+            color: #ffffff;
+            padding: 40px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        header p {
+            font-size: 1.2em;
+            margin: 10px 0 20px;
+            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+        }
+        
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        nav ul li {
+            margin: 0 15px;
+        }
+        
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+            text-decoration: none;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        section {
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.103);
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px #ccc;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            border: 2px solid rgb(0, 0, 0);
+        }
+        
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--primary);
+            transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+            position: relative;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        h1, h2, h3, h4 {
+            color: white;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 40px 0;
+        }
+        
+        .flow-step {
+            width: 100%;
+            max-width: 900px;
+            margin: 15px 0;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
+        }
+        
+        .flow-step:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+        }
+        
+        .flow-step-number {
+            position: absolute;
+            left: -15px;
+            top: 20px;
+            background: var(--primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .grant-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .grant-card {
+            flex: 1;
+            min-width: 280px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border-top: 4px solid var(--primary);
+            transition: transform 0.3s, background-color 0.3s;
+        }
+        
+        .grant-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        pre {
+            background: rgba(45, 55, 72, 0.7);
+            color: #f8f9fa;
+            padding: 18px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 15px 0;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        pre code {
+            display: block;
+            overflow-x: auto;
+            padding: 0;
+            background: transparent;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            color: white;
+            transition: background 0.2s;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .interactive-demo {
+            margin: 40px 0;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(66,133,244,0.3);
+        }
+        
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: rgba(66, 133, 244, 0.1);
+            color: white;
+        }
+        
+        .token-display {
+            word-break: break-all;
+            background: rgba(240, 247, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            border-left: 4px solid var(--primary);
+            margin: 15px 0;
+            white-space: pre-wrap;
+            color: white;
+        }
+        
+        .tab-container {
+            margin: 30px 0;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .provider-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: transform 0.2s, background-color 0.2s;
+            color: white;
+        }
+        
+        .provider-badge:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-success {
+            background: var(--secondary);
+        }
+        
+        .status-warning {
+            background: var(--warning);
+        }
+        
+        .status-danger {
+            background: var(--danger);
+        }
+        
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+            animation: slideIn 0.3s, fadeOut 0.5s 4.5s forwards;
+            max-width: 400px;
+            color: white;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .alert-success {
+            border-left-color: var(--secondary);
+        }
+        
+        .alert-info {
+            border-left-color: var(--primary);
+        }
+        
+        .alert-warning {
+            border-left-color: var(--warning);
+        }
+        
+        .alert-danger {
+            border-left-color: var(--danger);
+        }
+        
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .progress-bar {
+            height: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: var(--primary);
+            width: 0;
+            transition: width 0.5s;
+        }
+        
+        .flow-arrow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 24px;
+            margin: 10px 0;
+        }
+        
+        .token-expiry {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+        
+        .token-expiry i {
+            color: var(--warning);
+        }
+        
+        .token-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .token-metadata {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background: rgba(0, 0, 0, 0);
+            color: #ffffff;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(53, 66, 74, 0.9);
+            color: #ffffff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+            transition: all 0.3s;
+        }
+        
+        .back-to-top:hover {
+            background: rgba(44, 62, 80, 0.9);
+            transform: scale(1.1);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            .grant-card {
+                min-width: 100%;
+            }
+            
+            .flow-step {
+                padding: 15px;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .tab-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+            
+            .alert {
+                max-width: calc(100% - 40px);
+            }
+        }
+          /* Добавляем стили для кнопки "Назад" */
+          .back-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(12, 143, 224, 0.9);
+            color: #ffffff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(8, 24, 248, 0.2);
+        }
+        
+        .back-button:hover {
+            background: rgba(44, 62, 80, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(12, 78, 201, 0.3);
+        }
+        
+        .back-button i {
+            font-size: 1em;
+        }
+        
+        @media (max-width: 768px) {
+            .back-button {
+                bottom: 70px;
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1><i class="fas fa-key"></i> OAuth 2.0 Интерактивное руководство</h1>
+            <p>Протокол для безопасной авторизации без передачи паролей</p>
+            <nav>
+                <ul>
+                    <li><a href="#basics">Основы</a></li>
+                    <li><a href="#auth-flow">Authorization Flow</a></li>
+                    <li><a href="#grant-types">Типы потоков</a></li>
+                    <li><a href="#lab">Лаборатория</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <section id="basics">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-info-circle"></i> Основы OAuth 2.0</h2>
+                    <div class="progress-bar">
+                        <div class="progress" id="progress-basics"></div>
+                    </div>
+                </div>
+                <p>OAuth 2.0 — это протокол авторизации, который позволяет приложениям получать ограниченный доступ к учетным записям пользователей на других сервисах без необходимости знать их пароли.</p>
+                
+                <div class="tab-container">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" onclick="openTab(event, 'tab-roles')">Роли</button>
+                        <button class="tab-btn" onclick="openTab(event, 'tab-terminology')">Термины</button>
+                        <button class="tab-btn" onclick="openTab(event, 'tab-providers')">Провайдеры</button>
+                        <button class="tab-btn" onclick="openTab(event, 'tab-security')">Безопасность</button>
+                    </div>
+                    
+                    <div id="tab-roles" class="tab-content active">
+                        <h3>Ключевые роли в OAuth 2.0:</h3>
+                        <ul>
+                            <li><strong>Resource Owner (Владелец ресурса)</strong> - пользователь, который владеет данными и может предоставить доступ к ним</li>
+                            <li><strong>Client (Клиент)</strong> - приложение, запрашивающее доступ к данным пользователя</li>
+                            <li><strong>Authorization Server (Сервер авторизации)</strong> - сервер, который аутентифицирует пользователя и выдает токены (например, Google OAuth, Facebook Login)</li>
+                            <li><strong>Resource Server (Сервер ресурсов)</strong> - API с защищенными данными пользователя, которые запрашивает клиент</li>
+                        </ul>
+                        <div class="token-metadata">
+                            <p><i class="fas fa-lightbulb"></i> В реальных реализациях Authorization Server и Resource Server часто являются частью одной системы, но концептуально это разные роли.</p>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-terminology" class="tab-content">
+                        <h3>Основные термины:</h3>
+                        <ul>
+                            <li><strong>Access Token</strong> - ключ для доступа к API, обычно JWT (JSON Web Token)</li>
+                            <li><strong>Refresh Token</strong> - долгоживущий ключ для обновления access token без участия пользователя</li>
+                            <li><strong>Authorization Code</strong> - временный код, который клиент обменивает на токены</li>
+                            <li><strong>Scope</strong> - набор разрешений, которые запрашивает клиент (profile, email, openid и т.д.)</li>
+                            <li><strong>Redirect URI</strong> - URL, на который сервер авторизации возвращает пользователя после подтверждения</li>
+                            <li><strong>Client ID/Secret</strong> - идентификатор и секрет клиента, выданные при регистрации приложения</li>
+                        </ul>
+                    </div>
+                    
+                    <div id="tab-providers" class="tab-content">
+                        <h3>Популярные провайдеры OAuth 2.0:</h3>
+                        <div>
+                            <span class="provider-badge"><i class="fab fa-google" style="color: #EA4335;"></i> Google</span>
+                            <span class="provider-badge"><i class="fab fa-facebook" style="color: #1877F2;"></i> Facebook</span>
+                            <span class="provider-badge"><i class="fab fa-github"></i> GitHub</span>
+                            <span class="provider-badge"><i class="fab fa-twitter" style="color: #1DA1F2;"></i> Twitter</span>
+                            <span class="provider-badge"><i class="fab fa-microsoft" style="color: #0078D4;"></i> Microsoft</span>
+                            <span class="provider-badge"><i class="fab fa-linkedin" style="color: #0A66C2;"></i> LinkedIn</span>
+                            <span class="provider-badge"><i class="fab fa-apple"></i> Apple</span>
+                            <span class="provider-badge"><i class="fab fa-amazon" style="color: #FF9900;"></i> Amazon</span>
+                        </div>
+                        <div class="token-metadata">
+                            <p><i class="fas fa-exclamation-triangle"></i> Каждый провайдер может иметь свои особенности реализации OAuth 2.0, всегда проверяйте документацию.</p>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-security" class="tab-content">
+                        <h3>Рекомендации по безопасности:</h3>
+                        <ul>
+                            <li>Всегда используйте HTTPS для всех OAuth-запросов</li>
+                            <li>Храните client secret безопасно (не в клиентском коде)</li>
+                            <li>Используйте PKCE (Proof Key for Code Exchange) для мобильных и SPA приложений</li>
+                            <li>Проверяйте параметр state для защиты от CSRF-атак</li>
+                            <li>Ограничивайте срок действия токенов</li>
+                            <li>Используйте минимально необходимые scope</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="auth-flow">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-project-diagram"></i> Authorization Code Flow</h2>
+                    <div class="progress-bar">
+                        <div class="progress" id="progress-auth-code"></div>
+                    </div>
+                </div>
+                <p>Самый распространенный и безопасный поток авторизации, рекомендованный для серверных приложений.</p>
+                
+                <div class="flow-diagram">
+                    <div class="flow-step">
+                        <div class="flow-step-number">1</div>
+                        <h3>Клиент перенаправляет пользователя</h3>
+                        <p>Приложение отправляет пользователя на сервер авторизации с параметрами:</p>
+                        <pre><code>https://auth-server.com/authorize?
+  response_type=code&
+  client_id=CLIENT_ID&
+  redirect_uri=https://app.com/callback&
+  scope=profile+email&
+  state=xcoiv98y2kd22vusuye3kch&
+  code_challenge=CODE_CHALLENGE&
+  code_challenge_method=S256</code></pre>
+                        <div class="token-actions">
+                            <button class="btn btn-primary" onclick="simulateAuthRequest()">
+                                <i class="fas fa-play"></i> Симулировать запрос
+                            </button>
+                            <button class="btn btn-outline" onclick="explainAuthRequest()">
+                                <i class="fas fa-info-circle"></i> Объяснить параметры
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flow-arrow" id="arrow1" style="display: none;">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    
+                    <div class="flow-step" id="step2" style="display: none;">
+                        <div class="flow-step-number">2</div>
+                        <h3>Пользователь авторизуется</h3>
+                        <p>Пользователь входит в систему и подтверждает запрошенные разрешения.</p>
+                        <div id="auth-consent" style="display: none;">
+                            <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                                    <img src="https://via.placeholder.com/40" alt="App Logo" style="border-radius: 50%;">
+                                    <h4 style="margin: 0;">Приложение "DemoApp" запрашивает доступ:</h4>
+                                </div>
+                                <ul style="padding-left: 20px;">
+                                    <li><i class="fas fa-user-circle"></i> Просмотр вашего профиля (имя, фото)</li>
+                                    <li><i class="fas fa-envelope"></i> Доступ к вашему email адресу</li>
+                                </ul>
+                                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.2);">
+                                    <p style="font-size: 14px; color: rgba(255, 255, 255, 0.7);">Это приложение хочет получить доступ к вашему аккаунту example@domain.com</p>
+                                </div>
+                                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                    <button class="btn btn-primary" onclick="grantAccess()">Разрешить</button>
+                                    <button class="btn btn-outline" onclick="denyAccess()">Отклонить</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flow-arrow" id="arrow2" style="display: none;">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    
+                    <div class="flow-step" id="step3" style="display: none;">
+                        <div class="flow-step-number">3</div>
+                        <h3>Сервер возвращает код авторизации</h3>
+                        <p>Пользователь перенаправляется обратно на указанный redirect_uri с кодом авторизации:</p>
+                        <pre><code>https://app.com/callback?
+  code=AUTHORIZATION_CODE&
+  state=xcoiv98y2kd22vusuye3kch</code></pre>
+                        <div id="auth-code-display" style="display: none;">
+                            <div class="token-display">AUTHORIZATION_CODE=6e7a1b9c8d2e4f5a3b7c8d9e0f1a2b3</div>
+                            <div class="token-metadata">
+                                <p><i class="fas fa-clock"></i> Срок действия: 10 минут</p>
+                                <p><i class="fas fa-info-circle"></i> Код может быть использован только один раз</p>
+                            </div>
+                            <button class="btn btn-secondary" onclick="copyAuthCode()">
+                                <i class="fas fa-copy"></i> Копировать код
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flow-arrow" id="arrow3" style="display: none;">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    
+                    <div class="flow-step" id="step4" style="display: none;">
+                        <div class="flow-step-number">4</div>
+                        <h3>Клиент запрашивает токен доступа</h3>
+                        <p>Приложение делает POST-запрос к токен-эндпоинту, обменивая код на токены:</p>
+                        <pre><code>POST /token HTTP/1.1
+Host: auth-server.com
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic BASE64(CLIENT_ID:CLIENT_SECRET)
+
+grant_type=authorization_code&
+code=AUTHORIZATION_CODE&
+redirect_uri=https://app.com/callback&
+code_verifier=CODE_VERIFIER</code></pre>
+                        <div class="token-actions">
+                            <button class="btn btn-primary" onclick="requestToken()">
+                                <i class="fas fa-exchange-alt"></i> Запросить токен
+                            </button>
+                            <button class="btn btn-outline" onclick="explainTokenRequest()">
+                                <i class="fas fa-info-circle"></i> Объяснить запрос
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flow-arrow" id="arrow4" style="display: none;">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    
+                    <div class="flow-step" id="step5" style="display: none;">
+                        <div class="flow-step-number">5</div>
+                        <h3>Сервер возвращает токены</h3>
+                        <p>Ответ сервера содержит access token и опционально refresh token:</p>
+                        <pre><code>{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "refresh_token": "1/xEoDL4iW3cxlI7yDbSRFYNG01kVKM2C-259HOF2aQbI",
+  "scope": "profile email",
+  "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+}</code></pre>
+                        <div id="token-display" style="display: none;">
+                            <h4>Access Token (JWT):</h4>
+                            <div class="token-display" id="access-token">eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNDI2MjIsImF1ZCI6ImNsaWVudF9pZCJ9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</div>
+                            
+                            <h4>Refresh Token:</h4>
+                            <div class="token-display" id="refresh-token">1/xEoDL4iW3cxlI7yDbSRFYNG01kVKM2C-259HOF2aQbI</div>
+                            
+                            <h4>ID Token (JWT):</h4>
+                            <div class="token-display" id="id-token">eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNDI2MjIsIm5vbmNlIjoiYWJjMTIzIn0.abcdef1234567890</div>
+                            
+                            <div class="token-expiry">
+                                <i class="fas fa-clock"></i> Токен действителен: <span id="token-timer">60:00</span>
+                            </div>
+                            
+                            <div class="token-actions">
+                                <button class="btn btn-secondary" onclick="copyTokens()">
+                                    <i class="fas fa-copy"></i> Копировать токены
+                                </button>
+                                <button class="btn btn-outline" onclick="decodeAccessToken()">
+                                    <i class="fas fa-code"></i> Декодировать JWT
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flow-arrow" id="arrow5" style="display: none;">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    
+                    <div class="flow-step" id="step6" style="display: none;">
+                        <div class="flow-step-number">6</div>
+                        <h3>Клиент использует токен для доступа к API</h3>
+                        <p>Приложение делает запрос к API с токеном в заголовке Authorization:</p>
+                        <pre><code>GET /userinfo HTTP/1.1
+Host: api.resource-server.com
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...</code></pre>
+                        <div class="token-actions">
+                            <button class="btn btn-primary" onclick="callApi()">
+                                <i class="fas fa-cloud"></i> Вызвать API
+                            </button>
+                            <button class="btn btn-outline" onclick="refreshToken()">
+                                <i class="fas fa-sync-alt"></i> Обновить токен
+                            </button>
+                        </div>
+                        <div id="api-response" style="display: none; margin-top: 15px;">
+                            <pre><code>HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "sub": "123456789",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "picture": "https://example.com/photo.jpg",
+  "email_verified": true,
+  "locale": "en"
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="grant-types">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-exchange-alt"></i> Другие типы потоков</h2>
+                    <div class="progress-bar">
+                        <div class="progress" id="progress-grant-types"></div>
+                    </div>
+                </div>
+                
+                <div class="grant-types">
+                    <div class="grant-card">
+                        <h3><i class="fas fa-mobile-alt"></i> Implicit Flow</h3>
+                        <p>Упрощенный поток для клиентских приложений (SPA, мобильные). Токен возвращается сразу в redirect URI через фрагмент URL.</p>
+                        <pre><code>response_type=token
+response_type=id_token</code></pre>
+                        <div class="token-metadata">
+                            <p><i class="fas fa-exclamation-triangle"></i> Не рекомендуется к использованию из-за меньшей безопасности.</p>
+                        </div>
+                        <button class="btn btn-outline" onclick="showImplicitFlow()">
+                            <i class="fas fa-eye"></i> Показать пример
+                        </button>
+                    </div>
+                    
+                    <div class="grant-card">
+                        <h3><i class="fas fa-server"></i> Client Credentials</h3>
+                        <p>Для сервер-серверного взаимодействия без участия пользователя. Используется для машин-машинной аутентификации.</p>
+                        <pre><code>grant_type=client_credentials
+scope=api.read</code></pre>
+                        <div class="token-metadata">
+                            <p><i class="fas fa-info-circle"></i> Не включает пользовательский контекст, только доступ для приложения.</p>
+                        </div>
+                        <button class="btn btn-outline" onclick="showClientCredentials()">
+                            <i class="fas fa-eye"></i> Показать пример
+                        </button>
+                    </div>
+                    
+                    <div class="grant-card">
+                        <h3><i class="fas fa-sync-alt"></i> Refresh Token</h3>
+                        <p>Обновление истекшего access token с помощью refresh token без повторной авторизации пользователя.</p>
+                        <pre><code>grant_type=refresh_token
+refresh_token=REFRESH_TOKEN</code></pre>
+                        <div class="token-metadata">
+                            <p><i class="fas fa-clock"></i> Refresh tokens обычно имеют длительный срок действия (дни, месяцы).</p>
+                        </div>
+                        <button class="btn btn-outline" onclick="showRefreshFlow()">
+                            <i class="fas fa-eye"></i> Показать пример
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grant-types">
+                    <div class="grant-card">
+                        <h3><i class="fas fa-user-shield"></i> PKCE (RFC 7636)</h3>
+                        <p>Дополнительная защита для Authorization Code Flow в нативных и SPA приложениях.</p>
+                        <pre><code>code_challenge=CODE_CHALLENGE
+code_challenge_method=S256</code></pre>
+                        <div class="token-metadata">
+                            <p><i class="fas fa-shield-alt"></i> Защищает от атак с перехватом кода авторизации.</p>
+                        </div>
+                        <button class="btn btn-outline" onclick="showPKCEFlow()">
+                            <i class="fas fa-eye"></i> Показать пример
+                        </button>
+                    </div>
+                    
+                    <div class="grant-card">
+                        <h3><i class="fas fa-key"></i> Resource Owner Password</h3>
+                        <p>Прямая передача учетных данных пользователя (логин/пароль) для получения токена.</p>
+                        <pre><code>grant_type=password
+username=USERNAME
+password=PASSWORD</code></pre>
+                        <div class="token-metadata">
+                            <p><i class="fas fa-exclamation-triangle"></i> Используйте только для доверенных приложений (официальные клиенты).</p>
+                        </div>
+                        <button class="btn btn-outline" onclick="showPasswordFlow()">
+                            <i class="fas fa-eye"></i> Показать пример
+                        </button>
+                    </div>
+                    
+                    <div class="grant-card">
+                        <h3><i class="fas fa-id-card"></i> Device Flow</h3>
+                        <p>Для устройств с ограниченными возможностями ввода (Smart TV, IoT).</p>
+                        <pre><code>grant_type=urn:ietf:params:oauth:grant-type:device_code</code></pre>
+                        <div class="token-metadata">
+                            <p><i class="fas fa-tv"></i> Пользователь авторизуется на другом устройстве с полным браузером.</p>
+                        </div>
+                        <button class="btn btn-outline" onclick="showDeviceFlow()">
+                            <i class="fas fa-eye"></i> Показать пример
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="lab">
+            <div class="card interactive-demo">
+                <div class="card-header">
+                    <h2><i class="fas fa-flask"></i> Интерактивная лаборатория</h2>
+                    <div class="progress-bar">
+                        <div class="progress" id="progress-lab"></div>
+                    </div>
+                </div>
+                
+                <div class="tab-container">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" onclick="openTab(event, 'tab-token-gen')">Генератор токенов</button>
+                        <button class="tab-btn" onclick="openTab(event, 'tab-token-decode')">Декодер JWT</button>
+                        <button class="tab-btn" onclick="openTab(event, 'tab-scope-builder')">Конструктор scope</button>
+                        <button class="tab-btn" onclick="openTab(event, 'tab-pkce-gen')">Генератор PKCE</button>
+                    </div>
+                    
+                    <div id="tab-token-gen" class="tab-content active">
+                        <h3>Генератор тестовых токенов</h3>
+                        <div class="form-group">
+                            <label>Тип токена:</label>
+                            <select id="token-type" class="form-control">
+                                <option value="access">Access Token (JWT)</option>
+                                <option value="refresh">Refresh Token</option>
+                                <option value="id">ID Token (JWT)</option>
+                                <option value="opaque">Opaque Token</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Срок действия (сек):</label>
+                            <input type="number" id="token-expiry" value="3600" min="60" max="86400" class="form-control">
+                        </div>
+                        <div class="form-group" id="jwt-payload-group">
+                            <label>Payload (JSON):</label>
+                            <textarea id="jwt-payload-input" class="form-control" rows="5">{
+  "sub": "123456789",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "scope": "profile email"
+}</textarea>
+                        </div>
+                        <button class="btn btn-primary" onclick="generateToken()">
+                            <i class="fas fa-key"></i> Сгенерировать токен
+                        </button>
+                        <div id="generated-token-container" style="display: none; margin-top: 20px;">
+                            <h4>Результат:</h4>
+                            <div class="token-display" id="generated-token"></div>
+                            <div class="token-expiry">
+                                <i class="fas fa-clock"></i> Токен действителен: <span id="generated-token-timer">60:00</span>
+                            </div>
+                            <div class="token-actions">
+                                <button class="btn btn-secondary" onclick="copyGeneratedToken()">
+                                    <i class="fas fa-copy"></i> Копировать токен
+                                </button>
+                                <button class="btn btn-outline" onclick="decodeGeneratedToken()">
+                                    <i class="fas fa-code"></i> Декодировать JWT
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-token-decode" class="tab-content">
+                        <h3>Декодер JWT</h3>
+                        <div class="form-group">
+                            <label>Введите JWT:</label>
+                            <textarea id="jwt-input" class="form-control" rows="3" placeholder="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."></textarea>
+                        </div>
+                        <button class="btn btn-primary" onclick="decodeJWT()">
+                            <i class="fas fa-code"></i> Декодировать
+                        </button>
+                        <div id="jwt-decoded" style="display: none; margin-top: 20px;">
+                            <h4>Header:</h4>
+                            <pre id="jwt-header"></pre>
+                            <h4>Payload:</h4>
+                            <pre id="jwt-payload"></pre>
+                            <h4>Signature:</h4>
+                            <pre id="jwt-signature">[Проверка подписи требует секретного ключа]</pre>
+                            <button class="btn btn-secondary" onclick="copyDecodedJWT()">
+                                <i class="fas fa-copy"></i> Копировать декодированные данные
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-scope-builder" class="tab-content">
+                        <h3>Конструктор scope</h3>
+                        <p>Выберите разрешения для вашего OAuth-запроса:</p>
+                        <div id="scope-options" style="column-count: 2; column-gap: 20px;">
+                            <label><input type="checkbox" name="scope" value="profile" checked> profile (Основная информация)</label><br>
+                            <label><input type="checkbox" name="scope" value="email" checked> email (Адрес электронной почты)</label><br>
+                            <label><input type="checkbox" name="scope" value="openid"> openid (Для OpenID Connect)</label><br>
+                            <label><input type="checkbox" name="scope" value="offline_access"> offline_access (Refresh token)</label><br>
+                            <label><input type="checkbox" name="scope" value="read"> read (Чтение данных)</label><br>
+                            <label><input type="checkbox" name="scope" value="write"> write (Запись данных)</label><br>
+                            <label><input type="checkbox" name="scope" value="api"> api (Доступ к API)</label><br>
+                            <label><input type="checkbox" name="scope" value="calendar"> calendar (Доступ к календарю)</label><br>
+                            <label><input type="checkbox" name="scope" value="contacts"> contacts (Доступ к контактам)</label><br>
+                            <label><input type="checkbox" name="scope" value="files"> files (Доступ к файлам)</label>
+                        </div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label>Дополнительные scope (через пробел):</label>
+                            <input type="text" id="custom-scopes" class="form-control" placeholder="custom_scope1 custom_scope2">
+                        </div>
+                        <button class="btn btn-primary" onclick="buildScope()">
+                            <i class="fas fa-cogs"></i> Сформировать scope
+                        </button>
+                        <div id="scope-result" style="display: none; margin-top: 20px;">
+                            <h4>Результат:</h4>
+                            <pre id="scope-value">profile email</pre>
+                            <div class="token-actions">
+                                <button class="btn btn-secondary" onclick="copyScope()">
+                                    <i class="fas fa-copy"></i> Копировать
+                                </button>
+                                <button class="btn btn-outline" onclick="testScope()">
+                                    <i class="fas fa-vial"></i> Протестировать
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-pkce-gen" class="tab-content">
+                        <h3>Генератор PKCE</h3>
+                        <p>PKCE (Proof Key for Code Exchange) - расширение OAuth 2.0 для защиты нативных и SPA приложений.</p>
+                        
+                        <div class="form-group">
+                            <label>Метод code_challenge_method:</label>
+                            <select id="pkce-method" class="form-control">
+                                <option value="S256">S256 (SHA-256)</option>
+                                <option value="plain">plain (не рекомендуется)</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="generatePKCE()">
+                            <i class="fas fa-random"></i> Сгенерировать PKCE
+                        </button>
+                        
+                        <div id="pkce-result" style="display: none; margin-top: 20px;">
+                            <h4>Результат:</h4>
+                            <div class="form-group">
+                                <label>code_verifier:</label>
+                                <div class="token-display" id="code-verifier"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>code_challenge:</label>
+                                <div class="token-display" id="code-challenge"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>code_challenge_method:</label>
+                                <div class="token-display" id="code-challenge-method">S256</div>
+                            </div>
+                            <div class="token-actions">
+                                <button class="btn btn-secondary" onclick="copyPKCE()">
+                                    <i class="fas fa-copy"></i> Копировать все
+                                </button>
+                                <button class="btn btn-outline" onclick="explainPKCE()">
+                                    <i class="fas fa-info-circle"></i> Как это работает?
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 OAuth 2.0 Руководство. Все права защищены.</p>
+    </footer>
+
+    <button class="back-to-top" onclick="scrollToTop()">Наверх</button>
+
+    <script>
+        // Глобальные переменные для состояния
+        const state = {
+            authCode: null,
+            accessToken: null,
+            refreshToken: null,
+            idToken: null,
+            tokenExpiry: null,
+            generatedToken: null,
+            generatedTokenExpiry: null,
+            pkce: null,
+            currentTab: 'tab-roles'
+        };
+        
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            // Инициализация прогресс-баров
+            updateProgressBars();
+            
+            // Инициализация кнопок копирования для всех pre-блоков
+            document.querySelectorAll('pre').forEach(pre => {
+                // Убедимся, что кнопка копирования еще не добавлена
+                if (!pre.querySelector('.copy-btn')) {
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-btn';
+                    copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                    copyBtn.onclick = () => {
+                        const code = pre.querySelector('code') ? pre.querySelector('code').textContent : pre.textContent;
+                        navigator.clipboard.writeText(code.trim());
+                        showAlert('info', 'Код скопирован в буфер обмена');
+                    };
+                    pre.appendChild(copyBtn);
+                }
+            });
+            
+            // Инициализация таймера для токенов
+            setInterval(updateTokenTimers, 1000);
+            
+            // Анимация появления секций
+            const sections = document.querySelectorAll("section");
+            sections.forEach((section, index) => {
+                setTimeout(() => {
+                    section.classList.add('visible');
+                }, index * 300);
+            });
+        });
+        
+        // Обновление прогресс-баров
+        function updateProgressBars() {
+            const progressBars = {
+                'progress-basics': state.currentTab === 'tab-roles' ? 100 : 50,
+                'progress-auth-code': document.getElementById('step6').style.display === 'none' ? 
+                    (document.getElementById('step5').style.display === 'none' ? 
+                        (document.getElementById('step4').style.display === 'none' ? 
+                            (document.getElementById('step3').style.display === 'none' ? 
+                                (document.getElementById('step2').style.display === 'none' ? 10 : 30) 
+                            : 50) 
+                        : 70) 
+                    : 90) 
+                : 100,
+                'progress-grant-types': 100,
+                'progress-lab': state.currentTab === 'tab-token-gen' ? 100 : 
+                                state.currentTab === 'tab-token-decode' ? 75 : 
+                                state.currentTab === 'tab-scope-builder' ? 50 : 25
+            };
+            
+            for (const [id, value] of Object.entries(progressBars)) {
+                const bar = document.getElementById(id);
+                if (bar) {
+                    bar.style.width = `${value}%`;
+                }
+            }
+        }
+
+        
+        
+        // Симуляция OAuth потока
+        function simulateAuthRequest() {
+            document.getElementById('step2').style.display = 'block';
+            document.getElementById('auth-consent').style.display = 'block';
+            document.getElementById('arrow1').style.display = 'flex';
+            showAlert('info', 'Пользователь перенаправлен на страницу авторизации');
+            updateProgressBars();
+        }
+        
+        function explainAuthRequest() {
+            showAlert('info', `
+                <strong>Параметры запроса авторизации:</strong><br>
+                <strong>response_type=code</strong> - запрашиваем Authorization Code Flow<br>
+                <strong>client_id</strong> - идентификатор вашего приложения<br>
+                <strong>redirect_uri</strong> - URL для возврата после авторизации<br>
+                <strong>scope</strong> - запрашиваемые разрешения<br>
+                <strong>state</strong> - защита от CSRF (должен быть случайным)<br>
+                <strong>code_challenge</strong> - часть PKCE для защиты кода авторизации
+            `, 'info', 10000);
+        }
+        
+        function grantAccess() {
+            document.getElementById('step3').style.display = 'block';
+            document.getElementById('auth-code-display').style.display = 'block';
+            document.getElementById('auth-consent').style.display = 'none';
+            document.getElementById('arrow2').style.display = 'flex';
+            
+            // Генерируем случайный код авторизации
+            state.authCode = generateRandomString(32);
+            document.querySelector('#step3 .token-display').textContent = `AUTHORIZATION_CODE=${state.authCode}`;
+            
+            showAlert('success', 'Пользователь предоставил разрешение. Код авторизации получен.');
+            updateProgressBars();
+        }
+        
+        function denyAccess() {
+            showAlert('danger', 'Пользователь отклонил запрос авторизации');
+            resetFlow();
+        }
+        
+        function copyAuthCode() {
+            navigator.clipboard.writeText(state.authCode);
+            showAlert('success', 'Код авторизации скопирован в буфер обмена');
+        }
+        
+        function requestToken() {
+            document.getElementById('step5').style.display = 'block';
+            document.getElementById('token-display').style.display = 'block';
+            document.getElementById('arrow4').style.display = 'flex';
+            
+            // Генерируем токены
+            state.accessToken = generateJWT({
+                sub: "123456789",
+                name: "John Doe",
+                email: "john@example.com",
+                scope: "profile email",
+                iat: Math.floor(Date.now() / 1000),
+                exp: Math.floor(Date.now() / 1000) + 3600,
+                aud: "client_id"
+            });
+            
+            state.refreshToken = generateRandomString(64);
+            state.idToken = generateJWT({
+                sub: "123456789",
+                name: "John Doe",
+                email: "john@example.com",
+                iat: Math.floor(Date.now() / 1000),
+                exp: Math.floor(Date.now() / 1000) + 3600,
+                nonce: "abc123"
+            });
+            
+            state.tokenExpiry = Date.now() + 3600000;
+            
+            document.getElementById('access-token').textContent = state.accessToken;
+            document.getElementById('refresh-token').textContent = state.refreshToken;
+            document.getElementById('id-token').textContent = state.idToken;
+            
+            showAlert('success', 'Токены успешно получены');
+            updateProgressBars();
+        }
+        
+        function explainTokenRequest() {
+            showAlert('info', `
+                <strong>Запрос токена:</strong><br>
+                <strong>grant_type=authorization_code</strong> - указываем тип потока<br>
+                <strong>code</strong> - полученный код авторизации<br>
+                <strong>redirect_uri</strong> - должен совпадать с первоначальным<br>
+                <strong>code_verifier</strong> - часть PKCE (доказательство, что запрос идет от того же клиента)
+            `, 'info', 10000);
+        }
+        
+        function copyTokens() {
+            const text = `Access Token: ${state.accessToken}\nRefresh Token: ${state.refreshToken}\nID Token: ${state.idToken}`;
+            navigator.clipboard.writeText(text);
+            showAlert('success', 'Токены скопированы в буфер обмена');
+        }
+        
+        function decodeAccessToken() {
+            if (!state.accessToken) {
+                showAlert('danger', 'Сначала получите access token');
+                return;
+            }
+            
+            try {
+                const parts = state.accessToken.split('.');
+                if (parts.length !== 3) throw new Error('Неверный формат JWT');
+                
+                const header = JSON.parse(atob(parts[0]));
+                const payload = JSON.parse(atob(parts[1]));
+                
+                showAlert('info', `
+                    <strong>Декодированный Access Token:</strong><br>
+                    <strong>Header:</strong> ${JSON.stringify(header)}<br>
+                    <strong>Payload:</strong> ${JSON.stringify(payload)}
+                `, 'info', 10000);
+            } catch (e) {
+                showAlert('danger', 'Ошибка декодирования: ' + e.message);
+            }
+        }
+        
+        function callApi() {
+            document.getElementById('api-response').style.display = 'block';
+            document.getElementById('arrow5').style.display = 'flex';
+            document.getElementById('step6').style.display = 'block';
+            showAlert('success', 'API успешно вызван с access token');
+            updateProgressBars();
+        }
+        
+        function refreshToken() {
+            if (!state.refreshToken) {
+                showAlert('danger', 'Refresh token не доступен');
+                return;
+            }
+            
+            showAlert('info', 'Отправка запроса на обновление токена...');
+            
+            // Симулируем задержку запроса
+            setTimeout(() => {
+                // Генерируем новый access token
+                state.accessToken = generateJWT({
+                    sub: "123456789",
+                    name: "John Doe",
+                    email: "john@example.com",
+                    scope: "profile email",
+                    iat: Math.floor(Date.now() / 1000),
+                    exp: Math.floor(Date.now() / 1000) + 3600,
+                    aud: "client_id"
+                });
+                
+                state.tokenExpiry = Date.now() + 3600000;
+                document.getElementById('access-token').textContent = state.accessToken;
+                
+                showAlert('success', 'Access token успешно обновлен');
+            }, 1000);
+        }
+        
+        function resetFlow() {
+            const steps = document.querySelectorAll('.flow-step');
+            steps.forEach(step => step.style.display = 'none');
+            
+            const arrows = document.querySelectorAll('.flow-arrow');
+            arrows.forEach(arrow => arrow.style.display = 'none');
+            
+            document.getElementById('step1').style.display = 'block';
+            updateProgressBars();
+        }
+        
+        // Лаборатория: Генератор токенов
+        function generateToken() {
+            const type = document.getElementById('token-type').value;
+            const expiry = parseInt(document.getElementById('token-expiry').value);
+            
+            let token;
+            if (type === 'access') {
+                const payload = document.getElementById('jwt-payload-input').value;
+                try {
+                    const payloadObj = JSON.parse(payload);
+                    payloadObj.iat = Math.floor(Date.now() / 1000);
+                    payloadObj.exp = Math.floor(Date.now() / 1000) + expiry;
+                    token = generateJWT(payloadObj);
+                } catch (e) {
+                    showAlert('danger', 'Ошибка в JSON payload: ' + e.message);
+                    return;
+                }
+            } else if (type === 'refresh') {
+                token = generateRandomString(64);
+            } else if (type === 'id') {
+                const payload = {
+                    sub: "123456789",
+                    name: "John Doe",
+                    email: "john@example.com",
+                    iat: Math.floor(Date.now() / 1000),
+                    exp: Math.floor(Date.now() / 1000) + expiry,
+                    nonce: generateRandomString(8)
+                };
+                token = generateJWT(payload);
+            } else {
+                token = generateRandomString(32);
+            }
+            
+            state.generatedToken = token;
+            state.generatedTokenExpiry = Date.now() + expiry * 1000;
+            
+            document.getElementById('generated-token').textContent = token;
+            document.getElementById('generated-token-container').style.display = 'block';
+            showAlert('success', 'Токен успешно сгенерирован');
+        }
+        
+        function copyGeneratedToken() {
+            navigator.clipboard.writeText(state.generatedToken);
+            showAlert('success', 'Токен скопирован в буфер обмена');
+        }
+        
+        function decodeGeneratedToken() {
+            if (!state.generatedToken) {
+                showAlert('danger', 'Сначала сгенерируйте токен');
+                return;
+            }
+            
+            try {
+                const parts = state.generatedToken.split('.');
+                if (parts.length !== 3) throw new Error('Неверный формат JWT');
+                
+                const header = JSON.parse(atob(parts[0]));
+                const payload = JSON.parse(atob(parts[1]));
+                
+                showAlert('info', `
+                    <strong>Декодированный токен:</strong><br>
+                    <strong>Header:</strong> ${JSON.stringify(header)}<br>
+                    <strong>Payload:</strong> ${JSON.stringify(payload)}
+                `, 'info', 10000);
+            } catch (e) {
+                showAlert('danger', 'Ошибка декодирования: ' + e.message);
+            }
+        }
+        
+        // Лаборатория: Декодер JWT
+        function decodeJWT() {
+            const jwt = document.getElementById('jwt-input').value.trim();
+            if (!jwt) {
+                showAlert('danger', 'Введите JWT для декодирования');
+                return;
+            }
+            
+            try {
+                const parts = jwt.split('.');
+                if (parts.length !== 3) throw new Error('Неверный формат JWT');
+                
+                const header = JSON.parse(atob(parts[0]));
+                const payload = JSON.parse(atob(parts[1]));
+                
+                document.getElementById('jwt-header').textContent = JSON.stringify(header, null, 2);
+                document.getElementById('jwt-payload').textContent = JSON.stringify(payload, null, 2);
+                document.getElementById('jwt-decoded').style.display = 'block';
+                
+                showAlert('success', 'JWT успешно декодирован');
+            } catch (e) {
+                showAlert('danger', 'Ошибка декодирования: ' + e.message);
+            }
+        }
+        
+        function copyDecodedJWT() {
+            const header = document.getElementById('jwt-header').textContent;
+            const payload = document.getElementById('jwt-payload').textContent;
+            const text = `Header:\n${header}\n\nPayload:\n${payload}`;
+            navigator.clipboard.writeText(text);
+            showAlert('success', 'Декодированные данные скопированы');
+        }
+        
+        // Лаборатория: Конструктор scope
+        function buildScope() {
+            const checkboxes = document.querySelectorAll('input[name="scope"]:checked');
+            const customScopes = document.getElementById('custom-scopes').value.trim();
+            
+            let scopes = Array.from(checkboxes).map(cb => cb.value);
+            if (customScopes) {
+                scopes = scopes.concat(customScopes.split(/\s+/));
+            }
+            
+            const scopeString = scopes.join(' ');
+            document.getElementById('scope-value').textContent = scopeString;
+            document.getElementById('scope-result').style.display = 'block';
+        }
+        
+        function copyScope() {
+            const scope = document.getElementById('scope-value').textContent;
+            navigator.clipboard.writeText(scope);
+            showAlert('success', 'Scope скопирован в буфер обмена');
+        }
+        
+        function testScope() {
+            const scope = document.getElementById('scope-value').textContent;
+            showAlert('info', `
+                <strong>Тестирование scope:</strong><br>
+                <strong>${scope}</strong><br><br>
+                В реальном запросе этот scope будет добавлен в параметры авторизации:<br>
+                <code>scope=${encodeURIComponent(scope)}</code>
+            `, 'info', 8000);
+        }
+        
+        // Лаборатория: Генератор PKCE
+        function generatePKCE() {
+            // Генерируем случайный code_verifier (43-128 символов)
+            const codeVerifier = generateRandomString(64);
+            
+            // Создаем code_challenge (SHA-256 от verifier, в base64url)
+            const codeChallenge = base64URLEncode(sha256(codeVerifier));
+            
+            const method = document.getElementById('pkce-method').value;
+            
+            state.pkce = {
+                verifier: codeVerifier,
+                challenge: codeChallenge,
+                method: method
+            };
+            
+            document.getElementById('code-verifier').textContent = codeVerifier;
+            document.getElementById('code-challenge').textContent = codeChallenge;
+            document.getElementById('code-challenge-method').textContent = method;
+            document.getElementById('pkce-result').style.display = 'block';
+            
+            showAlert('success', 'PKCE параметры сгенерированы');
+        }
+        
+        function copyPKCE() {
+            if (!state.pkce) {
+                showAlert('danger', 'Сначала сгенерируйте PKCE параметры');
+                return;
+            }
+            
+            const text = `code_verifier: ${state.pkce.verifier}\ncode_challenge: ${state.pkce.challenge}\ncode_challenge_method: ${state.pkce.method}`;
+            navigator.clipboard.writeText(text);
+            showAlert('success', 'PKCE параметры скопированы');
+        }
+        
+        function explainPKCE() {
+            showAlert('info', `
+                <strong>Как работает PKCE:</strong><br>
+                1. Клиент генерирует случайный <strong>code_verifier</strong><br>
+                2. Клиент создает <strong>code_challenge</strong> (хеш от verifier)<br>
+                3. В запросе авторизации отправляется challenge<br>
+                4. При обмене кода на токен клиент отправляет verifier<br>
+                5. Сервер проверяет, что challenge соответствует verifier<br><br>
+                Это защищает от атак с перехватом кода авторизации.
+            `, 'info', 15000);
+        }
+        
+        // Демонстрация других потоков
+        function showImplicitFlow() {
+            showAlert('info', `
+                <strong>Implicit Flow (не рекомендуется):</strong><br>
+                Запрос авторизации:<br>
+                <code>https://auth-server.com/authorize?response_type=token&client_id=CLIENT_ID&redirect_uri=...</code><br><br>
+                Ответ:<br>
+                <code>https://app.com/callback#access_token=TOKEN&token_type=Bearer&expires_in=3600</code><br><br>
+                <i class="fas fa-exclamation-triangle"></i> Токен возвращается в URL, что менее безопасно.
+            `, 'info', 15000);
+        }
+        
+        function showClientCredentials() {
+            showAlert('info', `
+                <strong>Client Credentials Flow:</strong><br>
+                Запрос токена:<br>
+                <code>POST /token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials&
+client_id=CLIENT_ID&
+client_secret=CLIENT_SECRET&
+scope=api.read</code><br><br>
+                Ответ:<br>
+                <code>{
+  "access_token": "TOKEN",
+  "token_type": "Bearer",
+  "expires_in": 3600
+}</code>
+            `, 'info', 15000);
+        }
+        
+        function showRefreshFlow() {
+            showAlert('info', `
+                <strong>Refresh Token Flow:</strong><br>
+                Запрос токена:<br>
+                <code>POST /token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=refresh_token&
+refresh_token=REFRESH_TOKEN&
+client_id=CLIENT_ID&
+client_secret=CLIENT_SECRET</code><br><br>
+                Ответ:<br>
+                <code>{
+  "access_token": "NEW_TOKEN",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "refresh_token": "NEW_REFRESH_TOKEN" // опционально
+}</code>
+            `, 'info', 15000);
+        }
+        
+        function showPKCEFlow() {
+            showAlert('info', `
+                <strong>PKCE Flow:</strong><br>
+                1. Клиент генерирует code_verifier и code_challenge<br>
+                2. Запрос авторизации включает challenge:<br>
+                <code>https://auth-server.com/authorize?...&code_challenge=CHALLENGE&code_challenge_method=S256</code><br>
+                3. При обмене кода на токен клиент отправляет verifier:<br>
+                <code>POST /token...&code_verifier=VERIFIER</code><br>
+                4. Сервер проверяет, что challenge = SHA256(verifier)
+            `, 'info', 15000);
+        }
+        
+        function showPasswordFlow() {
+            showAlert('warning', `
+                <strong>Resource Owner Password Flow (используйте с осторожностью):</strong><br>
+                Запрос токена:<br>
+                <code>POST /token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&
+username=USERNAME&
+password=PASSWORD&
+client_id=CLIENT_ID</code><br><br>
+                Ответ:<br>
+                <code>{
+  "access_token": "TOKEN",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "refresh_token": "REFRESH_TOKEN"
+}</code><br><br>
+                <i class="fas fa-exclamation-triangle"></i> Этот поток требует доверия между клиентом и пользователем.
+            `, 'warning', 15000);
+        }
+        
+        function showDeviceFlow() {
+            showAlert('info', `
+                <strong>Device Flow:</strong><br>
+                1. Устройство запрашивает код:<br>
+                <code>POST /device_authorization
+Content-Type: application/x-www-form-urlencoded
+
+client_id=CLIENT_ID&
+scope=profile</code><br><br>
+                2. Сервер возвращает:<br>
+                <code>{
+  "device_code": "DEVICE_CODE",
+  "user_code": "USER_CODE",
+  "verification_uri": "https://example.com/activate",
+  "expires_in": 1800,
+  "interval": 5
+}</code><br><br>
+                3. Пользователь                 <strong>Device Flow:</strong><br>
+                1. Устройство запрашивает код:<br>
+                <code>POST /device_authorization
+Content-Type: application/x-www-form-urlencoded
+
+client_id=CLIENT_ID&
+scope=profile</code><br><br>
+                2. Сервер возвращает:<br>
+                <code>{
+  "device_code": "DEVICE_CODE",
+  "user_code": "USER_CODE",
+  "verification_uri": "https://example.com/activate",
+  "expires_in": 1800,
+  "interval": 5
+}</code><br><br>
+                3. Пользователь вводит user_code на verification_uri<br>
+                4. Устройство периодически опрашивает сервер для получения токена<br>
+                <code>POST /token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=urn:ietf:params:oauth:grant-type:device_code&
+device_code=DEVICE_CODE&
+client_id=CLIENT_ID</code><br><br>
+                5. Когда пользователь авторизуется, сервер возвращает токены
+            `, 'info', 15000);
+        }
+
+        // Утилиты
+        function showAlert(type, message, icon = null, timeout = 5000) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            
+            if (icon) {
+                alert.innerHTML = `<i class="fas fa-${icon}"></i> ${message}`;
+            } else {
+                alert.innerHTML = message;
+            }
+            
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, timeout);
+        }
+
+        function generateRandomString(length) {
+            const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+            let result = '';
+            
+            for (let i = 0; i < length; i++) {
+                result += charset.charAt(Math.floor(Math.random() * charset.length));
+            }
+            
+            return result;
+        }
+
+        function generateJWT(payload) {
+            const header = {
+                alg: 'RS256',
+                typ: 'JWT'
+            };
+            
+            const encodedHeader = base64URLEncode(JSON.stringify(header));
+            const encodedPayload = base64URLEncode(JSON.stringify(payload));
+            const signature = 'SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'; // Фиктивная подпись для демонстрации
+            
+            return `${encodedHeader}.${encodedPayload}.${signature}`;
+        }
+
+        function base64URLEncode(str) {
+            return btoa(str)
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=+$/, '');
+        }
+
+        function sha256(str) {
+            // В реальном приложении используйте криптографическую библиотеку
+            return 'fake-sha256-hash-for-demo-purposes';
+        }
+
+        function updateTokenTimers() {
+            if (state.tokenExpiry) {
+                const remaining = Math.max(0, Math.floor((state.tokenExpiry - Date.now()) / 1000));
+                const minutes = Math.floor(remaining / 60);
+                const seconds = remaining % 60;
+                document.getElementById('token-timer').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (remaining <= 0) {
+                    document.getElementById('token-timer').innerHTML = '<span style="color: var(--danger)">Истек</span>';
+                }
+            }
+            
+            if (state.generatedTokenExpiry) {
+                const remaining = Math.max(0, Math.floor((state.generatedTokenExpiry - Date.now()) / 1000));
+                const minutes = Math.floor(remaining / 60);
+                const seconds = remaining % 60;
+                document.getElementById('generated-token-timer').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (remaining <= 0) {
+                    document.getElementById('generated-token-timer').innerHTML = '<span style="color: var(--danger)">Истек</span>';
+                }
+            }
+        }
+
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            
+            const tabButtons = document.getElementsByClassName('tab-btn');
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove('active');
+            }
+            
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+            state.currentTab = tabName;
+            updateProgressBars();
+        }
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Обработчик кнопки "Наверх"
+        window.onscroll = function() {
+            const backToTop = document.querySelector('.back-to-top');
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                backToTop.style.display = 'block';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        };
+    </script>
+    <a href="Technologies.html" class="back-button"><i class="fas fa-arrow-left"></i> Вернуться к списку технологий</a>
+</body>
+</html>

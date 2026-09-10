@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MFA | Многофакторная аутентификация</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4da6ff;
+            --secondary: #35424a;
+            --dark: #1e1e1e;
+            --light: #f8f9fa;
+            --success: #28a745;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --warning: #ffc107;
+        }
+        
+        body {
+            background-image: url(2ed335b16e62c39b6d5b7725ff09d5e9.gif);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+            color: white;
+        }
+
+        header {
+            background: url(5a) no-repeat center center/cover;
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            margin: 1rem 0 2rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.6rem 1.2rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: #212529;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:hover {
+            background-color: #3a8fd9;
+        }
+
+        .btn-secondary:hover {
+            background-color: #2c3e50;
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(77, 166, 255, 0.1);
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border-left: 5px solid var(--primary);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-header h2 {
+            margin: 0;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--primary);
+            width: 0;
+            transition: width 0.5s ease;
+        }
+
+        .mfa-methods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 2rem 0;
+        }
+        
+        .mfa-card {
+            flex: 1;
+            min-width: 280px;
+            background: rgba(40, 40, 40, 0.7);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+        
+        .mfa-card:hover {
+            transform: translateY(-5px);
+            background: rgba(50, 50, 50, 0.8);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .mfa-card h4 {
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 0;
+            font-size: 1.3rem;
+        }
+        
+        .mfa-demo {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .flow-diagram {
+            margin-top: 2rem;
+        }
+        
+        .flow-step {
+            background: rgba(40, 40, 40, 0.7);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+        
+        .flow-arrow {
+            display: none;
+            justify-content: center;
+            margin: 1rem 0;
+            color: var(--primary);
+            font-size: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .flow-arrow.visible {
+            opacity: 1;
+        }
+        
+        .flow-step-number {
+            background: var(--primary);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.2rem;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 5px rgba(77, 166, 255, 0.5);
+        }
+        
+        .input-timer {
+            position: absolute;
+            right: 10px;
+            top: 38px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .password-strength {
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .strength-bar {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s ease, background 0.3s ease;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .alert.visible {
+            opacity: 1;
+        }
+        
+        .alert-success {
+            background: rgba(40, 167, 69, 0.2);
+            border-left: 4px solid var(--success);
+        }
+        
+        .alert-danger {
+            background: rgba(220, 53, 69, 0.2);
+            border-left: 4px solid var(--danger);
+        }
+        
+        .alert-info {
+            background: rgba(23, 162, 184, 0.2);
+            border-left: 4px solid var(--info);
+        }
+        
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.2);
+            border-left: 4px solid var(--warning);
+        }
+        
+        .totp-code {
+            font-family: monospace;
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            background: rgba(0,0,0,0.5);
+            padding: 1rem;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 1rem 0;
+            color: var(--primary);
+        }
+        
+        .timer-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+        
+        .timer-progress {
+            height: 100%;
+            background: var(--primary);
+            width: 100%;
+            transition: width 1s linear;
+        }
+        
+        .attempts-counter {
+            color: var(--warning);
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+        
+        .security-tip {
+            background: rgba(77, 166, 255, 0.1);
+            padding: 1rem;
+            border-radius: 5px;
+            border-left: 3px solid var(--primary);
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        
+        pre {
+            background: rgba(0,0,0,0.5);
+            padding: 1.5rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 3px solid var(--primary);
+            margin: 0;
+        }
+        
+        code {
+            color: var(--light);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            margin-top: 2rem;
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--secondary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+        }
+        
+        .back-to-top:hover {
+            background: #2c3e50;
+            transform: translateY(-3px);
+        }
+
+        /* Стили для блокировки */
+        .block-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            display: none;
+        }
+
+        .block-overlay h2 {
+            color: var(--danger);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .block-overlay p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        .block-overlay .btn {
+            margin-top: 1rem;
+        }
+
+        /* Новые стили для истории входов */
+        .login-history {
+            margin-top: 2rem;
+            background: rgba(40, 40, 40, 0.7);
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .history-item {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-success {
+            color: var(--success);
+        }
+
+        .history-failure {
+            color: var(--danger);
+        }
+
+        .history-method {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Стили для QR-кода */
+        .qr-container {
+            text-align: center;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+
+        .qr-code {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .manual-code {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 0.5rem;
+            color: var(--primary);
+        }
+
+        /* Стили для модального окна */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: rgba(30, 30, 30, 0.95);
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            border-left: 5px solid var(--primary);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: var(--primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .mfa-methods {
+                flex-direction: column;
+            }
+            
+            .mfa-card {
+                min-width: 100%;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .progress-bar {
+                width: 100%;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Оверлей блокировки -->
+    <div class="block-overlay" id="block-overlay">
+        <h2><i class="fas fa-ban"></i> Доступ заблокирован</h2>
+        <p>Вы превысили максимальное количество попыток ввода. Доступ к системе временно заблокирован.</p>
+        <p>Для продолжения работы перезагрузите страницу.</p>
+        <button class="btn btn-primary" id="reload-btn">
+            <i class="fas fa-sync-alt"></i> Перезагрузить страницу
+        </button>
+    </div>
+
+    <!-- Модальное окно для QR-кода -->
+    <div class="modal-overlay" id="qr-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-qrcode"></i> Настройка TOTP</h3>
+                <button class="modal-close" onclick="closeModal('qr-modal')">&times;</button>
+            </div>
+            <div class="qr-container" id="qr-code-container">
+                <!-- QR-код будет сгенерирован здесь -->
+            </div>
+            <p>Отсканируйте QR-код в приложении аутентификатора или введите код вручную:</p>
+            <div class="manual-code" id="manual-totp-code">JBSWY3DPEHPK3PXP</div>
+            <button class="btn btn-primary" style="margin-top: 1rem;" onclick="closeModal('qr-modal')">
+                <i class="fas fa-check"></i> Готово
+            </button>
+        </div>
+    </div>
+
+    <header>
+        <div class="header-content">
+            <h1><i class="fas fa-shield-alt"></i> Многофакторная аутентификация (MFA)</h1>
+            <p>Повышение безопасности ваших учетных записей с помощью MFA</p>
+            
+            <div class="nav-buttons">
+                <a href="Technologies.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Назад к технологиям
+                </a>
+                <a href="index.html" class="btn btn-outline">
+                    <i class="fas fa-home"></i> На главную
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="mfa">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-shield-alt"></i> Многофакторная аутентификация (MFA)</h2>
+                    <div class="progress-bar">
+                        <div class="progress" id="progress-mfa"></div>
+                    </div>
+                </div>
+                <p>Метод контроля доступа, при котором пользователю для получения доступа необходимо предоставить несколько доказательств аутентификации из разных категорий.</p>
+                
+                <div class="security-tip">
+                    <i class="fas fa-lightbulb"></i> <strong>Совет по безопасности:</strong> Всегда используйте MFA для важных учетных записей. Это значительно снижает риск взлома, даже если ваш пароль будет скомпрометирован.
+                </div>
+                
+                <h3>Типы факторов аутентификации:</h3>
+                <div class="mfa-methods">
+                    <div class="mfa-card">
+                        <h4><i class="fas fa-mobile-alt"></i> Что-то у вас (SMS, TOTP)</h4>
+                        <p>Устройство или приложение, генерирующее одноразовые коды</p>
+                        <div class="mfa-demo">
+                            <button class="btn btn-primary" onclick="demoSmsMfa()">
+                                <i class="fas fa-sms"></i> Демо SMS
+                            </button>
+                            <button class="btn btn-primary" onclick="demoTotpMfa()">
+                                <i class="fas fa-mobile"></i> Демо TOTP
+                            </button>
+                            <button class="btn btn-outline" onclick="showQrModal()">
+                                <i class="fas fa-qrcode"></i> Настроить TOTP
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mfa-card">
+                        <h4><i class="fas fa-fingerprint"></i> Что-то вы (Биометрия)</h4>
+                        <p>Отпечаток пальца, распознавание лица или другие биометрические данные</p>
+                        <div class="mfa-demo">
+                            <button class="btn btn-primary" onclick="demoBiometricMfa()">
+                                <i class="fas fa-fingerprint"></i> Демо биометрии
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mfa-card">
+                        <h4><i class="fas fa-key"></i> Что-то знаете (Пароль + PIN)</h4>
+                        <p>Комбинация пароля и дополнительного PIN-кода или ответа на вопрос</p>
+                        <div class="mfa-demo">
+                            <button class="btn btn-primary" onclick="demoPasswordMfa()">
+                                <i class="fas fa-key"></i> Демо пароля + PIN
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>Процесс аутентификации с MFA:</h3>
+                <div class="flow-diagram">
+                    <div class="flow-step" id="mfa-step1">
+                        <div class="flow-step-number">1</div>
+                        <h4>Пользователь вводит логин и пароль</h4>
+                        <div class="mfa-demo">
+                            <div class="form-group">
+                                <label>Логин:</label>
+                                <input type="text" class="form-control" id="mfa-login" placeholder="Ваш логин">
+                            </div>
+                            <div class="form-group">
+                                <label>Пароль:</label>
+                                <input type="password" class="form-control" id="mfa-password" placeholder="Ваш пароль">
+                                <div class="password-strength">
+                                    <div class="strength-bar" id="password-strength-bar"></div>
+                                </div>
+                                <div class="input-timer" id="password-timer">Время: 0с</div>
+                            </div>
+                            <button class="btn btn-primary" onclick="startMfaProcess()">
+                                <i class="fas fa-sign-in-alt"></i> Войти
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flow-arrow" id="mfa-arrow1">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    
+                    <div class="flow-step" id="mfa-step2" style="display:none;">
+                        <div class="flow-step-number">2</div>
+                        <h4>Запрос второго фактора</h4>
+                        <div class="mfa-demo" id="mfa-factor-select">
+                            <p>Выберите метод для второго фактора:</p>
+                            <div class="mfa-methods">
+                                <button class="btn btn-outline" onclick="selectMfaMethod('sms')">
+                                    <i class="fas fa-sms"></i> SMS
+                                </button>
+                                <button class="btn btn-outline" onclick="selectMfaMethod('totp')">
+                                    <i class="fas fa-mobile"></i> Приложение
+                                </button>
+                                <button class="btn btn-outline" onclick="selectMfaMethod('biometric')">
+                                    <i class="fas fa-fingerprint"></i> Биометрия
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flow-arrow" id="mfa-arrow2" style="display:none;">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    
+                    <div class="flow-step" id="mfa-step3" style="display:none;">
+                        <div class="flow-step-number">3</div>
+                        <h4 id="mfa-method-title">Подтверждение</h4>
+                        <div class="mfa-demo" id="mfa-verification">
+                            <!-- Динамически заполняется в зависимости от выбранного метода -->
+                        </div>
+                    </div>
+                    
+                    <div class="flow-arrow" id="mfa-arrow3" style="display:none;">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    
+                    <div class="flow-step" id="mfa-step4" style="display:none;">
+                        <div class="flow-step-number">4</div>
+                        <h4>Доступ предоставлен</h4>
+                        <div class="mfa-demo">
+                            <div class="alert alert-success" id="success-alert">
+                                <i class="fas fa-check-circle"></i> Аутентификация успешно завершена!
+                            </div>
+                            <pre><code>{
+  "access_token": "eyJhbGciOi...",
+  "user": {
+    "id": "12345",
+    "name": "Name",
+    "email": "name@example.com"
+  },
+  "mfa_used": "sms",
+  "login_time": "${new Date().toLocaleString()}"
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Новая секция: История входов -->
+                <div class="login-history">
+                    <h3><i class="fas fa-history"></i> История входов</h3>
+                    <div id="login-history-items">
+                        <!-- История будет заполнена JavaScript -->
+                    </div>
+                    <button class="btn btn-outline" style="margin-top: 1rem;" onclick="refreshHistory()">
+                        <i class="fas fa-sync-alt"></i> Обновить историю
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Системы кибербезопасности. Все права защищены.</p>
+    </footer>
+
+    <div class="back-to-top" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+        // Состояние MFA процесса
+        const mfaState = {
+            currentStep: 1,
+            selectedMethod: null,
+            totpInterval: null,
+            loginAttempts: 0,
+            maxLoginAttempts: 3,
+            passwordTimer: 0,
+            passwordTimerInterval: null,
+            verificationAttempts: 0,
+            maxVerificationAttempts: 3,
+            isBlocked: false,
+            loginHistory: [] // Добавляем историю входов
+        };
+
+        // Инициализация истории входов
+        function initLoginHistory() {
+            // Пример данных для истории (в реальной системе это должно приходить с сервера)
+            mfaState.loginHistory = [
+                { 
+                    date: new Date(Date.now() - 3600000), 
+                    success: true, 
+                    method: 'TOTP', 
+                    ip: '192.168.1.100', 
+                    location: 'Дальнегорск, Россия',
+                    details: 'Успешный вход с нового устройства'
+                },
+                { 
+                    date: new Date(Date.now() - 86400000), 
+                    success: false, 
+                    method: 'SMS', 
+                    ip: '192.168.1.100', 
+                    location: 'Дальнегорск, Россия',
+                    details: 'Неверный код подтверждения (3 попытки)'
+                },
+                { 
+                    date: new Date(Date.now() - 172800000), 
+                    success: true, 
+                    method: 'Биометрия', 
+                    ip: '192.168.1.101', 
+                    location: 'Дальнегорск, Россия',
+                    details: 'Успешный вход с отпечатка пальца'
+                }
+            ];
+            
+            renderLoginHistory();
+        }
+
+        // Отображение истории входов
+        function renderLoginHistory() {
+            const container = document.getElementById('login-history-items');
+            container.innerHTML = '';
+            
+            if (mfaState.loginHistory.length === 0) {
+                container.innerHTML = '<p>История входов отсутствует</p>';
+                return;
+            }
+            
+            mfaState.loginHistory.forEach(entry => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                
+                const icon = entry.success ? 'fa-check-circle history-success' : 'fa-times-circle history-failure';
+                const status = entry.success ? 'Успешно' : 'Неудачно';
+                
+                item.innerHTML = `
+                    <div>
+                        <i class="fas ${icon}"></i> ${entry.date.toLocaleString()}
+                        <div style="font-size: 0.8rem; color: rgba(255,255,255,0.7); margin-top: 5px;">
+                            ${entry.ip} • ${entry.location}
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="history-method">${entry.method}</span>
+                        <div style="font-size: 0.8rem; color: rgba(255,255,255,0.7); margin-top: 5px;">
+                            ${status} • ${entry.details}
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+
+        // Обновление истории
+        function refreshHistory() {
+            showAlert('info', 'История входов обновлена', 2000);
+            initLoginHistory();
+        }
+
+        // Модальное окно для QR-кода
+        function showQrModal() {
+            const modal = document.getElementById('qr-modal');
+            const qrContainer = document.getElementById('qr-code-container');
+            
+            // Генерация QR-кода (в реальной системе это должен быть уникальный секрет)
+            const secret = 'JBSWY3DPEHPK3PXP';
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=otpauth://totp/Demo:MFA%20Demo?secret=${secret}&issuer=Demo`;
+            
+            qrContainer.innerHTML = `
+                <img src="${qrUrl}" alt="QR Code" class="qr-code">
+                <p style="margin-top: 10px;">Используйте приложение Google Authenticator, Microsoft Authenticator или аналогичное</p>
+            `;
+            
+            document.getElementById('manual-totp-code').textContent = secret;
+            modal.classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Функция перезагрузки страницы
+        function reloadPage() {
+            localStorage.removeItem('mfaBlocked');
+            location.reload(true); // Принудительная перезагрузка с очисткой кэша
+        }
+        
+        // Блокировка доступа
+        function blockAccess() {
+            mfaState.isBlocked = true;
+            localStorage.setItem('mfaBlocked', 'true');
+            document.getElementById('block-overlay').style.display = 'flex';
+            
+            // Отключаем все интерактивные элементы, кроме кнопки перезагрузки
+            document.querySelectorAll('button, input, a').forEach(el => {
+                if (el.id !== 'reload-btn') {
+                    el.disabled = true;
+                    el.style.pointerEvents = 'none';
+                    el.style.opacity = '0.5';
+                }
+            });
+        }
+    
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            // Проверить, не заблокирован ли уже доступ
+            if (localStorage.getItem('mfaBlocked')) {
+                blockAccess();
+            }
+            
+            // Назначить обработчик для кнопки перезагрузки
+            document.getElementById('reload-btn').addEventListener('click', reloadPage);
+            
+            // Показать кнопку "Наверх" при прокрутке
+            window.addEventListener('scroll', function() {
+                const backToTop = document.querySelector('.back-to-top');
+                if (window.scrollY > 300) {
+                    backToTop.classList.add('visible');
+                } else {
+                    backToTop.classList.remove('visible');
+                }
+            });
+            
+            // Анимация появления секции
+            setTimeout(() => {
+                document.getElementById('mfa').style.opacity = '1';
+                document.getElementById('mfa').style.transform = 'translateY(0)';
+            }, 100);
+            
+            // Таймер ввода пароля
+            const passwordInput = document.getElementById('mfa-password');
+            passwordInput.addEventListener('focus', startPasswordTimer);
+            passwordInput.addEventListener('blur', stopPasswordTimer);
+            passwordInput.addEventListener('input', checkPasswordStrength);
+
+            // Инициализируем историю входов
+            initLoginHistory();
+        });
+    
+        // Таймер ввода пароля
+        function startPasswordTimer() {
+            if (mfaState.isBlocked) return;
+            
+            mfaState.passwordTimer = 0;
+            document.getElementById('password-timer').textContent = 'Время: 0с';
+            
+            mfaState.passwordTimerInterval = setInterval(() => {
+                mfaState.passwordTimer++;
+                document.getElementById('password-timer').textContent = `Время: ${mfaState.passwordTimer}с`;
+            }, 1000);
+        }
+        
+        function stopPasswordTimer() {
+            if (mfaState.passwordTimerInterval) {
+                clearInterval(mfaState.passwordTimerInterval);
+                mfaState.passwordTimerInterval = null;
+            }
+        }
+        
+        // Проверка сложности пароля
+        function checkPasswordStrength() {
+            if (mfaState.isBlocked) return;
+            
+            const password = document.getElementById('mfa-password').value;
+            const strengthBar = document.getElementById('password-strength-bar');
+            
+            let strength = 0;
+            
+            // Длина пароля
+            if (password.length > 0) strength += 10;
+            if (password.length >= 6) strength += 20;
+            if (password.length >= 8) strength += 20;
+            if (password.length >= 12) strength += 20;
+            
+            // Наличие цифр
+            if (/\d/.test(password)) strength += 10;
+            
+            // Наличие символов в разных регистрах
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 10;
+            
+            // Наличие специальных символов
+            if (/[^a-zA-Z0-9]/.test(password)) strength += 10;
+            
+            // Ограничиваем максимум 100%
+            strength = Math.min(strength, 100);
+            
+            strengthBar.style.width = `${strength}%`;
+            
+            // Цвет в зависимости от силы
+            if (strength < 40) {
+                strengthBar.style.background = 'var(--danger)';
+            } else if (strength < 70) {
+                strengthBar.style.background = 'var(--warning)';
+            } else {
+                strengthBar.style.background = 'var(--success)';
+            }
+        }
+        
+        // Прокрутка наверх
+        function scrollToTop() {
+            if (mfaState.isBlocked) return;
+            
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Начало процесса MFA
+        function startMfaProcess() {
+            if (mfaState.isBlocked) return;
+            
+            const login = document.getElementById('mfa-login').value;
+            const password = document.getElementById('mfa-password').value;
+            
+            if (!login || !password) {
+                showAlert('danger', 'Введите логин и пароль', 3000);
+                return;
+            }
+            
+            // Проверка времени ввода пароля (демонстрация защиты от автоматического подбора)
+            if (mfaState.passwordTimer < 2) {
+                mfaState.loginAttempts++;
+                if (mfaState.loginAttempts >= mfaState.maxLoginAttempts) {
+                    // Добавляем запись в историю о блокировке
+                    mfaState.loginHistory.unshift({
+                        date: new Date(),
+                        success: false,
+                        method: 'Пароль',
+                        ip: '192.168.1.' + Math.floor(Math.random() * 100),
+                        location: 'Дальнегорск, Россия',
+                        details: 'Подозрительно быстрый ввод пароля. Доступ заблокирован.'
+                    });
+                    renderLoginHistory();
+                    
+                    blockAccess();
+                    return;
+                }
+                
+                showAlert('warning', 'Слишком быстрый ввод пароля. Возможна попытка автоматического подбора.', 4000);
+                return;
+            }
+            
+            // Проверка сложности пароля
+            const strengthBar = document.getElementById('password-strength-bar');
+            const strength = parseInt(strengthBar.style.width) || 0;
+            
+            if (strength < 50) {
+                mfaState.loginAttempts++;
+                if (mfaState.loginAttempts >= mfaState.maxLoginAttempts) {
+                    // Добавляем запись в историю о блокировке
+                    mfaState.loginHistory.unshift({
+                        date: new Date(),
+                        success: false,
+                        method: 'Пароль',
+                        ip: '192.168.1.' + Math.floor(Math.random() * 100),
+                        location: 'Дальнегорск, Россия',
+                        details: 'Слишком слабый пароль. Доступ заблокирован.'
+                    });
+                    renderLoginHistory();
+                    
+                    blockAccess();
+                    return;
+                }
+                
+                showAlert('warning', 'Ваш пароль слишком слабый. Рекомендуем использовать более сложный пароль.', 4000);
+                return;
+            }
+            
+            // Симуляция проверки учетных данных
+            showAlert('success', 'Первый фактор подтвержден. Требуется второй фактор.', 3000);
+            
+            // Добавляем запись в историю о успешной проверке пароля
+            mfaState.loginHistory.unshift({
+                date: new Date(),
+                success: true,
+                method: 'Пароль',
+                ip: '192.168.1.' + Math.floor(Math.random() * 100),
+                location: 'Дальнегорск, Россия',
+                details: 'Пароль подтвержден, требуется второй фактор'
+            });
+            renderLoginHistory();
+            
+            // Прокрутка к следующему шагу
+            setTimeout(() => {
+                document.getElementById('mfa-step2').scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }, 500);
+            
+            // Переход к шагу 2
+            document.getElementById('mfa-step2').style.display = 'block';
+            document.getElementById('mfa-arrow1').style.display = 'flex';
+            
+            setTimeout(() => {
+                document.getElementById('mfa-step2').style.opacity = '1';
+                document.getElementById('mfa-arrow1').classList.add('visible');
+                
+                mfaState.currentStep = 2;
+                updateProgressBars();
+            }, 50);
+        }
+        
+        // Выбор метода MFA
+        function selectMfaMethod(method) {
+            if (mfaState.isBlocked) return;
+            
+            mfaState.selectedMethod = method;
+            mfaState.verificationAttempts = 0; // Сброс счетчика попыток
+            
+            // Настройка UI для выбранного метода
+            const verificationDiv = document.getElementById('mfa-verification');
+            verificationDiv.innerHTML = '';
+            
+            switch(method) {
+                case 'sms':
+                    document.getElementById('mfa-method-title').textContent = 'Подтверждение по SMS';
+                    verificationDiv.innerHTML = `
+                        <p>На номер +7 *** *** 1234 отправлен код подтверждения:</p>
+                        <div class="form-group">
+                            <label>Введите 6-значный код из SMS:</label>
+                            <input type="text" class="form-control" id="sms-code" placeholder="123456" maxlength="6">
+                        </div>
+                        <button class="btn btn-primary" onclick="verifyMfaCode('sms')">
+                            <i class="fas fa-check"></i> Подтвердить
+                        </button>
+                        <button class="btn btn-outline" onclick="resendSmsCode()">
+                            <i class="fas fa-redo"></i> Отправить код повторно
+                        </button>
+                        <div class="attempts-counter" id="sms-attempts">Осталось попыток: ${mfaState.maxVerificationAttempts - mfaState.verificationAttempts}</div>
+                    `;
+                    break;
+                    
+                case 'totp':
+                    document.getElementById('mfa-method-title').textContent = 'Подтверждение в приложении';
+                    verificationDiv.innerHTML = `
+                        <p>Откройте приложение для аутентификации и введите текущий код:</p>
+                        <div class="totp-code" id="totp-code">${generateTotpCode()}</div>
+                        <div class="timer-bar">
+                            <div class="timer-progress" id="totp-timer"></div>
+                        </div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label>Введите 6-значный код из приложения:</label>
+                            <input type="text" class="form-control" id="totp-input" placeholder="123456" maxlength="6">
+                        </div>
+                        <button class="btn btn-primary" onclick="verifyMfaCode('totp')">
+                            <i class="fas fa-check"></i> Подтвердить
+                        </button>
+                        <div class="attempts-counter" id="totp-attempts">Осталось попыток: ${mfaState.maxVerificationAttempts - mfaState.verificationAttempts}</div>
+                    `;
+                    startTotpTimer();
+                    break;
+                    
+                case 'biometric':
+                    document.getElementById('mfa-method-title').textContent = 'Биометрическая проверка';
+                    verificationDiv.innerHTML = `
+                        <p>Подтвердите вашу личность с помощью биометрии:</p>
+                        <div style="text-align: center; margin: 20px 0;">
+                            <i class="fas fa-fingerprint" style="font-size: 3em; color: var(--primary);"></i>
+                        </div>
+                        <button class="btn btn-primary" onclick="simulateBiometricVerification()">
+                            <i class="fas fa-fingerprint"></i> Сканировать отпечаток
+                        </button>
+                        <div class="attempts-counter" id="bio-attempts">Осталось попыток: ${mfaState.maxVerificationAttempts - mfaState.verificationAttempts}</div>
+                    `;
+                    break;
+            }
+            
+            // Прокрутка к следующему шагу
+            setTimeout(() => {
+                document.getElementById('mfa-step3').scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }, 500);
+            
+            // Показать шаг 3
+            document.getElementById('mfa-step3').style.display = 'block';
+            document.getElementById('mfa-arrow2').style.display = 'flex';
+            
+            setTimeout(() => {
+                document.getElementById('mfa-step3').style.opacity = '1';
+                document.getElementById('mfa-arrow2').classList.add('visible');
+                
+                mfaState.currentStep = 3;
+                updateProgressBars();
+            }, 50);
+        }
+        
+        // Генерация TOTP кода
+        function generateTotpCode() {
+            // В реальной системе это должно быть синхронизировано с сервером
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+        
+        // Таймер для TOTP кода
+        function startTotpTimer() {
+            if (mfaState.isBlocked) return;
+            
+            let timeLeft = 30;
+            const timer = document.getElementById('totp-timer');
+            const codeElement = document.getElementById('totp-code');
+            
+            timer.style.width = '100%';
+            
+            mfaState.totpInterval = setInterval(() => {
+                timeLeft--;
+                timer.style.width = `${(timeLeft / 30) * 100}%`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(mfaState.totpInterval);
+                    codeElement.textContent = generateTotpCode();
+                    startTotpTimer();
+                }
+            }, 1000);
+        }
+        
+        // Проверка MFA кода
+        function verifyMfaCode(method) {
+            if (mfaState.isBlocked) return;
+            
+            let isValid = false;
+            let errorMessage = '';
+            let codeElement, attemptsElement;
+            
+            if (method === 'sms') {
+                const code = document.getElementById('sms-code').value;
+                if (!code) {
+                    errorMessage = 'Введите код из SMS';
+                } else if (code.length !== 6) {
+                    errorMessage = 'Код должен содержать 6 цифр';
+                } else if (!/^\d+$/.test(code)) {
+                    errorMessage = 'Код должен содержать только цифры';
+                } else if (code !== '123456') { // Фиксированный код для демо
+                    errorMessage = 'Неверный код подтверждения';
+                } else {
+                    isValid = true;
+                }
+                codeElement = document.getElementById('sms-code');
+                attemptsElement = document.getElementById('sms-attempts');
+            } 
+            else if (method === 'totp') {
+                const code = document.getElementById('totp-input').value;
+                const currentCode = document.getElementById('totp-code').textContent;
+                if (!code) {
+                    errorMessage = 'Введите код из приложения';
+                } else if (code.length !== 6) {
+                    errorMessage = 'Код должен содержать 6 цифр';
+                } else if (!/^\d+$/.test(code)) {
+                    errorMessage = 'Код должен содержать только цифры';
+                } else if (code !== currentCode) {
+                    errorMessage = 'Неверный код подтверждения. Убедитесь, что время на устройстве синхронизировано.';
+                } else {
+                    isValid = true;
+                }
+                codeElement = document.getElementById('totp-input');
+                attemptsElement = document.getElementById('totp-attempts');
+            }
+            
+            if (isValid) {
+                // Успешная проверка
+                completeMfaProcess();
+                
+                // Добавляем запись в историю
+                mfaState.loginHistory.unshift({
+                    date: new Date(),
+                    success: true,
+                    method: method === 'sms' ? 'SMS' : 'TOTP',
+                    ip: '192.168.1.' + Math.floor(Math.random() * 100),
+                    location: 'Дальнегорск, Россия',
+                    details: 'Успешная аутентификация'
+                });
+                renderLoginHistory();
+            } else {
+                // Неверный код
+                mfaState.verificationAttempts++;
+                
+                if (mfaState.verificationAttempts >= mfaState.maxVerificationAttempts) {
+                    // Добавляем запись в историю о блокировке
+                    mfaState.loginHistory.unshift({
+                        date: new Date(),
+                        success: false,
+                        method: method === 'sms' ? 'SMS' : 'TOTP',
+                        ip: '192.168.1.' + Math.floor(Math.random() * 100),
+                        location: 'Дальнегорск, Россия',
+                        details: 'Превышено количество попыток. Доступ заблокирован.'
+                    });
+                    renderLoginHistory();
+                    
+                    blockAccess();
+                    return;
+                }
+                
+                showAlert('danger', errorMessage || 'Ошибка аутентификации', 3000);
+                codeElement.value = '';
+                codeElement.focus();
+                
+                // Обновляем счетчик попыток
+                if (attemptsElement) {
+                    attemptsElement.textContent = `Осталось попыток: ${mfaState.maxVerificationAttempts - mfaState.verificationAttempts}`;
+                    attemptsElement.style.color = mfaState.verificationAttempts >= mfaState.maxVerificationAttempts - 1 ? 'var(--danger)' : 'var(--warning)';
+                }
+            }
+        }
+        
+        // Повторная отправка SMS кода
+        function resendSmsCode() {
+            if (mfaState.isBlocked) return;
+            
+            showAlert('info', 'Новый код отправлен на ваш номер', 3000);
+            document.getElementById('sms-code').value = '';
+            document.getElementById('sms-code').focus();
+        }
+        
+        // Симуляция биометрической проверки
+        function simulateBiometricVerification() {
+            if (mfaState.isBlocked) return;
+            
+            // Случайный результат для демонстрации (80% успеха)
+            const isSuccess = Math.random() < 0.8;
+            
+            if (isSuccess) {
+                completeMfaProcess();
+                
+                // Добавляем запись в историю
+                mfaState.loginHistory.unshift({
+                    date: new Date(),
+                    success: true,
+                    method: 'Биометрия',
+                    ip: '192.168.1.' + Math.floor(Math.random() * 100),
+                    location: 'Дальнегорск, Россия',
+                    details: 'Успешная биометрическая аутентификация'
+                });
+                renderLoginHistory();
+            } else {
+                mfaState.verificationAttempts++;
+                
+                if (mfaState.verificationAttempts >= mfaState.maxVerificationAttempts) {
+                    // Добавляем запись в историю о блокировке
+                    mfaState.loginHistory.unshift({
+                        date: new Date(),
+                        success: false,
+                        method: 'Биометрия',
+                        ip: '192.168.1.' + Math.floor(Math.random() * 100),
+                        location: 'Дальнегорск, Россия',
+                        details: 'Неудачная биометрическая проверка. Доступ заблокирован.'
+                    });
+                    renderLoginHistory();
+                    
+                    blockAccess();
+                    return;
+                }
+                
+                showAlert('danger', 'Биометрическая проверка не удалась', 3000);
+                document.getElementById('bio-attempts').textContent = `Осталось попыток: ${mfaState.maxVerificationAttempts - mfaState.verificationAttempts}`;
+                document.getElementById('bio-attempts').style.color = mfaState.verificationAttempts >= mfaState.maxVerificationAttempts - 1 ? 'var(--danger)' : 'var(--warning)';
+            }
+        }
+        
+        // Завершение процесса MFA
+        function completeMfaProcess() {
+            if (mfaState.isBlocked) return;
+            
+            // Очищаем таймер TOTP, если был
+            if (mfaState.totpInterval) {
+                clearInterval(mfaState.totpInterval);
+                mfaState.totpInterval = null;
+            }
+            
+            // Показываем шаг 4
+            document.getElementById('mfa-step4').style.display = 'block';
+            document.getElementById('mfa-arrow3').style.display = 'flex';
+            
+            setTimeout(() => {
+                document.getElementById('mfa-step4').style.opacity = '1';
+                document.getElementById('mfa-arrow3').classList.add('visible');
+                document.getElementById('success-alert').classList.add('visible');
+                
+                mfaState.currentStep = 4;
+                updateProgressBars();
+                
+                // Прокрутка к успешному завершению
+                document.getElementById('mfa-step4').scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }, 50);
+        }
+        
+        // Обновление прогресс-баров
+        function updateProgressBars() {
+            const progress = (mfaState.currentStep / 4) * 100;
+            document.getElementById('progress-mfa').style.width = `${progress}%`;
+        }
+        
+        // Показать уведомление
+        function showAlert(type, message, duration) {
+            if (mfaState.isBlocked) return;
+            
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `<i class="fas fa-${getAlertIcon(type)}"></i> ${message}`;
+            
+            const container = document.querySelector('.card');
+            container.insertBefore(alert, container.firstChild);
+            
+            setTimeout(() => {
+                alert.classList.add('visible');
+            }, 10);
+            
+            if (duration) {
+                setTimeout(() => {
+                    alert.classList.remove('visible');
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 300);
+                }, duration);
+            }
+        }
+        
+        // Получить иконку для уведомления
+        function getAlertIcon(type) {
+            switch(type) {
+                case 'success': return 'check-circle';
+                case 'danger': return 'exclamation-circle';
+                case 'warning': return 'exclamation-triangle';
+                case 'info': return 'info-circle';
+                default: return 'bell';
+            }
+        }
+
+        // ===== ОСНОВНАЯ ФУНКЦИЯ АУТЕНТИФИКАЦИИ =====
+// Обновленная функция startMfaProcess()
+function startMfaProcess() {
+    if (mfaState.isBlocked) return;
+    
+    const login = document.getElementById('mfa-login').value;
+    const password = document.getElementById('mfa-password').value;
+    
+    if (!login || !password) {
+        showAlert('danger', 'Введите логин и пароль', 3000);
+        return;
+    }
+    
+    // Проверка пароля (демо: правильный пароль "password123")
+    if (password !== "password123") {
+        mfaState.loginAttempts++;
+        
+        if (mfaState.loginAttempts >= mfaState.maxLoginAttempts) {
+            // Добавляем запись в историю о блокировке
+            mfaState.loginHistory.unshift({
+                date: new Date(),
+                success: false,
+                method: 'Пароль',
+                ip: '192.168.1.' + Math.floor(Math.random() * 100),
+                location: 'Дальнегорск, Россия',
+                details: 'Неверный пароль. Доступ заблокирован.'
+            });
+            renderLoginHistory();
+            
+            blockAccess();
+            return;
+        }
+        
+        showAlert('danger', `Неверный пароль! Осталось попыток: ${mfaState.maxLoginAttempts - mfaState.loginAttempts}`, 3000);
+        return;
+    }
+    
+    // Запрос PIN-кода
+    const pinCode = prompt('🔐 Введите ваш 4-значный PIN-код:', '');
+    
+    // Обработка отмены
+    if (pinCode === null) {
+        showAlert('warning', 'Ввод PIN-кода отменён', 3000);
+        return;
+    }
+    
+    // Проверка формата PIN
+    if (!pinCode || pinCode.length !== 4 || !/^\d+$/.test(pinCode)) {
+        showAlert('danger', 'PIN должен быть 4 цифры!', 3000);
+        return;
+    }
+    
+    // Проверка значения PIN (демо: 4321)
+    if (pinCode !== '4321') {
+        mfaState.verificationAttempts++;
+        
+        if (mfaState.verificationAttempts >= mfaState.maxVerificationAttempts) {
+            // Добавляем запись в историю о блокировке
+            mfaState.loginHistory.unshift({
+                date: new Date(),
+                success: false,
+                method: 'PIN-код',
+                ip: '192.168.1.' + Math.floor(Math.random() * 100),
+                location: 'Дальнегорск, Россия',
+                details: 'Неверный PIN-код. Доступ заблокирован.'
+            });
+            renderLoginHistory();
+            
+            blockAccess();
+            return;
+        }
+        
+        showAlert('danger', `Неверный PIN! Осталось попыток: ${mfaState.maxVerificationAttempts - mfaState.verificationAttempts}`, 3000);
+        return;
+    }
+    
+    // Успешный ввод PIN - показываем MFA методы
+    showAlert('success', '✅ PIN подтверждён! Выберите метод:', 3000);
+    
+    // Запись в историю
+    mfaState.loginHistory.unshift({
+        date: new Date(),
+        success: true,
+        method: 'PIN-код',
+        ip: '192.168.1.' + Math.floor(Math.random() * 100),
+        location: 'Дальнегорск, Россия',
+        details: 'PIN подтверждён, требуется второй фактор'
+    });
+    renderLoginHistory();
+    
+    // Показываем шаг выбора метода
+    document.getElementById('mfa-step2').style.display = 'block';
+    document.getElementById('mfa-arrow1').style.display = 'flex';
+    
+    setTimeout(() => {
+        document.getElementById('mfa-step2').style.opacity = '1';
+        document.getElementById('mfa-arrow1').classList.add('visible');
+        mfaState.currentStep = 2;
+        updateProgressBars();
+        document.getElementById('mfa-step2').scrollIntoView({ behavior: 'smooth' });
+    }, 50);
+}
+
+// Функция блокировки (остается без изменений)
+function blockAccess() {
+    mfaState.isBlocked = true;
+    localStorage.setItem('mfaBlocked', 'true');
+    document.getElementById('block-overlay').style.display = 'flex';
+    
+    document.querySelectorAll('button, input, a').forEach(el => {
+        if (el.id !== 'reload-btn') {
+            el.disabled = true;
+            el.style.pointerEvents = 'none';
+            el.style.opacity = '0.5';
+        }
+    });
+}
+        
+        
+    </script>
+</body>
+</html>

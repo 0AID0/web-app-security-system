@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redis с TLS - Безопасное хранилище ключ-значение</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-image: url(2ed335b16e62c39b6d5b7725ff09d5e9.gif);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+            color: white;
+        }
+
+        header {
+            background: url(5a) no-repeat center center/cover;
+            color: #ffffff;
+            padding: 40px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+        }
+
+        header p {
+            font-size: 1.2em;
+            margin: 10px 0 20px;
+            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+        }
+
+        .home-button {
+            display: inline-block;
+            background-color: rgba(53, 66, 74, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+
+        .home-button:hover {
+            background-color: rgba(44, 62, 80, 0.9);
+            transform: scale(1.05);
+        }
+
+        main {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        section {
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.103);
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px #ccc;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            border: 2px solid rgb(0, 0, 0);
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card {
+            background: rgba(30, 30, 30, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4da6ff;
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background: rgba(40, 40, 40, 0.8);
+        }
+
+        h2, h3 {
+            color: #4da6ff;
+        }
+
+        .technology-icon {
+            margin-right: 10px;
+            color: #f3f3f3;
+            font-size: 1.5em;
+        }
+
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #abb2bf;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .keyword {
+            color: #c678dd;
+        }
+
+        .string {
+            color: #98c379;
+        }
+
+        .comment {
+            color: #5c6370;
+            font-style: italic;
+        }
+
+        .function {
+            color: #61afef;
+        }
+
+        .param {
+            color: #e06c75;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: -1px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: rgba(53, 66, 74, 0.7);
+            border: 1px solid #2d3e50;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            margin-right: 5px;
+            color: white;
+        }
+
+        .tab.active {
+            background: rgba(30, 30, 30, 0.7);
+            border-bottom: 1px solid rgba(30, 30, 30, 0.7);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: rgba(30, 30, 30, 0.7);
+            border: 1px solid #2d3e50;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .feature {
+            flex: 1;
+            min-width: 250px;
+            background: rgba(40, 40, 40, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted #666;
+            cursor: help;
+            color: #4da6ff;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 300px;
+            background-color: #333;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -150px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background: rgba(0, 0, 0, 0);
+            color: #ffffff;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(53, 66, 74, 0.9);
+            color: #ffffff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+            transition: all 0.3s;
+        }
+
+        .back-to-top:hover {
+            background: rgba(44, 62, 80, 0.9);
+            transform: scale(1.1);
+        }
+
+        .interactive-demo {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(40, 40, 40, 0.7);
+            border-radius: 8px;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .demo-controls input, .demo-controls button {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .demo-controls button {
+            background: #4da6ff;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .demo-controls button:hover {
+            background: #3a8bd6;
+        }
+
+        .demo-controls button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .demo-result {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            min-height: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-connected {
+            background: #4CAF50;
+            box-shadow: 0 0 5px #4CAF50;
+        }
+
+        .status-disconnected {
+            background: #F44336;
+        }
+
+        #ping-time {
+            color: #4da6ff;
+            font-size: 0.9em;
+            margin-left: 15px;
+        }
+
+        #ping-ms {
+            font-weight: bold;
+        }
+
+        .ping-excellent {
+            color: #4CAF50;
+        }
+
+        .ping-good {
+            color: #8BC34A;
+        }
+
+        .ping-fair {
+            color: #FFC107;
+        }
+
+        .ping-poor {
+            color: #FF9800;
+        }
+
+        .ping-bad {
+            color: #F44336;
+        }
+
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 30px 0;
+            }
+            
+            header h1 {
+                font-size: 2em;
+            }
+            
+            .home-button {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+            
+            .demo-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .demo-controls input, .demo-controls button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1><i class="fas fa-database technology-icon"></i> Redis с TLS</h1>
+            <p>Безопасное хранилище ключ-значение с шифрованием трафика</p>
+            <a href="index.html" class="home-button">На главную</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="overview">
+            <h2><i class="fas fa-info-circle technology-icon"></i>Обзор технологии</h2>
+            <div class="card">
+                <p>Redis с поддержкой TLS (Transport Layer Security) - это защищенная версия популярного хранилища ключ-значение, где весь трафик между клиентом и сервером шифруется.</p>
+                
+                <div class="feature-list">
+                    <div class="feature">
+                        <h3><i class="fas fa-lock"></i> Шифрование трафика</h3>
+                        <p>Все данные передаются по зашифрованному каналу, защищая их от перехвата.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <h3><i class="fas fa-id-card"></i> Аутентификация</h3>
+                        <p>Сертификаты TLS обеспечивают проверку подлинности сервера и клиента.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <h3><i class="fas fa-shield-alt"></i> Целостность данных</h3>
+                        <p>Гарантия, что данные не были изменены при передаче.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="configuration">
+            <h2><i class="fas fa-cog technology-icon"></i>Настройка Redis с TLS</h2>
+            
+            <div class="card">
+                <div class="tabs">
+                    <div class="tab active" onclick="openTab(event, 'server-config')">Сервер</div>
+                    <div class="tab" onclick="openTab(event, 'client-config')">Клиент</div>
+                    <div class="tab" onclick="openTab(event, 'certificates')">Сертификаты</div>
+                </div>
+                
+                <div id="server-config" class="tab-content active">
+                    <h3>Конфигурация сервера Redis</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># redis.conf</span><br>
+                        <span class="keyword">port</span> 0<br>
+                        <span class="keyword">tls-port</span> 6379<br>
+                        <span class="keyword">tls-cert-file</span> <span class="string">/path/to/redis.crt</span><br>
+                        <span class="keyword">tls-key-file</span> <span class="string">/path/to/redis.key</span><br>
+                        <span class="keyword">tls-ca-cert-file</span> <span class="string">/path/to/ca.crt</span><br>
+                        <span class="keyword">tls-auth-clients</span> <span class="string">yes</span> <span class="comment"># Требовать сертификаты от клиентов</span>
+                    </div>
+                    
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle"></i> Подробнее о параметрах
+                        <div class="tooltiptext">
+                            <strong>Ключевые параметры:</strong><br>
+                            - <b>tls-port</b>: порт для TLS соединений<br>
+                            - <b>tls-cert-file</b>: сертификат сервера<br>
+                            - <b>tls-key-file</b>: приватный ключ сервера<br>
+                            - <b>tls-ca-cert-file</b>: корневой сертификат CA<br>
+                            - <b>tls-auth-clients</b>: требовать клиентские сертификаты<br><br>
+                            После настройки перезапустите Redis: <code>redis-server /path/to/redis.conf</code>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="client-config" class="tab-content">
+                    <h3>Подключение клиента с TLS</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Python пример с redis-py</span><br>
+                        <span class="keyword">import</span> redis<br><br>
+                        
+                        r = redis.Redis(<br>
+                        &nbsp;&nbsp;<span class="param">host</span>=<span class="string">'redis.example.com'</span>,<br>
+                        &nbsp;&nbsp;<span class="param">port</span>=6379,<br>
+                        &nbsp;&nbsp;<span class="param">ssl</span>=<span class="keyword">True</span>,<br>
+                        &nbsp;&nbsp;<span class="param">ssl_ca_certs</span>=<span class="string">'/path/to/ca.crt'</span>,<br>
+                        &nbsp;&nbsp;<span class="param">ssl_certfile</span>=<span class="string">'/path/to/client.crt'</span>,<br>
+                        &nbsp;&nbsp;<span class="param">ssl_keyfile</span>=<span class="string">'/path/to/client.key'</span>,<br>
+                        &nbsp;&nbsp;<span class="param">ssl_cert_reqs</span>=<span class="string">'required'</span><br>
+                        )<br><br>
+                        
+                        <span class="comment"># Тестирование соединения</span><br>
+                        <span class="keyword">print</span>(r.ping()) <span class="comment"># Должно вернуть True</span>
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Тестовое подключение</h4>
+                        <div class="demo-controls">
+                            <button id="connect-btn">Подключиться</button>
+                            <button id="ping-btn" disabled>PING</button>
+                            <span id="connection-status"><span class="status-indicator status-disconnected"></span>Отключено</span>
+                            <span id="ping-time" style="display: none;">Время отклика: <span id="ping-ms">0</span> мс</span>
+                        </div>
+                        <div class="demo-result" id="connection-result"></div>
+                    </div>
+                    
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle"></i> Альтернативные клиенты
+                        <div class="tooltiptext">
+                            <strong>Другие клиенты:</strong><br>
+                            - <b>redis-cli</b>:<br>
+                            <code>redis-cli --tls --cert /path/to/client.crt --key /path/to/client.key --cacert /path/to/ca.crt</code><br><br>
+                            
+                            - <b>Node.js (ioredis)</b>:<br>
+                            <code>const redis = new Redis({ tls: { ca: fs.readFileSync('ca.crt'), ... } });</code><br><br>
+                            
+                            - <b>Java (Jedis)</b>:<br>
+                            Настройте SSLContext с вашими сертификатами перед созданием соединения.
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="certificates" class="tab-content">
+                    <h3>Генерация сертификатов</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Генерация корневого CA</span><br>
+                        openssl genrsa -out ca.key 4096<br>
+                        openssl req -new -x509 -days 365 -key ca.key -out ca.crt<br><br>
+                        
+                        <span class="comment"># Генерация сертификата сервера</span><br>
+                        openssl genrsa -out redis.key 2048<br>
+                        openssl req -new -key redis.key -out redis.csr<br>
+                        openssl x509 -req -days 365 -in redis.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out redis.crt<br><br>
+                        
+                        <span class="comment"># Генерация клиентского сертификата</span><br>
+                        openssl genrsa -out client.key 2048<br>
+                        openssl req -new -key client.key -out client.csr<br>
+                        openssl x509 -req -days 365 -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Проверка сертификата</h4>
+                        <div class="demo-controls">
+                            <input type="text" id="cert-text" placeholder="Введите текст сертификата" style="flex-grow: 1;">
+                            <button id="validate-cert-btn">Проверить</button>
+                        </div>
+                        <div class="demo-result" id="cert-validation-result"></div>
+                    </div>
+                    
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle"></i> Безопасность сертификатов
+                        <div class="tooltiptext">
+                            <strong>Рекомендации по безопасности:</strong><br>
+                            1. Храните приватные ключи в безопасном месте<br>
+                            2. Используйте надежные пароли для ключей<br>
+                            3. Устанавливайте разумные сроки действия сертификатов<br>
+                            4. Регулярно обновляйте сертификаты<br>
+                            5. Отзывайте скомпрометированные сертификаты<br><br>
+                            
+                            Для production используйте сертификаты от доверенных CA (Let's Encrypt, DigiCert и др.)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="examples">
+            <h2><i class="fas fa-code technology-icon"></i>Примеры использования</h2>
+            
+            <div class="card">
+                <div class="tabs">
+                    <div class="tab active" onclick="openTab(event, 'basic-ops')">Базовые операции</div>
+                    <div class="tab" onclick="openTab(event, 'pipeline')">Pipeline</div>
+                    <div class="tab" onclick="openTab(event, 'pubsub')">Pub/Sub</div>
+                </div>
+                
+                <div id="basic-ops" class="tab-content active">
+                    <h3>Базовые операции с TLS</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="keyword">import</span> redis<br><br>
+                        
+                        <span class="comment"># Создание безопасного соединения</span><br>
+                        r = redis.Redis(<br>
+                        &nbsp;&nbsp;<span class="param">host</span>=<span class="string">'secure.redis.example'</span>,<br>
+                        &nbsp;&nbsp;<span class="param">ssl</span>=<span class="keyword">True</span>,<br>
+                        &nbsp;&nbsp;<span class="param">ssl_ca_certs</span>=<span class="string">'ca.crt'</span><br>
+                        )<br><br>
+                        
+                        <span class="comment"># Запись и чтение данных</span><br>
+                        r.set(<span class="string">'user:1000:name'</span>, <span class="string">'Алексей'</span>, ex=3600) <span class="comment"># TTL 1 час</span><br>
+                        name = r.get(<span class="string">'user:1000:name'</span>)<br>
+                        <span class="keyword">print</span>(name.decode(<span class="string">'utf-8'</span>)) <span class="comment"># Алексей</span><br><br>
+                        
+                        <span class="comment"># Хеши</span><br>
+                        r.hset(<span class="string">'user:1000'</span>, mapping={<br>
+                        &nbsp;&nbsp;<span class="string">'name'</span>: <span class="string">'Алексей'</span>,<br>
+                        &nbsp;&nbsp;<span class="string">'email'</span>: <span class="string">'alex@example.com'</span>,<br>
+                        &nbsp;&nbsp;<span class="string">'last_login'</span>: <span class="string">'2023-05-15T10:00:00'</span><br>
+                        })<br>
+                        user_data = r.hgetall(<span class="string">'user:1000'</span>)<br>
+                        <span class="keyword">print</span>(user_data) <span class="comment"># {'name': b'Алексей', 'email': b'alex@example.com', ...}</span>
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация работы с ключами</h4>
+                        <div class="demo-controls">
+                            <input type="text" id="key-input" placeholder="Ключ" style="width: 120px;">
+                            <input type="text" id="value-input" placeholder="Значение">
+                            <button id="set-btn">SET</button>
+                            <button id="get-btn">GET</button>
+                            <button id="del-btn">DEL</button>
+                            <button id="ttl-btn">TTL</button>
+                        </div>
+                        <div class="demo-result" id="kv-result"></div>
+                    </div>
+                </div>
+                
+                <div id="pipeline" class="tab-content">
+                    <h3>Использование Pipeline с TLS</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="keyword">import</span> redis<br><br>
+                        
+                        r = redis.Redis(<span class="param">ssl</span>=<span class="keyword">True</span>, <span class="param">ssl_ca_certs</span>=<span class="string">'ca.crt'</span>)<br><br>
+                        
+                        <span class="comment"># Создание pipeline</span><br>
+                        pipe = r.pipeline()<br><br>
+                        
+                        <span class="comment"># Добавление команд</span><br>
+                        pipe.set(<span class="string">'counter'</span>, 0)<br>
+                        pipe.incr(<span class="string">'counter'</span>)<br>
+                        pipe.incrby(<span class="string">'counter'</span>, 10)<br>
+                        pipe.get(<span class="string">'counter'</span>)<br><br>
+                        
+                        <span class="comment"># Выполнение всех команд за один запрос</span><br>
+                        result = pipe.execute()<br>
+                        <span class="keyword">print</span>(result) <span class="comment"># [True, 1, 11, b'11']</span>
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация Pipeline</h4>
+                        <div class="demo-controls">
+                            <button id="run-pipeline-btn">Выполнить Pipeline</button>
+                        </div>
+                        <div class="demo-result" id="pipeline-result"></div>
+                    </div>
+                    
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle"></i> Преимущества Pipeline
+                        <div class="tooltiptext">
+                            <strong>Почему использовать Pipeline:</strong><br>
+                            - Уменьшает количество сетевых запросов<br>
+                            - Увеличивает производительность (до 5-10x)<br>
+                            - Все команды выполняются атомарно (одна транзакция)<br>
+                            - Особенно полезно при высоких задержках сети<br><br>
+                            
+                            <strong>Ограничения:</strong><br>
+                            - Некоторые команды (например, WATCH) требуют особой обработки<br>
+                            - Большие pipeline могут блокировать сервер
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="pubsub" class="tab-content">
+                    <h3>Pub/Sub с шифрованием</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="keyword">import</span> redis<br>
+                        <span class="keyword">import</span> threading<br><br>
+                        
+                        <span class="comment"># Функция подписчика</span><br>
+                        <span class="keyword">def</span> <span class="function">subscriber</span>():<br>
+                        &nbsp;&nbsp;r = redis.Redis(<span class="param">ssl</span>=<span class="keyword">True</span>, <span class="param">ssl_ca_certs</span>=<span class="string">'ca.crt'</span>)<br>
+                        &nbsp;&nbsp;pubsub = r.pubsub()<br>
+                        &nbsp;&nbsp;pubsub.subscribe(<span class="string">'notifications'</span>)<br>
+                        &nbsp;&nbsp;<span class="keyword">for</span> message <span class="keyword">in</span> pubsub.listen():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> message[<span class="string">'type'</span>] == <span class="string">'message'</span>:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">print</span>(<span class="string">"Получено:"</span>, message[<span class="string">'data'</span>].decode())<br><br>
+                        
+                        <span class="comment"># Запуск подписчика в фоне</span><br>
+                        thread = threading.Thread(<span class="param">target</span>=subscriber)<br>
+                        thread.start()<br><br>
+                        
+                        <span class="comment"># Публикация сообщений</span><br>
+                        r = redis.Redis(<span class="param">ssl</span>=<span class="keyword">True</span>, <span class="param">ssl_ca_certs</span>=<span class="string">'ca.crt'</span>)<br>
+                        r.publish(<span class="string">'notifications'</span>, <span class="string">'Сообщение 1'</span>)<br>
+                        r.publish(<span class="string">'notifications'</span>, <span class="string">'Сообщение 2'</span>)
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация Pub/Sub</h4>
+                        <div class="demo-controls">
+                            <input type="text" id="channel-input" placeholder="Канал" style="width: 150px;">
+                            <input type="text" id="message-input" placeholder="Сообщение" style="flex-grow: 1;">
+                            <button id="subscribe-btn">Подписаться</button>
+                            <button id="publish-btn">Опубликовать</button>
+                        </div>
+                        <div class="demo-result" id="pubsub-result"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="best-practices">
+            <h2><i class="fas fa-shield-alt technology-icon"></i>Лучшие практики безопасности</h2>
+            
+            <div class="card">
+                <div class="feature-list">
+                    <div class="feature">
+                        <h3><i class="fas fa-certificate"></i> Управление сертификатами</h3>
+                        <ul>
+                            <li>Используйте надежные ключи (минимум 2048 бит)</li>
+                            <li>Регулярно обновляйте сертификаты</li>
+                            <li>Отзывайте скомпрометированные сертификаты</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature">
+                        <h3><i class="fas fa-user-lock"></i> Контроль доступа</h3>
+                        <ul>
+                            <li>Ограничьте доступ к Redis только доверенным клиентам</li>
+                            <li>Используйте ACL (начиная с Redis 6)</li>
+                            <li>Реализуйте двухфакторную аутентификацию</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature">
+                        <h3><i class="fas fa-clock"></i> Настройки TLS</h3>
+                        <ul>
+                            <li>Используйте современные версии TLS (1.2 или 1.3)</li>
+                            <li>Отключите устаревшие шифры</li>
+                            <li>Настройте perfect forward secrecy</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                    <span class="comment"># Проверка настроек TLS (используя openssl)</span><br>
+                    openssl s_client -connect redis.example.com:6379 -starttls redis | openssl x509 -noout -text<br><br>
+                    
+                    <span class="comment"># Проверка поддерживаемых шифров</span><br>
+                    nmap --script ssl-enum-ciphers -p 6379 redis.example.com
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>Проверка безопасности соединения</h4>
+                    <div class="demo-controls">
+                        <input type="text" id="host-input" placeholder="redis.example.com" style="width: 200px;">
+                        <input type="text" id="port-input" placeholder="6379" style="width: 80px;">
+                        <button id="check-security-btn">Проверить</button>
+                    </div>
+                    <div class="demo-result" id="security-check-result"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Системы кибербезопасности. Все права защищены.</p>
+    </footer>
+
+    <button class="back-to-top" onclick="scrollToTop()">Наверх</button>
+
+    <script>
+        // Глобальное состояние для демонстраций
+        const demoState = {
+            connected: false,
+            subscribedChannels: [],
+            kvStore: {},
+            ttlStore: {},
+            counter: 0,
+            pubSubMessages: {},
+            pingHistory: [],
+            connectionStartTime: null,
+            connectionAttempts: 0,
+            lastConnectionError: null,
+            securityChecks: []
+        };
+    
+        // Инициализация при загрузке страницы
+        document.addEventListener("DOMContentLoaded", function() {
+            // Инициализация вкладок
+            const firstTab = document.querySelector(".tab");
+            if (firstTab) firstTab.click();
+            
+            // Показываем первую секцию сразу
+            document.querySelector("section").classList.add('visible');
+            
+            // Инициализация хранилища
+            initDemoStorage();
+            
+            // Настройка обработчиков событий
+            setupEventListeners();
+            
+            // Обновляем TTL каждую секунду
+            setInterval(updateTTLs, 1000);
+            
+            // Инициализация tooltips
+            initTooltips();
+        });
+
+        function getPingQuality(latency) {
+            if (latency < 50) return 'Отличное';
+            if (latency < 100) return 'Хорошее';
+            if (latency < 200) return 'Удовлетворительное';
+            return 'Плохое';
+        }
+
+        function getPingQualityClass(latency) {
+            if (latency < 50) return 'ping-excellent';
+            if (latency < 100) return 'ping-good';
+            if (latency < 200) return 'ping-fair';
+            return 'ping-bad';
+        }
+    
+        function initTooltips() {
+            // Добавляем обработчики для всех элементов с классом tooltip
+            document.querySelectorAll('.tooltip').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    // Закрываем все открытые tooltips
+                    document.querySelectorAll('.tooltip .tooltiptext').forEach(t => {
+                        t.style.visibility = 'hidden';
+                    });
+                    // Показываем текущий
+                    this.querySelector('.tooltiptext').style.visibility = 'visible';
+                });
+            });
+    
+            // Закрываем tooltips при клике вне их
+            document.addEventListener('click', function() {
+                document.querySelectorAll('.tooltip .tooltiptext').forEach(t => {
+                    t.style.visibility = 'hidden';
+                });
+            });
+        }
+    
+        function initDemoStorage() {
+            // Начальные данные для демонстрации
+            demoState.kvStore = {
+                'user:1000:name': 'Алексей',
+                'config:timeout': '30',
+                'app:version': '1.2.3'
+            };
+            demoState.ttlStore = {
+                'user:1000:name': Date.now() + 3600000, // 1 час
+                'temp:session': Date.now() + 1800000 // 30 минут
+            };
+            demoState.pubSubMessages = {};
+            demoState.securityChecks = [
+                {name: 'TLS версия', status: 'success', details: 'TLS 1.3'},
+                {name: 'Шифрование', status: 'success', details: 'AES-256-GCM'},
+                {name: 'Сертификат', status: 'warning', details: 'Истекает через 30 дней'}
+            ];
+        }
+    
+        function setupEventListeners() {
+            // Подключение/отключение
+            document.getElementById('connect-btn').addEventListener('click', toggleConnection);
+            document.getElementById('ping-btn').addEventListener('click', sendPing);
+            
+            // Работа с ключами
+            document.getElementById('set-btn').addEventListener('click', setKey);
+            document.getElementById('get-btn').addEventListener('click', getKey);
+            document.getElementById('del-btn').addEventListener('click', delKey);
+            document.getElementById('ttl-btn').addEventListener('click', getTTL);
+            
+            // Pipeline
+            document.getElementById('run-pipeline-btn').addEventListener('click', runPipeline);
+            
+            // Pub/Sub
+            document.getElementById('subscribe-btn').addEventListener('click', subscribeChannel);
+            document.getElementById('publish-btn').addEventListener('click', publishMessage);
+            
+            // Сертификаты
+            document.getElementById('validate-cert-btn').addEventListener('click', validateCertificate);
+            
+            // Проверка безопасности
+            document.getElementById('check-security-btn').addEventListener('click', checkSecurity);
+            
+            // Кнопка "Наверх"
+            window.onscroll = handleScroll;
+            document.querySelector('.back-to-top').addEventListener('click', scrollToTop);
+            
+            // Обработка нажатия Enter в полях ввода
+            document.getElementById('key-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') getKey();
+            });
+            document.getElementById('value-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') setKey();
+            });
+            document.getElementById('channel-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') subscribeChannel();
+            });
+            document.getElementById('message-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') publishMessage();
+            });
+            document.getElementById('cert-text').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') validateCertificate();
+            });
+        }
+    
+        function toggleConnection() {
+            const statusElement = document.getElementById('connection-status');
+            const resultElement = document.getElementById('connection-result');
+            const pingBtn = document.getElementById('ping-btn');
+            const pingTimeElement = document.getElementById('ping-time');
+            const connectBtn = document.getElementById('connect-btn');
+            
+            // Блокируем кнопку на время выполнения операции
+            connectBtn.disabled = true;
+            connectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + 
+                                (demoState.connected ? 'Отключение...' : 'Подключение...');
+            
+            if (!demoState.connected) {
+                // Имитация подключения
+                statusElement.innerHTML = '<span class="status-indicator status-connected"></span>Подключение...';
+                resultElement.textContent = 'Установка безопасного соединения с Redis...';
+                pingBtn.disabled = true;
+                pingTimeElement.style.display = 'inline';
+                demoState.connectionStartTime = Date.now();
+                demoState.connectionAttempts++;
+                
+                // Имитация задержки подключения
+                setTimeout(() => {
+                    // 10% chance of failure только при первой попытке
+                    const willFail = Math.random() < 0.1 && demoState.connectionAttempts === 1;
+                    
+                    if (willFail) {
+                        demoState.lastConnectionError = 'Ошибка проверки сертификата: самоподписанный сертификат не доверен';
+                        statusElement.innerHTML = '<span class="status-indicator status-disconnected"></span>Ошибка';
+                        resultElement.textContent = demoState.lastConnectionError + '\n\nПопробуйте добавить сертификат CA в доверенные.';
+                        connectBtn.textContent = 'Повторить подключение';
+                    } else {
+                        const connectionTime = Date.now() - demoState.connectionStartTime;
+                        demoState.connected = true;
+                        statusElement.innerHTML = '<span class="status-indicator status-connected"></span>Подключено';
+                        resultElement.textContent = 
+                            'Подключение установлено\n' + 
+                            'Версия сервера: Redis 6.2.6\n' +
+                            'Режим TLS: enabled (TLSv1.3)\n' +
+                            `Используемый шифр: TLS_AES_256_GCM_SHA384\n` +
+                            `Время подключения: ${connectionTime} мс`;
+                        connectBtn.innerHTML = '<i class="fas fa-plug"></i> Отключиться';
+                        pingBtn.disabled = false;
+                        
+                        // Добавляем кнопку для деталей
+                        const detailsBtn = document.createElement('button');
+                        detailsBtn.className = 'demo-button';
+                        detailsBtn.innerHTML = '<i class="fas fa-info-circle"></i> Детали соединения';
+                        detailsBtn.onclick = showConnectionDetails;
+                        resultElement.appendChild(document.createElement('br'));
+                        resultElement.appendChild(document.createElement('br'));
+                        resultElement.appendChild(detailsBtn);
+                    }
+                    connectBtn.disabled = false;
+                }, 800);
+            } else {
+                // Имитация отключения
+                statusElement.innerHTML = '<span class="status-indicator status-disconnected"></span>Отключение...';
+                
+                setTimeout(() => {
+                    demoState.connected = false;
+                    statusElement.innerHTML = '<span class="status-indicator status-disconnected"></span>Отключено';
+                    resultElement.textContent = 'Соединение закрыто';
+                    pingBtn.disabled = true;
+                    pingTimeElement.style.display = 'none';
+                    demoState.pingHistory = [];
+                    connectBtn.innerHTML = '<i class="fas fa-plug"></i> Подключиться';
+                    connectBtn.disabled = false;
+                }, 300);
+            }
+        }
+    
+        function showConnectionDetails() {
+            const resultElement = document.getElementById('connection-result');
+            resultElement.innerHTML = 
+                '<h4>Детали безопасного соединения</h4>' +
+                '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">' +
+                '  <div><strong>Протокол:</strong> TLS 1.3</div>' +
+                '  <div><strong>Шифр:</strong> AES-256-GCM</div>' +
+                '  <div><strong>Аутентификация:</strong> Mutual TLS</div>' +
+                '  <div><strong>Perfect Forward Secrecy:</strong> Да</div>' +
+                '  <div><strong>Сертификат клиента:</strong> Валиден</div>' +
+                '  <div><strong>Сертификат сервера:</strong> Валиден</div>' +
+                '  <div><strong>Алгоритм подписи:</strong> SHA256-RSA</div>' +
+                '  <div><strong>Размер ключа:</strong> 2048 бит</div>' +
+                '</div>' +
+                '<button class="demo-button" style="margin-top: 15px;" onclick="toggleConnection()">' +
+                '<i class="fas fa-sync-alt"></i> Переподключиться</button>';
+        }
+    
+        function sendPing() {
+            const resultElement = document.getElementById('connection-result');
+            const pingMsElement = document.getElementById('ping-ms');
+            const pingBtn = document.getElementById('ping-btn');
+            
+            if (!demoState.connected) {
+                resultElement.textContent = 'Ошибка: нет подключения к серверу';
+                return;
+            }
+            
+            // Имитация сетевой задержки (10-300ms)
+            const latency = Math.floor(Math.random() * 290) + 10;
+            
+            // Показываем отправку ping
+            resultElement.textContent = 'Отправка PING...';
+            pingMsElement.textContent = '...';
+            pingBtn.disabled = true;
+            pingBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PING';
+            
+            // Добавляем анимацию загрузки
+            pingMsElement.classList.add('loading');
+            
+            // Имитация ответа через задержку
+            setTimeout(() => {
+                pingMsElement.textContent = latency;
+                pingMsElement.classList.remove('loading');
+                pingMsElement.className = getPingQualityClass(latency);
+                
+                const pingQuality = getPingQuality(latency);
+                resultElement.textContent = 'Получен ответ: PONG\n' +
+                                       `Время отклика: ${latency} мс\n` +
+                                       `Качество соединения: ${pingQuality}\n` +
+                                       'Сервер Redis доступен и отвечает';
+                
+                // Добавляем историю ping (последние 5 результатов)
+                const history = demoState.pingHistory || [];
+                history.unshift({ 
+                    time: new Date().toLocaleTimeString(), 
+                    latency,
+                    status: pingQuality
+                });
+                if (history.length > 5) history.pop();
+                demoState.pingHistory = history;
+                
+                // Показываем историю
+                if (history.length > 0) {
+                    resultElement.textContent += '\n\nИстория запросов:';
+                    history.forEach((item, index) => {
+                        resultElement.textContent += `\n${index + 1}. ${item.time} - ${item.latency} мс (${item.status})`;
+                    });
+                }
+                
+                pingBtn.disabled = false;
+                pingBtn.innerHTML = '<i class="fas fa-network-wired"></i> PING';
+                
+                // Добавляем кнопку для тестирования производительности
+                if (history.length >= 3) {
+                    const perfBtn = document.createElement('button');
+                    perfBtn.className = 'demo-button';
+                    perfBtn.innerHTML = '<i class="fas fa-tachometer-alt"></i> Тест производительности';
+                    perfBtn.onclick = runPerformanceTest;
+                    resultElement.appendChild(document.createElement('br'));
+                    resultElement.appendChild(document.createElement('br'));
+                    resultElement.appendChild(perfBtn);
+                }
+            }, latency);
+        }
+    
+        function runPerformanceTest() {
+            const resultElement = document.getElementById('connection-result');
+            resultElement.textContent = 'Запуск теста производительности...';
+            
+            // Имитация теста производительности
+            setTimeout(() => {
+                const avgLatency = demoState.pingHistory.reduce((sum, item) => sum + item.latency, 0) / demoState.pingHistory.length;
+                const throughput = Math.floor(10000 / avgLatency); // Примерная пропускная способность
+                
+                resultElement.textContent = 
+                    'Результаты теста производительности:\n' +
+                    `- Средняя задержка: ${avgLatency.toFixed(1)} мс\n` +
+                    `- Пропускная способность: ~${throughput} операций/сек\n` +
+                    '- Рекомендации:\n' +
+                    (avgLatency > 150 ? '  • Рассмотрите возможность использования Pipeline для группировки команд\n' : '') +
+                    (avgLatency > 200 ? '  • Проверьте сетевую инфраструктуру между клиентом и сервером\n' : '') +
+                    '  • Для массовых операций используйте команды MGET/MSET';
+            }, 1000);
+        }
+    
+        function setKey() {
+            const key = document.getElementById('key-input').value.trim();
+            const value = document.getElementById('value-input').value;
+            const resultElement = document.getElementById('kv-result');
+            
+            if (!key) {
+                resultElement.textContent = 'Ошибка: ключ не может быть пустым';
+                return;
+            }
+            
+            if (value === undefined || value === '') {
+                resultElement.textContent = 'Ошибка: значение не может быть пустым';
+                return;
+            }
+            
+            resultElement.textContent = `Установка ключа "${key}"...`;
+            resultElement.classList.add('loading');
+            
+            setTimeout(() => {
+                demoState.kvStore[key] = value;
+                // Устанавливаем TTL 60 секунд по умолчанию
+                demoState.ttlStore[key] = Date.now() + 60000;
+                
+                resultElement.textContent = `Ключ "${key}" успешно установлен в "${value}" (TTL: 60 сек)`;
+                resultElement.classList.remove('loading');
+                updateKeyList();
+            }, 300);
+        }
+    
+        function getKey() {
+    const key = document.getElementById('key-input').value.trim();
+    const resultElement = document.getElementById('kv-result');
+    
+    if (!key) {
+        resultElement.textContent = 'Ошибка: ключ не может быть пустым';
+        return;
+    }
+    
+    // Имитация сетевой задержки
+    resultElement.textContent = `Получение ключа "${key}"...`;
+    resultElement.classList.add('loading');
+    
+    setTimeout(() => {
+        if (key in demoState.kvStore) {
+            const ttl = key in demoState.ttlStore ? Math.max(0, Math.round((demoState.ttlStore[key] - Date.now()) / 1000)) : null;
+            resultElement.textContent = `Значение ключа "${key}": "${demoState.kvStore[key]}"${ttl !== null ? ` (TTL: ${ttl} сек)` : ''}`;
+        } else {
+            resultElement.textContent = `Ключ "${key}" не найден`;
+        }
+        resultElement.classList.remove('loading');
+    }, 200);
+}
+
+function delKey() {
+    const key = document.getElementById('key-input').value.trim();
+    const resultElement = document.getElementById('kv-result');
+    
+    if (!key) {
+        resultElement.textContent = 'Ошибка: ключ не может быть пустым';
+        return;
+    }
+    
+    // Имитация сетевой задержки
+    resultElement.textContent = `Удаление ключа "${key}"...`;
+    resultElement.classList.add('loading');
+    
+    setTimeout(() => {
+        if (key in demoState.kvStore) {
+            delete demoState.kvStore[key];
+            delete demoState.ttlStore[key];
+            resultElement.textContent = `Ключ "${key}" удален`;
+            updateKeyList();
+        } else {
+            resultElement.textContent = `Ключ "${key}" не найден`;
+        }
+        resultElement.classList.remove('loading');
+    }, 250);
+}
+
+// Перенесенные функции, которые должны быть глобальными
+function extendTTL(key) {
+    demoState.ttlStore[key] = Date.now() + 60000;
+    document.getElementById('kv-result').textContent = `TTL ключа "${key}" увеличен до 60 секунд`;
+}
+
+function setKeyTTL(key) {
+    demoState.ttlStore[key] = Date.now() + 60000;
+    document.getElementById('kv-result').textContent = `Для ключа "${key}" установлен TTL 60 секунд`;
+}
+
+function showPipelineDetails() {
+    const resultElement = document.getElementById('pipeline-result');
+    resultElement.innerHTML = 
+        `<h4>Метрики выполнения Pipeline</h4>` +
+        `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0;">` +
+        `  <div><strong>Общее время:</strong> 12 мс</div>` +
+        `  <div><strong>Команд в Pipeline:</strong> 4</div>` +
+        `  <div><strong>Экономия RTT:</strong> ~75%</div>` +
+        `  <div><strong>Скорость:</strong> 333 оп/сек</div>` +
+        `</div>` +
+        `<button class="demo-button" onclick="runPipeline()">` +
+        `<i class="fas fa-redo"></i> Повторить Pipeline</button>`;
+}
+
+function showCertDetails() {
+    const resultElement = document.getElementById('cert-validation-result');
+    resultElement.innerHTML = 
+        `<h4>Детали сертификата</h4>` +
+        `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0;">` +
+        `  <div><strong>Subject:</strong> CN=redis.example.com</div>` +
+        `  <div><strong>Issuer:</strong> CN=MyCA</div>` +
+        `  <div><strong>Алгоритм:</strong> RSA 2048 bits</div>` +
+        `  <div><strong>Подпись:</strong> SHA256withRSA</div>` +
+        `  <div><strong>Выдан:</strong> 2023-01-01</div>` +
+        `  <div><strong>Истекает:</strong> 2025-12-31</div>` +
+        `  <div><strong>Key Usage:</strong> Digital Signature, Key Encipherment</div>` +
+        `  <div><strong>Extended Key Usage:</strong> TLS Web Server Authentication</div>` +
+        `</div>` +
+        `<button class="demo-button" onclick="validateCertificate()">` +
+        `<i class="fas fa-redo"></i> Проверить другой</button>`;
+}
+
+function showFullSecurityReport() {
+    const resultElement = document.getElementById('security-check-result');
+    resultElement.innerHTML = 
+        `<h4>Полный отчет о безопасности</h4>` +
+        `<div style="margin: 10px 0;">` +
+        `  <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">` +
+        `    <span>Поддержка TLS 1.3:</span>` +
+        `    <span style="color: #4CAF50;"><i class="fas fa-check-circle"></i> Да</span>` +
+        `  </div>` +
+        `  <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">` +
+        `    <span>Perfect Forward Secrecy:</span>` +
+        `    <span style="color: #4CAF50;"><i class="fas fa-check-circle"></i> Да</span>` +
+        `  </div>` +
+        `  <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">` +
+        `    <span>Слабые шифры:</span>` +
+        `    <span style="color: #4CAF50;"><i class="fas fa-check-circle"></i> Нет</span>` +
+        `  </div>` +
+        `  <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">` +
+        `    <span>Срок действия сертификата:</span>` +
+        `    <span style="color: #FFC107;"><i class="fas fa-exclamation-triangle"></i> 30 дней</span>` +
+        `  </div>` +
+        `  <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">` +
+        `    <span>OCSP Stapling:</span>` +
+        `    <span style="color: #F44336;"><i class="fas fa-times-circle"></i> Нет</span>` +
+        `  </div>` +
+        `</div>` +
+        `<button class="demo-button" onclick="checkSecurity()">` +
+        `<i class="fas fa-redo"></i> Проверить снова</button>`;
+}
+    
+        function updateKeyList() {
+            const resultElement = document.getElementById('kv-result');
+            const keys = Object.keys(demoState.kvStore);
+            
+            if (keys.length === 0) {
+                resultElement.textContent = 'Нет доступных ключей';
+                return;
+            }
+            
+            let output = 'Доступные ключи:\n';
+            keys.forEach(key => {
+                const ttl = key in demoState.ttlStore ? 
+                           Math.max(0, Math.round((demoState.ttlStore[key] - Date.now()) / 1000)) : 
+                           null;
+                output += `- ${key}${ttl !== null ? ` (TTL: ${ttl} сек)` : ''}\n`;
+            });
+            
+            resultElement.textContent = output;
+        }
+    
+        function getTTL() {
+            const key = document.getElementById('key-input').value.trim();
+            const resultElement = document.getElementById('kv-result');
+            
+            if (!key) {
+                resultElement.textContent = 'Ошибка: ключ не может быть пустым';
+                return;
+            }
+            
+            // Имитация сетевой задержки
+            resultElement.textContent = `Получение TTL для ключа "${key}"...`;
+            resultElement.classList.add('loading');
+            
+            setTimeout(() => {
+                if (key in demoState.ttlStore) {
+                    const ttl = Math.max(0, Math.round((demoState.ttlStore[key] - Date.now()) / 1000));
+                    resultElement.textContent = `TTL ключа "${key}": ${ttl} секунд`;
+                    
+                    // Добавляем кнопку для обновления TTL
+                    const extendBtn = document.createElement('button');
+                    extendBtn.className = 'demo-button';
+                    extendBtn.style.marginLeft = '10px';
+                    extendBtn.innerHTML = '<i class="fas fa-clock"></i> Увеличить TTL';
+                    extendBtn.onclick = () => extendTTL(key);
+                    resultElement.appendChild(extendBtn);
+                } else if (key in demoState.kvStore) {
+                    resultElement.textContent = `Ключ "${key}" не имеет TTL`;
+                    
+                    // Добавляем кнопку для установки TTL
+                    const setTTLBtn = document.createElement('button');
+                    setTTLBtn.className = 'demo-button';
+                    setTTLBtn.style.marginLeft = '10px';
+                    setTTLBtn.innerHTML = '<i class="fas fa-clock"></i> Установить TTL';
+                    setTTLBtn.onclick = () => setKeyTTL(key);
+                    resultElement.appendChild(setTTLBtn);
+                } else {
+                    resultElement.textContent = `Ключ "${key}" не найден`;
+                }
+                resultElement.classList.remove('loading');
+            }, 200);
+        }
+    
+        function extendTTL(key) {
+            demoState.ttlStore[key] = Date.now() + 60000; // Увеличиваем TTL на 60 секунд
+            document.getElementById('kv-result').textContent = `TTL ключа "${key}" увеличен до 60 секунд`;
+        }
+    
+        function setKeyTTL(key) {
+            demoState.ttlStore[key] = Date.now() + 60000; // Устанавливаем TTL 60 секунд
+            document.getElementById('kv-result').textContent = `Для ключа "${key}" установлен TTL 60 секунд`;
+        }
+    
+        function runPipeline() {
+            const resultElement = document.getElementById('pipeline-result');
+            resultElement.textContent = 'Выполнение Pipeline...';
+            resultElement.classList.add('loading');
+            
+            // Имитация выполнения pipeline с задержкой
+            setTimeout(() => {
+                demoState.kvStore['counter'] = '11';
+                demoState.ttlStore['counter'] = Date.now() + 60000;
+                
+                resultElement.innerHTML = 
+                    `<strong>Результат выполнения Pipeline:</strong>\n` +
+                    `1) True (SET counter 0)\n` +
+                    `2) 1 (INCR counter)\n` +
+                    `3) 11 (INCRBY counter 10)\n` +
+                    `4) "11" (GET counter)\n\n` +
+                    `<button class="demo-button" onclick="showPipelineDetails()">` +
+                    `<i class="fas fa-chart-bar"></i> Показать метрики</button>`;
+                resultElement.classList.remove('loading');
+            }, 500);
+        }
+    
+        function showPipelineDetails() {
+            const resultElement = document.getElementById('pipeline-result');
+            resultElement.innerHTML = 
+                `<h4>Метрики выполнения Pipeline</h4>` +
+                `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0;">` +
+                `  <div><strong>Общее время:</strong> 12 мс</div>` +
+                `  <div><strong>Команд в Pipeline:</strong> 4</div>` +
+                `  <div><strong>Экономия RTT:</strong> ~75%</div>` +
+                `  <div><strong>Скорость:</strong> 333 оп/сек</div>` +
+                `</div>` +
+                `<button class="demo-button" onclick="runPipeline()">` +
+                `<i class="fas fa-redo"></i> Повторить Pipeline</button>`;
+        }
+    
+        function subscribeChannel() {
+            const channel = document.getElementById('channel-input').value.trim();
+            const resultElement = document.getElementById('pubsub-result');
+            
+            if (!channel) {
+                resultElement.textContent = 'Ошибка: название канала не может быть пустым';
+                return;
+            }
+            
+            if (!demoState.subscribedChannels.includes(channel)) {
+                demoState.subscribedChannels.push(channel);
+                demoState.pubSubMessages[channel] = demoState.pubSubMessages[channel] || [];
+                resultElement.textContent = `Подписались на канал "${channel}"`;
+                
+                // Добавляем кнопку для отписки
+                const unsubscribeBtn = document.createElement('button');
+                unsubscribeBtn.className = 'demo-button';
+                unsubscribeBtn.style.marginLeft = '10px';
+                unsubscribeBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Отписаться';
+                unsubscribeBtn.onclick = () => unsubscribeChannel(channel);
+                resultElement.appendChild(unsubscribeBtn);
+            } else {
+                resultElement.textContent = `Вы уже подписаны на канал "${channel}"`;
+            }
+        }
+    
+        function unsubscribeChannel(channel) {
+            const index = demoState.subscribedChannels.indexOf(channel);
+            if (index !== -1) {
+                demoState.subscribedChannels.splice(index, 1);
+                document.getElementById('pubsub-result').textContent = `Отписались от канала "${channel}"`;
+            }
+        }
+    
+        function publishMessage() {
+            const channel = document.getElementById('channel-input').value.trim();
+            const message = document.getElementById('message-input').value;
+            const resultElement = document.getElementById('pubsub-result');
+            
+            if (!channel || message === undefined) {
+                resultElement.textContent = 'Ошибка: канал и сообщение не могут быть пустыми';
+                return;
+            }
+            
+            if (demoState.subscribedChannels.includes(channel)) {
+                if (!demoState.pubSubMessages[channel]) {
+                    demoState.pubSubMessages[channel] = [];
+                }
+                demoState.pubSubMessages[channel].push({
+                    text: message,
+                    time: new Date().toLocaleTimeString()
+                });
+                
+                const messages = demoState.pubSubMessages[channel]
+                    .map((msg, i) => `${i+1}) [${msg.time}] ${msg.text}`)
+                    .join('\n');
+                    
+                resultElement.textContent = `Сообщение "${message}" опубликовано в канал "${channel}"\n\nПолученные сообщения:\n${messages}`;
+                
+                // Добавляем кнопку для очистки сообщений
+                const clearBtn = document.createElement('button');
+                clearBtn.className = 'demo-button';
+                clearBtn.style.marginTop = '10px';
+                clearBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Очистить историю';
+                clearBtn.onclick = () => clearPubSubHistory(channel);
+                resultElement.appendChild(clearBtn);
+            } else {
+                resultElement.textContent = `Вы не подписаны на канал "${channel}"`;
+            }
+        }
+    
+        function clearPubSubHistory(channel) {
+            if (demoState.pubSubMessages[channel]) {
+                demoState.pubSubMessages[channel] = [];
+                document.getElementById('pubsub-result').textContent = `История сообщений канала "${channel}" очищена`;
+            }
+        }
+    
+        function validateCertificate() {
+            const certText = document.getElementById('cert-text').value.trim();
+            const resultElement = document.getElementById('cert-validation-result');
+            
+            // Если поле пустое, показываем пример сертификата
+            if (!certText) {
+                const exampleCert = `-----BEGIN CERTIFICATE-----
+MIIDBTCCAe2gAwIBAgIUXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXn
+XnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXn
+XnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXn
+XnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXn
+XnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXnXn
+-----END CERTIFICATE-----`;
+                
+                document.getElementById('cert-text').value = exampleCert;
+                resultElement.textContent = 'Вставлен пример сертификата для тестирования. Нажмите "Проверить" еще раз.';
+                return;
+            }
+            
+            // Проверка формата PEM
+            if (!certText.startsWith('-----BEGIN CERTIFICATE-----') || 
+                !certText.endsWith('-----END CERTIFICATE-----')) {
+                resultElement.textContent = 'Ошибка: неверный формат сертификата. Ожидается PEM.';
+                return;
+            }
+            
+            // Имитация разных состояний сертификата
+            const status = Math.random() > 0.7 ? 'expired' : 
+                         Math.random() > 0.5 ? 'self-signed' : 'valid';
+            
+            resultElement.innerHTML = '';
+            resultElement.classList.add('loading');
+            
+            setTimeout(() => {
+                resultElement.classList.remove('loading');
+                
+                if (status === 'expired') {
+                    resultElement.innerHTML = `
+                        <span style="color:red">Ошибка: сертификат просрочен</span><br>
+                        Срок действия истек 15.01.2023<br><br>
+                        <strong>Рекомендации:</strong><br>
+                        - Обновите сертификат<br>
+                        - Проверьте системное время`;
+                } 
+                else if (status === 'self-signed') {
+                    resultElement.innerHTML = `
+                        <span style="color:orange">Предупреждение: самоподписанный сертификат</span><br>
+                        Issuer: CN=MySelfSignedCA<br><br>
+                        <strong>Рекомендации:</strong><br>
+                        - Для production используйте сертификаты от доверенных CA<br>
+                        - Добавьте корневой сертификат в хранилище доверенных`;
+                } 
+                else {
+                    resultElement.innerHTML = `
+                        <span style="color:green">Сертификат валиден</span><br>
+                        Issuer: CN=TrustedCA<br>
+                        Срок действия до: 31.12.2025<br><br>
+                        <button class="demo-button" onclick="showCertDetails()">
+                            <i class="fas fa-certificate"></i> Подробности
+                        </button>`;
+                }
+            }, 800);
+        }
+    
+        function showCertDetails() {
+            const resultElement = document.getElementById('cert-validation-result');
+            resultElement.innerHTML = 
+                `<h4>Детали сертификата</h4>` +
+                `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0;">` +
+                `  <div><strong>Subject:</strong> CN=redis.example.com</div>` +
+                `  <div><strong>Issuer:</strong> CN=MyCA</div>` +
+                `  <div><strong>Алгоритм:</strong> RSA 2048 bits</div>` +
+                `  <div><strong>Подпись:</strong> SHA256withRSA</div>` +
+                `  <div><strong>Выдан:</strong> 2023-01-01</div>` +
+                `  <div><strong>Истекает:</strong> 2025-12-31</div>` +
+                `  <div><strong>Key Usage:</strong> Digital Signature, Key Encipherment</div>` +
+                `  <div><strong>Extended Key Usage:</strong> TLS Web Server Authentication</div>` +
+                `</div>` +
+                `<button class="demo-button" onclick="validateCertificate()">` +
+                `<i class="fas fa-redo"></i> Проверить другой</button>`;
+        }
+    
+        function checkSecurity() {
+            const host = document.getElementById('host-input').value.trim() || 'redis.example.com';
+            const port = document.getElementById('port-input').value.trim() || '6379';
+            const resultElement = document.getElementById('security-check-result');
+            
+            resultElement.textContent = 'Проверка безопасности...';
+            resultElement.classList.add('loading');
+            
+            // Имитация проверки с более реалистичными результатами
+            setTimeout(() => {
+                const checks = [
+                    { name: 'TLS версия', status: Math.random() > 0.2 ? 'success' : 'warning', value: 'TLS 1.2+' },
+                    { name: 'Шифры', status: 'success', value: 'AES-256-GCM' },
+                    { name: 'Сертификат', status: Math.random() > 0.3 ? 'success' : 'warning', value: 'Валиден до 2025-12-31' },
+                    { name: 'Perfect Forward Secrecy', status: 'success', value: 'Активирован' },
+                    { name: 'OCSP Stapling', status: Math.random() > 0.7 ? 'success' : 'error', value: Math.random() > 0.7 ? 'Активирован' : 'Не поддерживается' }
+                ];
+                
+                const score = checks.reduce((sum, check) => {
+                    return sum + (check.status === 'success' ? 20 : 
+                                 check.status === 'warning' ? 10 : 0);
+                }, 0);
+                
+                resultElement.innerHTML = `
+                    <strong>Результат проверки безопасности для ${host}:${port}</strong>
+                    <div style="margin: 10px 0; height: 10px; background: #333; border-radius: 5px;">
+                        <div style="width: ${score}%; height: 100%; background: ${getScoreColor(score)}; border-radius: 5px;"></div>
+                    </div>
+                    Оценка безопасности: ${score}/100<br><br>
+                    <strong>Детали проверки:</strong><br>
+                    ${checks.map(check => 
+                        `${check.name}: <span style="color: ${
+                            check.status === 'success' ? '#4CAF50' : 
+                            check.status === 'warning' ? '#FFC107' : '#F44336'
+                        }">${check.value}</span>`
+                    ).join('<br>')}
+                    <br><br>
+                    <button class="demo-button" onclick="showFullSecurityReport()">
+                        <i class="fas fa-file-alt"></i> Полный отчет
+                    </button>`;
+                
+                resultElement.classList.remove('loading');
+            }, 1000);
+        }
+    
+        function getScoreColor(score) {
+            if (score >= 90) return '#4CAF50';
+            if (score >= 70) return '#FFC107';
+            return '#F44336';
+        }
+    
+        function showFullSecurityReport() {
+            const resultElement = document.getElementById('security-check-result');
+            resultElement.innerHTML = 
+                `<h4>Полный отчет о безопасности</h4>` +
+                `<div style="margin: 10px 0;">` +
+                `  <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">` +
+                `    <span>Поддержка TLS 1.3:</span>` +
+                `    <span style="color: #4CAF50;"><i class="fas fa-check-circle"></i> Да</span>` +
+                `  </div>` +
+                `  <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">` +
+                `    <span>Perfect Forward Secrecy:</span>` +
+                `    <span style="color: #4CAF50;"><i class="fas fa-check-circle"></i> Да</span>` +
+                `  </div>` +
+                `  <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">` +
+                `    <span>Слабые шифры:</span>` +
+                `    <span style="color: #4CAF50;"><i class="fas fa-check-circle"></i> Нет</span>` +
+                `  </div>` +
+                `  <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">` +
+                `    <span>Срок действия сертификата:</span>` +
+                `    <span style="color: #FFC107;"><i class="fas fa-exclamation-triangle"></i> 30 дней</span>` +
+                `  </div>` +
+                `  <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">` +
+                `    <span>OCSP Stapling:</span>` +
+                `    <span style="color: #F44336;"><i class="fas fa-times-circle"></i> Нет</span>` +
+                `  </div>` +
+                `</div>` +
+                `<button class="demo-button" onclick="checkSecurity()">` +
+                `<i class="fas fa-redo"></i> Проверить снова</button>`;
+        }
+    
+        function updateTTLs() {
+            const now = Date.now();
+            for (const key in demoState.ttlStore) {
+                if (demoState.ttlStore[key] < now) {
+                    delete demoState.kvStore[key];
+                    delete demoState.ttlStore[key];
+                }
+            }
+        }
+    
+        function handleScroll() {
+            const button = document.querySelector('.back-to-top');
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                button.style.display = "block";
+            } else {
+                button.style.display = "none";
+            }
+    
+            // Анимация появления секций при скролле
+            const sections = document.querySelectorAll("section");
+            sections.forEach(section => {
+                const sectionTop = section.getBoundingClientRect().top;
+                if (sectionTop < window.innerHeight - 100) {
+                    section.classList.add('visible');
+                }
+            });
+        }
+    
+        function scrollToTop() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+    
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+            
+            const tabs = document.getElementsByClassName("tab");
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove("active");
+            }
+            
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+        
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const range = document.createRange();
+            range.selectNode(codeBlock);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    const originalText = btn.textContent;
+                    btn.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error('Ошибка при копировании:', err);
+            }
+            
+            window.getSelection().removeAllRanges();
+        }
+    </script>
+</body>
+</html>

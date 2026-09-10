@@ -1,0 +1,3239 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Демонстрационная система IDS/IPS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a0ca3;
+            --secondary: #3f37c9;
+            --secondary-dark: #2a2a9d;
+            --danger: #ef233c;
+            --danger-dark: #d90429;
+            --warning: #ff9f1c;
+            --warning-dark: #ff8500;
+            --success: #2ec4b6;
+            --success-dark: #1b9aaa;
+            --info: #4895ef;
+            --info-dark: #3f37c9;
+            --dark: #1e1e2d;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+        }
+
+        body {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://example.com/network-bg.gif');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+            color: white;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, rgba(30, 30, 45, 0.9) 0%, rgba(67, 97, 238, 0.7) 100%);
+            color: #ffffff;
+            padding: 60px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        header h1 {
+            font-size: 2.8em;
+            margin: 0 0 15px 0;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            font-size: 1.2em;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        section {
+            margin-bottom: 30px;
+            background: rgba(30, 30, 45, 0.8);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        section:hover {
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            transform: translateY(-5px);
+        }
+
+        h1, h2, h3, h4 {
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            margin-top: 0;
+        }
+
+        h2 {
+            margin: 0 0 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.8rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 12px;
+            font-weight: 600;
+        }
+
+        h3 {
+            margin: 25px 0 15px;
+            font-size: 1.4rem;
+            font-weight: 500;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            margin: 20px 0 10px;
+            font-weight: 500;
+        }
+
+        .card {
+            background: rgba(40, 40, 60, 0.6);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            background: rgba(50, 50, 70, 0.7);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .interactive-demo {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            margin: 25px 0;
+            background: rgba(40, 40, 60, 0.5);
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(63, 55, 201, 0.4);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(239, 35, 60, 0.4);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: var(--warning-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 159, 28, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: var(--success-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(46, 196, 182, 0.4);
+        }
+
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: var(--info-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(72, 149, 239, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: white;
+        }
+
+        .btn-outline:hover {
+            background: rgba(67, 97, 238, 0.2);
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.2);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 14px;
+            min-width: auto;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .stat-box {
+            background: rgba(67, 97, 238, 0.15);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, transparent 100%);
+            z-index: 1;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .stat-box h3 {
+            margin: 0 0 10px 0;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-box p {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: bold;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-box .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+            opacity: 0.8;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .control-panel, .traffic-monitor {
+            background: rgba(40, 40, 60, 0.6);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .traffic-log {
+            height: 400px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+            color: #ecf0f1;
+            padding: 15px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) rgba(0, 0, 0, 0.3);
+        }
+
+        .traffic-log::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .traffic-log::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        .traffic-log::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 4px;
+        }
+
+        .alert {
+            color: var(--danger);
+            font-weight: bold;
+        }
+
+        .warning {
+            color: var(--warning);
+        }
+
+        .normal {
+            color: var(--success);
+        }
+
+        .info {
+            color: var(--info);
+        }
+
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+            opacity: 0.7;
+        }
+
+        .threat-map {
+            height: 250px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            position: relative;
+            margin-top: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .threat-dot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px currentColor;
+            z-index: 2;
+        }
+
+        .threat-dot::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: currentColor;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.2;
+            animation: pulse 2s infinite;
+        }
+
+        .config-option {
+            margin: 15px 0;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px 15px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .config-option:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            font-weight: 500;
+        }
+
+        input[type="checkbox"] {
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+            -webkit-appearance: none;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+            width: 100%;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 18px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 15px 0;
+            position: relative;
+            color: #f8f9fa;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+            color: white;
+        }
+
+        pre:hover .copy-btn {
+            opacity: 1;
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            line-height: 1.5;
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 4px solid;
+        }
+
+        .alert i {
+            font-size: 20px;
+            margin-top: 2px;
+        }
+
+        .alert-content {
+            flex: 1;
+            color: white;
+        }
+
+        .alert-warning {
+            border-left-color: var(--warning);
+            background: rgba(255, 159, 28, 0.1);
+        }
+
+        .alert-success {
+            border-left-color: var(--success);
+            background: rgba(46, 196, 182, 0.1);
+        }
+
+        .alert-danger {
+            border-left-color: var(--danger);
+            background: rgba(239, 35, 60, 0.1);
+        }
+
+        .alert-info {
+            border-left-color: var(--info);
+            background: rgba(72, 149, 239, 0.1);
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            transition: all 0.3s;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-to-top:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .rules-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) rgba(0, 0, 0, 0.3);
+        }
+
+        .rules-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .rules-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        .rules-list::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 4px;
+        }
+
+        .rule-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .rule-item:last-child {
+            border-bottom: none;
+        }
+
+        .rule-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .rule-active {
+            background: rgba(46, 196, 182, 0.1);
+            border-left: 3px solid var(--success);
+        }
+
+        .rule-inactive {
+            opacity: 0.7;
+            background: rgba(239, 35, 60, 0.05);
+            border-left: 3px solid rgba(239, 35, 60, 0.3);
+        }
+
+        .rule-severity {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .severity-high {
+            background: rgba(239, 35, 60, 0.2);
+            color: var(--danger);
+        }
+
+        .severity-medium {
+            background: rgba(255, 159, 28, 0.2);
+            color: var(--warning);
+        }
+
+        .severity-low {
+            background: rgba(67, 97, 238, 0.2);
+            color: var(--primary);
+        }
+
+        .severity-info {
+            background: rgba(72, 149, 239, 0.2);
+            color: var(--info);
+        }
+
+        .notification-bell {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+
+        .notification-bell:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .notification-panel {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+            background: rgba(30, 30, 45, 0.98);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            z-index: 999;
+            display: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+
+        .notification-panel.active {
+            display: block;
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .notification-clear {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .notification-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .notification-item:hover {
+            background: rgba(67, 97, 238, 0.1);
+        }
+
+        .notification-item.unread {
+            background: rgba(67, 97, 238, 0.15);
+        }
+
+        .notification-message {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .notification-time {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .traffic-chart {
+            height: 250px;
+            margin-top: 20px;
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+        }
+
+        .ip-details {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 800px;
+            background: rgba(30, 30, 45, 0.98);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.8);
+            z-index: 1001;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            max-height: 90vh;
+            overflow: hidden;
+        }
+
+        .ip-details.active {
+            display: block;
+        }
+
+        .ip-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ip-details-title {
+            font-size: 1.5rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-details {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .close-details:hover {
+            opacity: 1;
+        }
+
+        .ip-details-content {
+            max-height: calc(90vh - 150px);
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .ip-details-section {
+            margin-bottom: 20px;
+        }
+
+        .ip-details-section h4 {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ip-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .ip-info-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .ip-info-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 5px;
+        }
+
+        .ip-info-value {
+            font-size: 1.1rem;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .timeline {
+            margin-top: 20px;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -30px;
+            top: 5px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
+            z-index: 1;
+        }
+
+        .timeline-item.alert::before {
+            background: var(--danger);
+            box-shadow: 0 0 0 3px rgba(239, 35, 60, 0.3);
+        }
+
+        .timeline-item.warning::before {
+            background: var(--warning);
+            box-shadow: 0 0 0 3px rgba(255, 159, 28, 0.3);
+        }
+
+        .timeline-item.success::before {
+            background: var(--success);
+            box-shadow: 0 0 0 3px rgba(46, 196, 182, 0.3);
+        }
+
+        .timeline-content {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .timeline-item.alert .timeline-content {
+            border-left-color: var(--danger);
+        }
+
+        .timeline-item.warning .timeline-content {
+            border-left-color: var(--warning);
+        }
+
+        .timeline-item.success .timeline-content {
+            border-left-color: var(--success);
+        }
+
+        .timeline-time {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .timeline-message {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .response-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .response-btn {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .geo-flag {
+            width: 24px;
+            height: 18px;
+            border-radius: 3px;
+            margin-right: 8px;
+            vertical-align: middle;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .tab-container {
+            margin-top: 20px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .severity-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .severity-filter-btn {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .severity-filter-btn.active {
+            color: white;
+        }
+
+        .severity-filter-btn.high.active {
+            background: var(--danger);
+        }
+
+        .severity-filter-btn.medium.active {
+            background: var(--warning);
+        }
+
+        .severity-filter-btn.low.active {
+            background: var(--primary);
+        }
+
+        .severity-filter-btn.info.active {
+            background: var(--info);
+        }
+
+        .severity-filter-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(30, 30, 45, 0.95);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.8);
+            z-index: 1001;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .close-modal:hover {
+            opacity: 1;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .badge-primary {
+            background: rgba(67, 97, 238, 0.2);
+            color: var(--primary);
+        }
+
+        .badge-success {
+            background: rgba(46, 196, 182, 0.2);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(255, 159, 28, 0.2);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background: rgba(239, 35, 60, 0.2);
+            color: var(--danger);
+        }
+
+        .badge-info {
+            background: rgba(72, 149, 239, 0.2);
+            color: var(--info);
+        }
+
+        .progress {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 4px;
+            transition: width 0.5s;
+        }
+
+        .progress-bar-success {
+            background: var(--success);
+        }
+
+        .progress-bar-warning {
+            background: var(--warning);
+        }
+
+        .progress-bar-danger {
+            background: var(--danger);
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: rgba(30, 30, 45, 0.95);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            font-size: 0.9rem;
+            font-weight: normal;
+            line-height: 1.4;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: rgba(30, 30, 45, 0.95) transparent transparent transparent;
+        }
+
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .blink {
+            animation: blink 1s infinite;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 992px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .ip-info-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            header {
+                padding: 40px 0;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            section {
+                padding: 20px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .notification-panel {
+                width: 90%;
+                right: 5%;
+            }
+            
+            .ip-details, .modal {
+                width: 95%;
+                padding: 20px;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .tab-buttons {
+                flex-direction: column;
+            }
+            
+            .tab-btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn-group button {
+                width: 100%;
+            }
+            
+            .response-actions {
+                flex-direction: column;
+            }
+            
+            .response-actions button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1><i class="fas fa-shield-alt"></i> Демонстрационная система IDS/IPS</h1>
+            <p>Интерактивная система обнаружения и предотвращения вторжений с расширенными возможностями мониторинга и анализа</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <section id="main-dashboard" class="visible">
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    <h3>Интенсивность трафика</h3>
+                    <p id="traffic-rate">0 пак/с</p>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <h3>Обнаружено угроз</h3>
+                    <p id="threats-detected">0</p>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon"><i class="fas fa-ban"></i></div>
+                    <h3>Заблокировано IP</h3>
+                    <p id="blocked-ips">0</p>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon"><i class="fas fa-power-off"></i></div>
+                    <h3>Статус системы</h3>
+                    <p id="system-status">НЕАКТИВЕН</p>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                    <h3>Время работы</h3>
+                    <p id="uptime">00:00:00</p>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon"><i class="fas fa-memory"></i></div>
+                    <h3>Использование CPU</h3>
+                    <p id="cpu-usage">0%</p>
+                </div>
+            </div>
+            
+            <div class="dashboard">
+                <div class="control-panel">
+                    <h2><i class="fas fa-cogs"></i> Панель управления</h2>
+                    
+                    <div class="btn-group">
+                        <button id="start-btn" class="btn-primary">
+                            <i class="fas fa-play"></i> Начать мониторинг
+                        </button>
+                        <button id="stop-btn" class="btn-danger" disabled>
+                            <i class="fas fa-stop"></i> Остановить
+                        </button>
+                    </div>
+                    
+                    <div class="btn-group" style="margin-top: 10px;">
+                        <button id="simulate-btn" class="btn-secondary" disabled>
+                            <i class="fas fa-bug"></i> Симулировать атаку
+                        </button>
+                        <button id="advanced-simulate-btn" class="btn-warning" disabled>
+                            <i class="fas fa-radiation"></i> Расширенная атака
+                        </button>
+                    </div>
+                    
+                    <div class="btn-group" style="margin-top: 10px;">
+                        <button id="reset-btn" class="btn-outline">
+                            <i class="fas fa-redo"></i> Сбросить систему
+                        </button>
+                        <button id="settings-btn" class="btn-outline">
+                            <i class="fas fa-cog"></i> Настройки
+                        </button>
+                    </div>
+                    
+                    <h3 style="margin-top: 25px;"><i class="fas fa-sliders-h"></i> Основные настройки</h3>
+                    <div class="config-option">
+                        <label>
+                            <input type="checkbox" id="deep-inspection" checked>
+                            <i class="fas fa-search-plus"></i> Глубокий анализ пакетов
+                        </label>
+                    </div>
+                    <div class="config-option">
+                        <label>
+                            <input type="checkbox" id="auto-block" checked>
+                            <i class="fas fa-shield-alt"></i> Автоматическая блокировка
+                        </label>
+                    </div>
+                    <div class="config-option">
+                        <label>
+                            <input type="checkbox" id="alert-notifications" checked>
+                            <i class="fas fa-bell"></i> Оповещения об угрозах
+                        </label>
+                    </div>
+                    
+                    <div class="config-option">
+                        <label for="sensitivity">
+                            <i class="fas fa-tachometer-alt"></i> Чувствительность системы
+                        </label>
+                        <input type="range" id="sensitivity" min="1" max="10" value="7">
+                        <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                            <span>Низкая</span>
+                            <span>Высокая</span>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin-top: 25px;"><i class="fas fa-globe-americas"></i> Карта угроз</h3>
+                    <div class="threat-map" id="threat-map"></div>
+                    
+                    <div class="traffic-chart">
+                        <canvas id="trafficChart"></canvas>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #2ec4b6;"></div>
+                                <span>Нормальный трафик</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #ef233c;"></div>
+                                <span>Опасные атаки</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background: #ff9f1c;"></div>
+                                <span>Подозрительная активность</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="traffic-monitor">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-traffic-light"></i> Монитор трафика</h2>
+                        <div class="btn-group">
+                            <button id="filter-traffic-btn" class="btn-sm btn-outline">
+                                <i class="fas fa-filter"></i> Фильтр
+                            </button>
+                            <button id="clear-traffic-btn" class="btn-sm btn-outline">
+                                <i class="fas fa-trash"></i> Очистить
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="severity-filter" id="traffic-filter">
+                        <button class="severity-filter-btn high active" data-severity="alert">
+                            <i class="fas fa-exclamation-circle"></i> Высокая
+                        </button>
+                        <button class="severity-filter-btn medium active" data-severity="warning">
+                            <i class="fas fa-exclamation-triangle"></i> Средняя
+                        </button>
+                        <button class="severity-filter-btn low active" data-severity="normal">
+                            <i class="fas fa-info-circle"></i> Низкая
+                        </button>
+                        <button class="severity-filter-btn info active" data-severity="info">
+                            <i class="fas fa-info-circle"></i> Информация
+                        </button>
+                    </div>
+                    
+                    <div class="traffic-log" id="traffic-log"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="attack-info" class="visible">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-fire"></i> Типы атак</h2>
+                    <button id="add-rule-btn" class="btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> Добавить правило
+                    </button>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <div class="alert-content">
+                        Система может обнаруживать следующие типы атак. Вы можете добавлять собственные правила обнаружения.
+                    </div>
+                </div>
+                
+                <div class="tab-container">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" onclick="openTab(event, 'tab-web')">Веб-атаки</button>
+                        <button class="tab-btn" onclick="openTab(event, 'tab-network')">Сетевые атаки</button>
+                        <button class="tab-btn" onclick="openTab(event, 'tab-system')">Системные атаки</button>
+                        <button class="tab-btn" onclick="openTab(event, 'tab-custom')">Пользовательские</button>
+                    </div>
+                    
+                    <div id="tab-web" class="tab-content active">
+                        <div class="rules-list">
+                            <div class="rule-item rule-active">
+                                <div>
+                                    <strong>SQL-инъекции</strong>
+                                    <div class="text-muted">Обнаружение SQL-команд в пользовательском вводе</div>
+                                </div>
+                                <span class="rule-severity severity-high">Высокая</span>
+                            </div>
+                            <div class="rule-item rule-active">
+                                <div>
+                                    <strong>XSS (Межсайтовый скриптинг)</strong>
+                                    <div class="text-muted">Обнаружение скриптов в пользовательском вводе</div>
+                                </div>
+                                <span class="rule-severity severity-high">Высокая</span>
+                            </div>
+                            <div class="rule-item rule-active">
+                                <div>
+                                    <strong>CSRF (Подделка запросов)</strong>
+                                    <div class="text-muted">Обнаружение поддельных межсайтовых запросов</div>
+                                </div>
+                                <span class="rule-severity severity-medium">Средняя</span>
+                            </div>
+                            <div class="rule-item rule-active">
+                                <div>
+                                    <strong>LFI/RFI (Включение файлов)</strong>
+                                    <div class="text-muted">Обнаружение попыток включения локальных/удаленных файлов</div>
+                                </div>
+                                <span class="rule-severity severity-high">Высокая</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-network" class="tab-content">
+                        <div class="rules-list">
+                            <div class="rule-item rule-active">
+                                <div>
+                                    <strong>DDoS-атаки</strong>
+                                    <div class="text-muted">Обнаружение распределенных атак на отказ в обслуживании</div>
+                                </div>
+                                <span class="rule-severity severity-high">Высокая</span>
+                            </div>
+                            <div class="rule-item rule-active">
+                                <div>
+                                    <strong>Сканирование портов</strong>
+                                    <div class="text-muted">Обнаружение подозрительного сканирования портов</div>
+                                </div>
+                                <span class="rule-severity severity-medium">Средняя</span>
+                            </div>
+                            <div class="rule-item rule-active">
+                                <div>
+                                    <strong>MITM (Человек посередине)</strong>
+                                    <div class="text-muted">Обнаружение атак типа "человек посередине"</div>
+                                </div>
+                                <span class="rule-severity severity-high">Высокая</span>
+                            </div>
+                            <div class="rule-item rule-active">
+                                <div>
+                                    <strong>DNS спуфинг</strong>
+                                    <div class="text-muted">Обнаружение подмены DNS-записей</div>
+                                </div>
+                                <span class="rule-severity severity-high">Высокая</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-system" class="tab-content">
+                        <div class="rules-list">
+                            <div class="rule-item rule-active">
+                                <div>
+                                    <strong>Подбор учетных данных</strong>
+                                    <div class="text-muted">Обнаружение множественных попыток входа</div>
+                                </div>
+                                <span class="rule-severity severity-medium">Средняя</span>
+                            </div>
+                            <div class="rule-item rule-active">
+                                <div>
+                                    <strong>Эксплуатация уязвимостей</strong>
+                                    <div class="text-muted">Обнаружение известных эксплойтов</div>
+                                </div>
+                                <span class="rule-severity severity-high">Высокая</span>
+                            </div>
+                            <div class="rule-item rule-active">
+                                <div>
+                                    <strong>Бэкдоры</strong>
+                                    <div class="text-muted">Обнаружение скрытых точек доступа</div>
+                                </div>
+                                <span class="rule-severity severity-high">Высокая</span>
+                            </div>
+                            <div class="rule-item rule-active">
+                                <div>
+                                    <strong>Повышение привилегий</strong>
+                                    <div class="text-muted">Обнаружение попыток повышения прав</div>
+                                </div>
+                                <span class="rule-severity severity-high">Высокая</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-custom" class="tab-content">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div class="alert-content">
+                                У вас пока нет пользовательских правил. Нажмите "Добавить правило" для создания нового.
+                            </div>
+                        </div>
+                        
+                        <div class="rules-list" id="custom-rules-list">
+                            <!-- Пользовательские правила будут добавляться здесь -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="logs-section" class="visible">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-clipboard-list"></i> Журнал событий</h2>
+                    <div class="btn-group">
+                        <button class="btn-sm btn-outline" onclick="exportLogs()">
+                            <i class="fas fa-download"></i> Экспорт
+                        </button>
+                        <button class="btn-sm btn-outline" onclick="clearLogs()">
+                            <i class="fas fa-trash"></i> Очистить
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div class="alert-content">
+                        <strong>Рекомендации по безопасности:</strong>
+                        <ul style="margin: 8px 0 0 20px;">
+                            <li>Регулярно обновляйте правила обнаружения угроз</li>
+                            <li>Настройте оповещения о критических событиях</li>
+                            <li>Архивируйте логи для последующего анализа</li>
+                            <li>Ограничьте доступ к системе мониторинга</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <pre id="system-logs">
+[2023-11-15 10:23:45] SYSTEM: Инициализация IDS/IPS системы
+[2023-11-15 10:23:46] CONFIG: Загружено 128 правил обнаружения угроз
+[2023-11-15 10:23:47] NETWORK: Обнаружено 5 активных устройств в сети
+[2023-11-15 10:23:48] SECURITY: Включен глубокий анализ пакетов
+[2023-11-15 10:23:49] SECURITY: Активирована автоматическая блокировка угроз</pre>
+                
+                <h3><i class="fas fa-history"></i> История активности</h3>
+                <div class="timeline">
+                    <div class="timeline-item success">
+                        <div class="timeline-time">
+                            <i class="far fa-clock"></i> 2023-11-15 10:23:45
+                        </div>
+                        <div class="timeline-content">
+                            <p class="timeline-message">Система IDS/IPS успешно инициализирована</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">
+                            <i class="far fa-clock"></i> 2023-11-15 10:23:46
+                        </div>
+                        <div class="timeline-content">
+                            <p class="timeline-message">Загружены правила обнаружения угроз (128 правил)</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item warning">
+                        <div class="timeline-time">
+                            <i class="far fa-clock"></i> 2023-11-15 10:23:47
+                        </div>
+                        <div class="timeline-content">
+                            <p class="timeline-message">Обнаружено сканирование портов с IP 192.168.1.15</p>
+                            <div class="response-actions">
+                                <button class="response-btn btn-sm btn-primary">Разрешить</button>
+                                <button class="response-btn btn-sm btn-danger">Блокировать</button>
+                                <button class="response-btn btn-sm btn-outline">Подробнее</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="reports-section" class="visible">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-chart-pie"></i> Аналитика и отчеты</h2>
+                    <button id="generate-report-btn" class="btn-sm btn-primary">
+                        <i class="fas fa-file-pdf"></i> Создать отчет
+                    </button>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <div class="alert-content">
+                        Статистика работы системы за последние 24 часа. Вы можете сгенерировать подробный отчет в формате PDF.
+                    </div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
+                        <h3>Защищено атак</h3>
+                        <p id="attacks-prevented">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon"><i class="fas fa-filter"></i></div>
+                        <h3>Проверено пакетов</h3>
+                        <p id="packets-scanned">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon"><i class="fas fa-bolt"></i></div>
+                        <h3>Средняя задержка</h3>
+                        <p id="avg-latency">0 мс</p>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon"><i class="fas fa-exclamation"></i></div>
+                        <h3>Ложные срабатывания</h3>
+                        <p id="false-positives">0</p>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                    <div class="traffic-chart">
+                        <h4><i class="fas fa-chart-bar"></i> Распределение атак</h4>
+                        <canvas id="attackTypesChart"></canvas>
+                    </div>
+                    <div class="traffic-chart">
+                        <h4><i class="fas fa-chart-line"></i> Активность по времени</h4>
+                        <canvas id="activityTimelineChart"></canvas>
+                    </div>
+                </div>
+                
+                <h3 style="margin-top: 30px;"><i class="fas fa-table"></i> Последние инциденты</h3>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                        <thead>
+                            <tr style="background: rgba(67, 97, 238, 0.2);">
+                                <th style="padding: 12px 15px; text-align: left;">Время</th>
+                                <th style="padding: 12px 15px; text-align: left;">Тип атаки</th>
+                                <th style="padding: 12px 15px; text-align: left;">Источник</th>
+                                <th style="padding: 12px 15px; text-align: left;">Цель</th>
+                                <th style="padding: 12px 15px; text-align: left;">Действие</th>
+                                <th style="padding: 12px 15px; text-align: left;">Статус</th>
+                            </tr>
+                        </thead>
+                        <tbody id="incidents-table">
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                                <td style="padding: 12px 15px;">2023-11-15 10:25:12</td>
+                                <td style="padding: 12px 15px;">SQL-инъекция</td>
+                                <td style="padding: 12px 15px;">192.168.1.34</td>
+                                <td style="padding: 12px 15px;">/admin/login.php</td>
+                                <td style="padding: 12px 15px;">Блокировка IP</td>
+                                <td style="padding: 12px 15px;"><span class="badge badge-danger">Остановлено</span></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                                <td style="padding: 12px 15px;">2023-11-15 10:24:45</td>
+                                <td style="padding: 12px 15px;">Сканирование портов</td>
+                                <td style="padding: 12px 15px;">192.168.1.15</td>
+                                <td style="padding: 12px 15px;">Порты: 22,80,443</td>
+                                <td style="padding: 12px 15px;">Предупреждение</td>
+                                <td style="padding: 12px 15px;"><span class="badge badge-warning">Мониторинг</span></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                                <td style="padding: 12px 15px;">2023-11-15 10:23:58</td>
+                                <td style="padding: 12px 15px;">XSS-атака</td>
+                                <td style="padding: 12px 15px;">192.168.2.10</td>
+                                <td style="padding: 12px 15px;">/contact.php</td>
+                                <td style="padding: 12px 15px;">Блокировка IP</td>
+                                <td style="padding: 12px 15px;"><span class="badge badge-success">Защищено</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Кнопка уведомлений -->
+    <button class="notification-bell" id="notification-bell">
+        <i class="fas fa-bell"></i>
+        <span class="notification-badge" id="notification-badge">0</span>
+    </button>
+
+    <!-- Панель уведомлений -->
+    <div class="notification-panel" id="notification-panel">
+        <div class="notification-header">
+            <h3 class="notification-title">Уведомления</h3>
+            <button class="notification-clear" id="clear-notifications">Очистить все</button>
+        </div>
+        <div id="notifications-list">
+            <!-- Уведомления будут добавляться здесь -->
+        </div>
+    </div>
+
+    <!-- Оверлей для модальных окон -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Модальное окно деталей IP -->
+    <div class="ip-details" id="ip-details">
+        <div class="ip-details-header">
+            <h3 class="ip-details-title"><i class="fas fa-desktop"></i> Детали IP адреса</h3>
+            <button class="close-details" id="close-details">&times;</button>
+        </div>
+        <div class="ip-details-content">
+            <div class="ip-info-grid">
+                <div class="ip-info-item">
+                    <div class="ip-info-label">IP адрес</div>
+                    <div class="ip-info-value" id="detail-ip">192.168.1.1</div>
+                </div>
+                <div class="ip-info-item">
+                    <div class="ip-info-label">Страна</div>
+                    <div class="ip-info-value" id="detail-country">
+                        <img src="https://flagcdn.com/ru.svg" class="geo-flag" alt="Russia"> Россия
+                    </div>
+                </div>
+                <div class="ip-info-item">
+                    <div class="ip-info-label">Город</div>
+                    <div class="ip-info-value" id="detail-city">Москва</div>
+                </div>
+                <div class="ip-info-item">
+                    <div class="ip-info-label">Провайдер</div>
+                    <div class="ip-info-value" id="detail-isp">Ростелеком</div>
+                </div>
+                <div class="ip-info-item">
+                    <div class="ip-info-label">Статус</div>
+                    <div class="ip-info-value" id="detail-status">
+                        <span class="badge badge-danger">Заблокирован</span>
+                    </div>
+                </div>
+                <div class="ip-info-item">
+                    <div class="ip-info-label">Уровень угрозы</div>
+                    <div class="ip-info-value" id="detail-threat-level">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-danger" style="width: 80%"></div>
+                        </div>
+                        Высокий
+                    </div>
+                </div>
+            </div>
+            
+            <div class="ip-details-section">
+                <h4><i class="fas fa-history"></i> История активности</h4>
+                <div class="timeline">
+                    <div class="timeline-item alert">
+                        <div class="timeline-time">
+                            <i class="far fa-clock"></i> 2023-11-15 10:25:12
+                        </div>
+                        <div class="timeline-content">
+                            <p class="timeline-message">Обнаружена SQL-инъекция на /admin/login.php</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item warning">
+                        <div class="timeline-time">
+                            <i class="far fa-clock"></i> 2023-11-15 10:24:30
+                        </div>
+                        <div class="timeline-content">
+                            <p class="timeline-message">Подозрительная активность: множественные POST-запросы</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">
+                            <i class="far fa-clock"></i> 2023-11-15 10:23:45
+                        </div>
+                        <div class="timeline-content">
+                            <p class="timeline-message">Первое подключение к серверу</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="ip-details-section">
+                <h4><i class="fas fa-shield-alt"></i> Действия безопасности</h4>
+                <div class="response-actions">
+                    <button class="response-btn btn-danger" id="block-ip-btn">
+                        <i class="fas fa-ban"></i> Блокировать IP
+                    </button>
+                    <button class="response-btn btn-warning" id="throttle-ip-btn">
+                        <i class="fas fa-tachometer-alt"></i> Ограничить скорость
+                    </button>
+                    <button class="response-btn btn-primary" id="allow-ip-btn">
+                        <i class="fas fa-check"></i> Разрешить доступ
+                    </button>
+                    <button class="response-btn btn-outline" id="scan-ip-btn">
+                        <i class="fas fa-search"></i> Сканировать
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно настроек -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-header">
+            <h3 class="modal-title"><i class="fas fa-cog"></i> Настройки системы</h3>
+            <button class="close-modal" id="close-settings">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="tab-container">
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="openSettingsTab(event, 'tab-general')">Основные</button>
+                    <button class="tab-btn" onclick="openSettingsTab(event, 'tab-alerts')">Оповещения</button>
+                    <button class="tab-btn" onclick="openSettingsTab(event, 'tab-advanced')">Дополнительно</button>
+                </div>
+                
+                <div id="tab-general" class="tab-content active">
+                    <div class="form-group">
+                        <label class="form-label">Имя системы</label>
+                        <input type="text" class="form-control" value="IDS/IPS Демонстрационная система">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Уровень логирования</label>
+                        <select class="form-control">
+                            <option>Только критические события</option>
+                            <option selected>Все события безопасности</option>
+                            <option>Подробный режим (включая системные)</option>
+                            <option>Отладка (для разработчиков)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" checked> Автоматическое обновление правил
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" checked> Включить защиту в реальном времени
+                        </label>
+                    </div>
+                </div>
+                
+                <div id="tab-alerts" class="tab-content">
+                    <div class="form-group">
+                        <label class="form-label">Email для оповещений</label>
+                        <input type="email" class="form-control" placeholder="admin@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Минимальный уровень оповещений</label>
+                        <select class="form-control">
+                            <option>Только критические</option>
+                            <option selected>Высокий и выше</option>
+                            <option>Средний и выше</option>
+                            <option>Все события</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" checked> Оповещения по SMS
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" checked> Оповещения в веб-интерфейсе
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Тестовое оповещение</label>
+                        <button class="btn btn-sm btn-outline">Отправить тест</button>
+                    </div>
+                </div>
+                
+                <div id="tab-advanced" class="tab-content">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div class="alert-content">
+                            Изменение этих параметров может повлиять на работу системы. Рекомендуется только для опытных пользователей.
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Порог обнаружения аномалий</label>
+                        <input type="range" min="1" max="100" value="75">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Интервал сканирования (мс)</label>
+                        <input type="number" class="form-control" value="300">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Максимальный размер лога (МБ)</label>
+                        <input type="number" class="form-control" value="100">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Сервер Syslog</label>
+                        <input type="text" class="form-control" placeholder="udp://syslog.example.com:514">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" id="cancel-settings">Отмена</button>
+            <button class="btn btn-primary" id="save-settings">Сохранить</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно добавления правила -->
+    <div class="modal" id="add-rule-modal">
+        <div class="modal-header">
+            <h3 class="modal-title"><i class="fas fa-plus-circle"></i> Добавить новое правило</h3>
+            <button class="close-modal" id="close-rule-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Название правила</label>
+                <input type="text" class="form-control" placeholder="Например: Обнаружение SQL-инъекций">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Описание</label>
+                <textarea class="form-control" placeholder="Описание правила и его назначение"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Тип правила</label>
+                <select class="form-control">
+                    <option>Веб-атака</option>
+                    <option>Сетевая атака</option>
+                    <option>Системная атака</option>
+                    <option>Пользовательское</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Уровень угрозы</label>
+                <select class="form-control">
+                    <option value="high">Высокий</option>
+                    <option value="medium" selected>Средний</option>
+                    <option value="low">Низкий</option>
+                    <option value="info">Информационный</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Шаблон для обнаружения (регулярное выражение)</label>
+                <textarea class="form-control" placeholder="Например: /(select|insert|update|delete|drop|alter)\s+.*\s+from/i"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">
+                    <input type="checkbox" checked> Активно
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="form-label">
+                    <input type="checkbox"> Применять автоматическую блокировку
+                </label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" id="cancel-rule">Отмена</button>
+            <button class="btn btn-primary" id="save-rule">Сохранить правило</button>
+        </div>
+    </div>
+
+    <!-- Кнопка "Наверх" -->
+    <button class="back-to-top" onclick="scrollToTop()"><i class="fas fa-arrow-up"></i></button>
+
+    <!-- Скрипты -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <script>
+        class IDSIPSDemo {
+            constructor() {
+                this.isRunning = false;
+                this.trafficCount = 0;
+                this.threatCount = 0;
+                this.blockedIPs = new Set();
+                this.trafficInterval = null;
+                this.attackInterval = null;
+                this.startTime = null;
+                this.notificationCount = 0;
+                this.activeRules = [];
+                this.customRules = [];
+                this.filterSettings = {
+                    alert: true,
+                    warning: true,
+                    normal: true,
+                    info: true
+                };
+                
+                this.attackTypes = [
+                    { name: 'SQL-инъекция', severity: 'high', category: 'web' },
+                    { name: 'Попытка XSS', severity: 'high', category: 'web' },
+                    { name: 'DDoS-атака', severity: 'high', category: 'network' },
+                    { name: 'Сканирование портов', severity: 'medium', category: 'network' },
+                    { name: 'Подбор пароля', severity: 'medium', category: 'system' },
+                    { name: 'Вредоносная нагрузка', severity: 'high', category: 'system' },
+                    { name: 'Инъекция команд', severity: 'high', category: 'system' },
+                    { name: 'Обход каталогов', severity: 'high', category: 'web' },
+                    { name: 'CSRF-атака', severity: 'medium', category: 'web' },
+                    { name: 'DNS-спуфинг', severity: 'high', category: 'network' },
+                    { name: 'MITM-атака', severity: 'high', category: 'network' },
+                    { name: 'Эксплойт уязвимости', severity: 'high', category: 'system' }
+                ];
+                
+                this.ipPool = this.generateIPPool(100);
+                this.countries = ['Россия', 'США', 'Китай', 'Германия', 'Бразилия', 'Индия', 'Япония', 'Великобритания'];
+                this.cities = {
+                    'Россия': ['Москва', 'Санкт-Петербург', 'Новосибирск', 'Екатеринбург', 'Казань'],
+                    'США': ['Нью-Йорк', 'Лос-Анджелес', 'Чикаго', 'Хьюстон', 'Филадельфия'],
+                    'Китай': ['Пекин', 'Шанхай', 'Гуанчжоу', 'Шэньчжэнь', 'Чэнду'],
+                    'Германия': ['Берлин', 'Гамбург', 'Мюнхен', 'Кёльн', 'Франкфурт'],
+                    'Бразилия': ['Сан-Паулу', 'Рио-де-Жанейро', 'Бразилиа', 'Сальвадор', 'Форталеза'],
+                    'Индия': ['Мумбаи', 'Дели', 'Бангалор', 'Хайдарабад', 'Ченнаи'],
+                    'Япония': ['Токио', 'Осака', 'Киото', 'Иокогама', 'Саппоро'],
+                    'Великобритания': ['Лондон', 'Бирмингем', 'Манчестер', 'Ливерпуль', 'Глазго']
+                };
+                this.isps = {
+                    'Россия': ['Ростелеком', 'МТС', 'Билайн', 'МегаФон', 'Yota'],
+                    'США': ['Comcast', 'AT&T', 'Verizon', 'Charter', 'CenturyLink'],
+                    'Китай': ['China Telecom', 'China Unicom', 'China Mobile', 'CERNET', 'Dr.Peng'],
+                    'Германия': ['Deutsche Telekom', 'Vodafone', 'Telefonica', '1&1', 'Unitymedia'],
+                    'Бразилия': ['Vivo', 'Claro', 'Oi', 'TIM Brasil', 'Algar Telecom'],
+                    'Индия': ['Airtel', 'Vodafone Idea', 'Reliance Jio', 'BSNL', 'MTNL'],
+                    'Япония': ['NTT', 'KDDI', 'SoftBank', 'Rakuten Mobile', 'IIJ'],
+                    'Великобритания': ['BT', 'Virgin Media', 'Sky', 'TalkTalk', 'Plusnet']
+                };
+                
+                this.normalTrafficPatterns = [
+                    'GET / HTTP/1.1',
+                    'POST /login HTTP/1.1',
+                    'GET /styles.css HTTP/1.1',
+                    'GET /script.js HTTP/1.1',
+                    'GET /images/logo.png HTTP/1.1',
+                    'GET /api/data HTTP/1.1',
+                    'POST /api/auth HTTP/1.1',
+                    'GET /products?category=electronics HTTP/1.1',
+                    'POST /contact HTTP/1.1',
+                    'GET /robots.txt HTTP/1.1'
+                ];
+                
+                // Инициализация DOM элементов
+                this.initDOMElements();
+                // Инициализация графиков
+                this.initCharts();
+                // Инициализация обработчиков событий
+                this.initEventHandlers();
+                // Загрузка начальных данных
+                this.loadInitialData();
+                
+                this.addSystemLog('Система инициализирована и готова к работе');
+            }
+            
+            initDOMElements() {
+                this.trafficLog = document.getElementById('traffic-log');
+                this.trafficRate = document.getElementById('traffic-rate');
+                this.threatsDetected = document.getElementById('threats-detected');
+                this.blockedIpsCount = document.getElementById('blocked-ips');
+                this.systemStatus = document.getElementById('system-status');
+                this.uptimeElement = document.getElementById('uptime');
+                this.cpuUsageElement = document.getElementById('cpu-usage');
+                this.threatMap = document.getElementById('threat-map');
+                this.startBtn = document.getElementById('start-btn');
+                this.stopBtn = document.getElementById('stop-btn');
+                this.simulateBtn = document.getElementById('simulate-btn');
+                this.advancedSimulateBtn = document.getElementById('advanced-simulate-btn');
+                this.resetBtn = document.getElementById('reset-btn');
+                this.settingsBtn = document.getElementById('settings-btn');
+                this.systemLogs = document.getElementById('system-logs');
+                this.notificationBell = document.getElementById('notification-bell');
+                this.notificationBadge = document.getElementById('notification-badge');
+                this.notificationPanel = document.getElementById('notification-panel');
+                this.clearNotificationsBtn = document.getElementById('clear-notifications');
+                this.notificationsList = document.getElementById('notifications-list');
+                this.overlay = document.getElementById('overlay');
+                this.ipDetailsModal = document.getElementById('ip-details');
+                this.closeDetailsBtn = document.getElementById('close-details');
+                this.settingsModal = document.getElementById('settings-modal');
+                this.closeSettingsBtn = document.getElementById('close-settings');
+                this.cancelSettingsBtn = document.getElementById('cancel-settings');
+                this.saveSettingsBtn = document.getElementById('save-settings');
+                this.addRuleBtn = document.getElementById('add-rule-btn');
+                this.addRuleModal = document.getElementById('add-rule-modal');
+                this.closeRuleModalBtn = document.getElementById('close-rule-modal');
+                this.cancelRuleBtn = document.getElementById('cancel-rule');
+                this.saveRuleBtn = document.getElementById('save-rule');
+                this.customRulesList = document.getElementById('custom-rules-list');
+                this.filterTrafficBtn = document.getElementById('filter-traffic-btn');
+                this.clearTrafficBtn = document.getElementById('clear-traffic-btn');
+                this.trafficFilter = document.getElementById('traffic-filter');
+                this.generateReportBtn = document.getElementById('generate-report-btn');
+                this.attacksPrevented = document.getElementById('attacks-prevented');
+                this.packetsScanned = document.getElementById('packets-scanned');
+                this.avgLatency = document.getElementById('avg-latency');
+                this.falsePositives = document.getElementById('false-positives');
+            }
+            
+            initCharts() {
+                // График трафика
+                const trafficCtx = document.getElementById('trafficChart').getContext('2d');
+                this.trafficChart = new Chart(trafficCtx, {
+                    type: 'line',
+                    data: {
+                        labels: Array(20).fill('').map((_, i) => i + 1),
+                        datasets: [
+                            {
+                                label: 'Нормальный трафик',
+                                data: Array(20).fill(0),
+                                borderColor: '#2ec4b6',
+                                backgroundColor: 'rgba(46, 196, 182, 0.1)',
+                                tension: 0.3,
+                                fill: true
+                            },
+                            {
+                                label: 'Опасные атаки',
+                                data: Array(20).fill(0),
+                                borderColor: '#ef233c',
+                                backgroundColor: 'rgba(239, 35, 60, 0.1)',
+                                tension: 0.3,
+                                fill: true
+                            },
+                            {
+                                label: 'Подозрительная активность',
+                                data: Array(20).fill(0),
+                                borderColor: '#ff9f1c',
+                                backgroundColor: 'rgba(255, 159, 28, 0.1)',
+                                tension: 0.3,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                }
+                            }
+                        },
+                        elements: {
+                            point: {
+                                radius: 0
+                            }
+                        }
+                    }
+                });
+                
+                // График типов атак
+                const attackTypesCtx = document.getElementById('attackTypesChart').getContext('2d');
+                this.attackTypesChart = new Chart(attackTypesCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['SQL-инъекции', 'XSS', 'DDoS', 'Сканирование', 'Подбор паролей', 'Другие'],
+                        datasets: [{
+                            data: [12, 8, 15, 7, 5, 3],
+                            backgroundColor: [
+                                '#ef233c',
+                                '#ff9f1c',
+                                '#4361ee',
+                                '#3f37c9',
+                                '#2ec4b6',
+                                '#6c757d'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                }
+                            }
+                        },
+                        cutout: '70%'
+                    }
+                });
+                
+                // График активности по времени
+                const activityTimelineCtx = document.getElementById('activityTimelineChart').getContext('2d');
+                this.activityTimelineChart = new Chart(activityTimelineCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                        datasets: [{
+                            label: 'Активность',
+                            data: [5, 8, 25, 32, 18, 12],
+                            backgroundColor: '#4361ee',
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            initEventHandlers() {
+                this.startBtn.addEventListener('click', () => this.startMonitoring());
+                this.stopBtn.addEventListener('click', () => this.stopMonitoring());
+                this.simulateBtn.addEventListener('click', () => this.simulateAttack());
+                this.advancedSimulateBtn.addEventListener('click', () => this.simulateAdvancedAttack());
+                this.resetBtn.addEventListener('click', () => this.resetSystem());
+                this.settingsBtn.addEventListener('click', () => this.openSettings());
+                this.notificationBell.addEventListener('click', () => this.toggleNotifications());
+                this.clearNotificationsBtn.addEventListener('click', () => this.clearNotifications());
+                this.closeDetailsBtn.addEventListener('click', () => this.closeIpDetails());
+                this.closeSettingsBtn.addEventListener('click', () => this.closeSettings());
+                this.cancelSettingsBtn.addEventListener('click', () => this.closeSettings());
+                this.saveSettingsBtn.addEventListener('click', () => this.saveSettings());
+                this.addRuleBtn.addEventListener('click', () => this.openAddRuleModal());
+                this.closeRuleModalBtn.addEventListener('click', () => this.closeAddRuleModal());
+                this.cancelRuleBtn.addEventListener('click', () => this.closeAddRuleModal());
+                this.saveRuleBtn.addEventListener('click', () => this.saveCustomRule());
+                this.filterTrafficBtn.addEventListener('click', () => this.toggleTrafficFilter());
+                this.clearTrafficBtn.addEventListener('click', () => this.clearTrafficLog());
+                this.generateReportBtn.addEventListener('click', () => this.generateReport());
+                
+                // Обработчики для фильтрации трафика
+                const filterButtons = this.trafficFilter.querySelectorAll('.severity-filter-btn');
+                filterButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const severity = btn.dataset.severity;
+                        btn.classList.toggle('active');
+                        this.filterSettings[severity] = !this.filterSettings[severity];
+                        this.applyTrafficFilter();
+                    });
+                });
+                
+                // Обработчик для оверлея
+                this.overlay.addEventListener('click', () => {
+                    this.closeIpDetails();
+                    this.closeSettings();
+                    this.closeAddRuleModal();
+                });
+            }
+            
+            loadInitialData() {
+                // Загрузка активных правил
+                this.activeRules = [
+                    { id: 1, name: 'SQL-инъекции', severity: 'high', category: 'web', active: true },
+                    { id: 2, name: 'XSS', severity: 'high', category: 'web', active: true },
+                    { id: 3, name: 'DDoS', severity: 'high', category: 'network', active: true },
+                    { id: 4, name: 'Сканирование портов', severity: 'medium', category: 'network', active: true },
+                    { id: 5, name: 'Подбор паролей', severity: 'medium', category: 'system', active: true },
+                    { id: 6, name: 'Командная инъекция', severity: 'high', category: 'system', active: true }
+                ];
+                
+                // Обновление статистики
+                this.updateStats();
+                
+                // Инициализация времени работы
+                this.updateUptime();
+                setInterval(() => this.updateUptime(), 1000);
+                
+                // Имитация изменения нагрузки CPU
+                this.updateCpuUsage();
+                setInterval(() => this.updateCpuUsage(), 3000);
+            }
+            
+            generateIPPool(size) {
+                const pool = [];
+                for (let i = 0; i < size; i++) {
+                    const first = Math.floor(Math.random() * 5) + 1;
+                    const second = Math.floor(Math.random() * 255);
+                    pool.push(`192.168.${first}.${second}`);
+                }
+                return pool;
+            }
+            
+            startMonitoring() {
+                if (this.isRunning) return;
+                
+                this.isRunning = true;
+                this.startTime = new Date();
+                this.systemStatus.textContent = 'АКТИВЕН';
+                this.systemStatus.style.color = '#2ec4b6';
+                
+                this.startBtn.disabled = true;
+                this.stopBtn.disabled = false;
+                this.simulateBtn.disabled = false;
+                this.advancedSimulateBtn.disabled = false;
+                
+                this.trafficInterval = setInterval(() => {
+                    this.generateTraffic();
+                    this.updateStats();
+                    this.updateTrafficChart();
+                }, 300);
+                
+                this.addSystemLog('Мониторинг трафика запущен');
+                this.logMessage('SYSTEM', 'Monitoring started', 'normal');
+                this.addNotification('Система мониторинга запущена', 'info');
+            }
+            
+            stopMonitoring() {
+                if (!this.isRunning) return;
+                
+                this.isRunning = false;
+                clearInterval(this.trafficInterval);
+                clearInterval(this.attackInterval);
+                this.systemStatus.textContent = 'НЕАКТИВЕН';
+                this.systemStatus.style.color = '#e74c3c';
+                
+                this.startBtn.disabled = false;
+                this.stopBtn.disabled = true;
+                this.simulateBtn.disabled = true;
+                this.advancedSimulateBtn.disabled = true;
+                
+                this.addSystemLog('Мониторинг трафика остановлен');
+                this.logMessage('SYSTEM', 'Monitoring stopped', 'normal');
+                this.addNotification('Система мониторинга остановлена', 'warning');
+            }
+            
+            resetSystem() {
+                this.stopMonitoring();
+                this.trafficCount = 0;
+                this.threatCount = 0;
+                this.blockedIPs.clear();
+                this.trafficLog.innerHTML = '';
+                this.threatMap.innerHTML = '';
+                this.notificationCount = 0;
+                this.notificationBadge.textContent = '0';
+                this.notificationsList.innerHTML = '';
+                this.startTime = null;
+                
+                // Сброс графиков
+                this.trafficChart.data.datasets.forEach(dataset => {
+                    dataset.data = Array(20).fill(0);
+                });
+                this.trafficChart.update();
+                
+                this.updateStats();
+                this.addSystemLog('Система сброшена в исходное состояние');
+                this.logMessage('SYSTEM', 'System reset', 'normal');
+            }
+            
+            generateTraffic() {
+                const trafficCount = Math.floor(Math.random() * 5) + 1;
+                for (let i = 0; i < trafficCount; i++) {
+                    const ip = this.ipPool[Math.floor(Math.random() * this.ipPool.length)];
+                    const pattern = this.normalTrafficPatterns[
+                        Math.floor(Math.random() * this.normalTrafficPatterns.length)
+                    ];
+                    this.trafficCount++;
+                    
+                    if (document.getElementById('deep-inspection').checked) {
+                        this.logMessage(ip, pattern, 'normal');
+                    } else {
+                        this.logMessage(ip, 'Packet inspected (DPI disabled)', 'normal');
+                    }
+                }
+            }
+            
+            simulateAttack() {
+                if (!this.isRunning) {
+                    this.showAlert('Пожалуйста, сначала запустите мониторинг');
+                    return;
+                }
+                
+                const attackType = this.attackTypes[
+                    Math.floor(Math.random() * this.attackTypes.length)
+                ];
+                const ip = this.ipPool[Math.floor(Math.random() * this.ipPool.length)];
+                
+                let attackPayload = '';
+                switch (attackType.name) {
+                    case 'SQL-инъекция':
+                        attackPayload = "SELECT * FROM users WHERE username = 'admin' OR 1=1 --";
+                        break;
+                    case 'DDoS-атака':
+                        attackPayload = "Флуд SYN-пакетами (1000+ requests/sec)";
+                        break;
+                    case 'Сканирование портов':
+                        attackPayload = "Scanning ports 22(SSH), 80(HTTP), 443(HTTPS), 3389(RDP)";
+                        break;
+                    case 'Подбор пароля':
+                        attackPayload = "Repeated login attempts (admin:password, root:12345)";
+                        break;
+                    case 'Вредоносная нагрузка':
+                        attackPayload = "Downloading payload.exe (SHA256: a1b2c3...)";
+                        break;
+                    case 'Инъекция команд':
+                        attackPayload = "| rm -rf /";
+                        break;
+                    case 'Обход каталогов':
+                        attackPayload = "../../../etc/passwd";
+                        break;
+                    case 'CSRF-атака':
+                        attackPayload = "Forged request to /transfer?amount=1000&to=attacker";
+                        break;
+                    case 'DNS-спуфинг':
+                        attackPayload = "Spoofed DNS response for example.com to 192.168.1.100";
+                        break;
+                    case 'MITM-атака':
+                        attackPayload = "Intercepted SSL traffic with forged certificate";
+                        break;
+                    case 'Эксплойт уязвимости':
+                        attackPayload = "Exploiting CVE-2023-1234 with RCE payload";
+                        break;
+                }
+                
+                this.threatCount++;
+                this.addSystemLog(`Обнаружена атака: ${attackType.name} с IP ${ip}`);
+                this.logMessage(ip, `${attackType.name}: ${attackPayload}`, attackType.severity === 'high' ? 'alert' : 'warning');
+                this.addThreatToMap(ip, attackType);
+                
+                if (document.getElementById('alert-notifications').checked) {
+                    this.addNotification(`Обнаружена ${attackType.name.toLowerCase()} с IP ${ip}`, attackType.severity);
+                }
+                
+                if (document.getElementById('auto-block').checked && attackType.severity === 'high') {
+                    if (!this.blockedIPs.has(ip)) {
+                        this.blockedIPs.add(ip);
+                        this.addSystemLog(`IP адрес ${ip} заблокирован (${attackType.name})`);
+                        this.logMessage('IPS', `Blocked malicious IP: ${ip} (${attackType.name})`, 'warning');
+                        this.addNotification(`IP ${ip} заблокирован автоматически`, 'warning');
+                    }
+                }
+                
+                this.updateStats();
+            }
+            
+            simulateAdvancedAttack() {
+                if (!this.isRunning) {
+                    this.showAlert('Пожалуйста, сначала запустите мониторинг');
+                    return;
+                }
+                
+                // Имитация сложной многоэтапной атаки
+                const attackSteps = [
+                    { delay: 1000, action: 'Начало сканирования сети' },
+                    { delay: 2000, action: 'Обнаружение уязвимых служб' },
+                    { delay: 3000, action: 'Эксплуатация уязвимости' },
+                    { delay: 4000, action: 'Установка бэкдора' },
+                    { delay: 5000, action: 'Кража данных' },
+                    { delay: 6000, action: 'Установка руткита' }
+                ];
+                
+                const ip = this.ipPool[Math.floor(Math.random() * this.ipPool.length)];
+                const attackType = { name: 'Многоэтапная атака', severity: 'high' };
+                
+                this.addSystemLog(`Обнаружена сложная атака с IP ${ip}`);
+                this.logMessage(ip, 'Начало сложной многоэтапной атаки', 'alert');
+                this.addThreatToMap(ip, attackType);
+                
+                if (document.getElementById('alert-notifications').checked) {
+                    this.addNotification(`Обнаружена сложная атака с IP ${ip}`, 'high');
+                }
+                
+                attackSteps.forEach((step, index) => {
+                    setTimeout(() => {
+                        this.threatCount++;
+                        this.logMessage(ip, `Этап ${index + 1}: ${step.action}`, 'alert');
+                        
+                        if (index === attackSteps.length - 1) {
+                            if (document.getElementById('auto-block').checked) {
+                                if (!this.blockedIPs.has(ip)) {
+                                    this.blockedIPs.add(ip);
+                                    this.addSystemLog(`IP адрес ${ip} заблокирован (Многоэтапная атака)`);
+                                    this.logMessage('IPS', `Blocked malicious IP: ${ip} (Многоэтапная атака)`, 'warning');
+                                    this.addNotification(`IP ${ip} заблокирован автоматически`, 'warning');
+                                }
+                            }
+                        }
+                        
+                        this.updateStats();
+                    }, step.delay);
+                });
+            }
+            
+            addThreatToMap(ip, attackType) {
+                const dot = document.createElement('div');
+                dot.className = 'threat-dot';
+                
+                if (attackType.severity === 'high') {
+                    dot.style.backgroundColor = '#e74c3c';
+                } else if (attackType.severity === 'medium') {
+                    dot.style.backgroundColor = '#f39c12';
+                } else {
+                    dot.style.backgroundColor = '#f1c40f';
+                }
+                
+                dot.style.left = `${Math.random() * 90 + 5}%`;
+                dot.style.top = `${Math.random() * 90 + 5}%`;
+                
+                // Добавление информации о стране
+                const country = this.countries[Math.floor(Math.random() * this.countries.length)];
+                const city = this.cities[country][Math.floor(Math.random() * this.cities[country].length)];
+                const isp = this.isps[country][Math.floor(Math.random() * this.isps[country].length)];
+                
+                dot.title = `${ip}\n${attackType.name}\n${city}, ${country}\nПровайдер: ${isp}`;
+                
+                dot.style.transform = 'translate(-50%, -50%) scale(0)';
+                setTimeout(() => {
+                    dot.style.transform = 'translate(-50%, -50%) scale(1)';
+                }, 10);
+                
+                this.threatMap.appendChild(dot);
+                
+                // Добавление обработчика клика для просмотра деталей
+                dot.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.showIpDetails(ip, country, city, isp, attackType);
+                });
+                
+                setTimeout(() => {
+                    dot.style.transform = 'translate(-50%, -50%) scale(0)';
+                    setTimeout(() => {
+                        dot.remove();
+                    }, 300);
+                }, 5000);
+            }
+            
+            showIpDetails(ip, country, city, isp, attackType) {
+                // Установка данных в модальное окно
+                document.getElementById('detail-ip').textContent = ip;
+                document.getElementById('detail-country').innerHTML = `
+                    <img src="https://flagcdn.com/${this.getCountryCode(country)}.svg" class="geo-flag" alt="${country}"> ${country}
+                `;
+                document.getElementById('detail-city').textContent = city;
+                document.getElementById('detail-isp').textContent = isp;
+                
+                // Установка статуса
+                const statusElement = document.getElementById('detail-status');
+                if (this.blockedIPs.has(ip)) {
+                    statusElement.innerHTML = '<span class="badge badge-danger">Заблокирован</span>';
+                } else {
+                    statusElement.innerHTML = '<span class="badge badge-warning">Под наблюдением</span>';
+                }
+                
+                // Установка уровня угрозы
+                const threatLevelElement = document.getElementById('detail-threat-level');
+                const progressBar = threatLevelElement.querySelector('.progress-bar');
+                
+                if (attackType.severity === 'high') {
+                    progressBar.style.width = '80%';
+                    progressBar.className = 'progress-bar progress-bar-danger';
+                    threatLevelElement.innerHTML = threatLevelElement.innerHTML.replace('Высокий', 'Высокий');
+                } else if (attackType.severity === 'medium') {
+                    progressBar.style.width = '50%';
+                    progressBar.className = 'progress-bar progress-bar-warning';
+                    threatLevelElement.innerHTML = threatLevelElement.innerHTML.replace('Высокий', 'Средний');
+                } else {
+                    progressBar.style.width = '20%';
+                    progressBar.className = 'progress-bar';
+                    threatLevelElement.innerHTML = threatLevelElement.innerHTML.replace('Высокий', 'Низкий');
+                }
+                
+                // Показать модальное окно и оверлей
+                this.ipDetailsModal.classList.add('active');
+                this.overlay.classList.add('active');
+            }
+            
+            closeIpDetails() {
+                this.ipDetailsModal.classList.remove('active');
+                this.overlay.classList.remove('active');
+            }
+            
+            getCountryCode(country) {
+                const codes = {
+                    'Россия': 'ru',
+                    'США': 'us',
+                    'Китай': 'cn',
+                    'Германия': 'de',
+                    'Бразилия': 'br',
+                    'Индия': 'in',
+                    'Япония': 'jp',
+                    'Великобритания': 'gb'
+                };
+                return codes[country] || 'us';
+            }
+            
+            logMessage(source, message, type) {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                
+                logEntry.innerHTML = `[${timeStr}] <strong>${source}</strong>: ${message}`;
+                logEntry.className = type;
+                logEntry.dataset.severity = type;
+                
+                // Добавление обработчика клика для IP-адресов
+                if (source.match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/)) {
+                    logEntry.style.cursor = 'pointer';
+                    logEntry.addEventListener('click', () => {
+                        const country = this.countries[Math.floor(Math.random() * this.countries.length)];
+                        const city = this.cities[country][Math.floor(Math.random() * this.cities[country].length)];
+                        const isp = this.isps[country][Math.floor(Math.random() * this.isps[country].length)];
+                        const attackType = { name: 'Обнаруженная угроза', severity: type === 'alert' ? 'high' : 'medium' };
+                        this.showIpDetails(source, country, city, isp, attackType);
+                    });
+                }
+                
+                // Применение фильтра
+                if (this.filterSettings[type]) {
+                    logEntry.style.display = 'block';
+                } else {
+                    logEntry.style.display = 'none';
+                }
+                
+                this.trafficLog.prepend(logEntry);
+                
+                if (this.trafficLog.children.length > 200) {
+                    this.trafficLog.removeChild(this.trafficLog.lastChild);
+                }
+                
+                this.trafficLog.scrollTop = 0;
+            }
+            
+            applyTrafficFilter() {
+                const entries = this.trafficLog.querySelectorAll('div');
+                entries.forEach(entry => {
+                    const severity = entry.dataset.severity;
+                    if (this.filterSettings[severity]) {
+                        entry.style.display = 'block';
+                    } else {
+                        entry.style.display = 'none';
+                    }
+                });
+            }
+            
+            clearTrafficLog() {
+                if (confirm('Вы уверены, что хотите очистить журнал трафика?')) {
+                    this.trafficLog.innerHTML = '';
+                    this.addSystemLog('Журнал трафика очищен');
+                }
+            }
+            
+            addSystemLog(message) {
+                const now = new Date();
+                const timeStr = now.toISOString().replace('T', ' ').substring(0, 19);
+                const logEntry = `[${timeStr}] ${message}\n`;
+                
+                this.systemLogs.textContent += logEntry;
+                this.systemLogs.scrollTop = this.systemLogs.scrollHeight;
+            }
+            
+            addNotification(message, severity = 'info') {
+                this.notificationCount++;
+                this.notificationBadge.textContent = this.notificationCount;
+                
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString();
+                const dateStr = now.toLocaleDateString();
+                
+                const notificationItem = document.createElement('div');
+                notificationItem.className = `notification-item unread ${severity}`;
+                notificationItem.innerHTML = `
+                    <p class="notification-message">
+                        <i class="fas fa-${this.getNotificationIcon(severity)}"></i> ${message}
+                    </p>
+                    <div class="notification-time">
+                        <i class="far fa-clock"></i> ${dateStr} ${timeStr}
+                    </div>
+                `;
+                
+                this.notificationsList.prepend(notificationItem);
+                
+                // Ограничение количества уведомлений
+                if (this.notificationsList.children.length > 50) {
+                    this.notificationsList.removeChild(this.notificationsList.lastChild);
+                }
+                
+                // Анимация для иконки уведомлений
+                if (this.notificationCount > 0) {
+                    this.notificationBell.classList.add('pulse');
+                    setTimeout(() => {
+                        this.notificationBell.classList.remove('pulse');
+                    }, 2000);
+                }
+            }
+            
+            getNotificationIcon(severity) {
+                switch (severity) {
+                    case 'high': return 'exclamation-circle';
+                    case 'medium': return 'exclamation-triangle';
+                    case 'low': return 'info-circle';
+                    default: return 'info-circle';
+                }
+            }
+            
+            toggleNotifications() {
+                this.notificationPanel.classList.toggle('active');
+                
+                if (this.notificationPanel.classList.contains('active')) {
+                    // Помечаем все уведомления как прочитанные
+                    const notifications = this.notificationsList.querySelectorAll('.unread');
+                    notifications.forEach(notification => {
+                        notification.classList.remove('unread');
+                    });
+                    this.notificationCount = 0;
+                    this.notificationBadge.textContent = '0';
+                }
+            }
+            
+            clearNotifications() {
+                if (confirm('Вы уверены, что хотите очистить все уведомления?')) {
+                    this.notificationsList.innerHTML = '';
+                    this.notificationCount = 0;
+                    this.notificationBadge.textContent = '0';
+                    this.addSystemLog('Все уведомления очищены');
+                }
+            }
+            
+            updateStats() {
+                const baseRate = this.isRunning ? 50 : 0;
+                const randomVariation = Math.floor(Math.random() * 100);
+                const attackBoost = this.threatCount * 2;
+                this.trafficRate.textContent = `${baseRate + randomVariation + attackBoost} пак/с`;
+                
+                this.threatsDetected.textContent = this.threatCount;
+                this.blockedIpsCount.textContent = this.blockedIPs.size;
+                this.packetsScanned.textContent = this.trafficCount;
+                this.attacksPrevented.textContent = this.threatCount;
+                this.avgLatency.textContent = `${Math.floor(Math.random() * 20) + 5} мс`;
+                this.falsePositives.textContent = Math.floor(this.threatCount * 0.1);
+            }
+            
+            updateUptime() {
+                if (!this.startTime) {
+                    this.uptimeElement.textContent = '00:00:00';
+                    return;
+                }
+                
+                const now = new Date();
+                const diff = Math.floor((now - this.startTime) / 1000);
+                
+                const hours = Math.floor(diff / 3600);
+                const minutes = Math.floor((diff % 3600) / 60);
+                const seconds = diff % 60;
+                
+                this.uptimeElement.textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            updateCpuUsage() {
+                const baseUsage = this.isRunning ? 20 : 5;
+                const randomVariation = Math.floor(Math.random() * 30);
+                const attackBoost = this.threatCount * 0.5;
+                const cpuUsage = Math.min(baseUsage + randomVariation + attackBoost, 100);
+                
+                this.cpuUsageElement.textContent = `${Math.round(cpuUsage)}%`;
+                
+                // Изменение цвета в зависимости от нагрузки
+                if (cpuUsage > 70) {
+                    this.cpuUsageElement.style.color = '#ef233c';
+                } else if (cpuUsage > 40) {
+                    this.cpuUsageElement.style.color = '#ff9f1c';
+                } else {
+                    this.cpuUsageElement.style.color = '#2ec4b6';
+                }
+            }
+            
+            updateTrafficChart() {
+                // Обновление данных графиков
+                this.trafficChart.data.datasets[0].data.shift();
+                this.trafficChart.data.datasets[0].data.push(Math.floor(Math.random() * 50) + 10);
+                
+                this.trafficChart.data.datasets[1].data.shift();
+                this.trafficChart.data.datasets[1].data.push(Math.floor(Math.random() * 20) * (this.threatCount > 0 ? 1 : 0));
+                
+                this.trafficChart.data.datasets[2].data.shift();
+                this.trafficChart.data.datasets[2].data.push(Math.floor(Math.random() * 30) * (this.threatCount > 0 ? 1 : 0));
+                
+                this.trafficChart.update();
+            }
+            
+            showAlert(message, type = 'warning') {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type}`;
+                alertDiv.innerHTML = `
+                    <i class="fas fa-${type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                    <div class="alert-content">${message}</div>
+                `;
+                
+                document.body.appendChild(alertDiv);
+                
+                setTimeout(() => {
+                    alertDiv.style.opacity = '0';
+                    setTimeout(() => alertDiv.remove(), 300);
+                }, 3000);
+            }
+            
+            openSettings() {
+                this.settingsModal.classList.add('active');
+                this.overlay.classList.add('active');
+            }
+            
+            closeSettings() {
+                this.settingsModal.classList.remove('active');
+                this.overlay.classList.remove('active');
+            }
+            
+            saveSettings() {
+                this.addSystemLog('Настройки системы обновлены');
+                this.addNotification('Настройки системы успешно сохранены', 'info');
+                this.closeSettings();
+            }
+            
+            openAddRuleModal() {
+                this.addRuleModal.classList.add('active');
+                this.overlay.classList.add('active');
+            }
+            
+            closeAddRuleModal() {
+                this.addRuleModal.classList.remove('active');
+                this.overlay.classList.remove('active');
+            }
+            
+            saveCustomRule() {
+                // В реальном приложении здесь была бы валидация и сохранение правила
+                const ruleName = this.addRuleModal.querySelector('input[type="text"]').value;
+                const severity = this.addRuleModal.querySelector('select:nth-of-type(2)').value;
+                
+                this.customRules.push({
+                    id: this.customRules.length + 1,
+                    name: ruleName,
+                    severity: severity,
+                    category: 'custom',
+                    active: true
+                });
+                
+                this.renderCustomRules();
+                this.addSystemLog(`Добавлено новое правило: ${ruleName}`);
+                this.addNotification(`Правило "${ruleName}" успешно добавлено`, 'info');
+                this.closeAddRuleModal();
+            }
+            
+            renderCustomRules() {
+                this.customRulesList.innerHTML = '';
+                
+                if (this.customRules.length === 0) {
+                    this.customRulesList.innerHTML = `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div class="alert-content">
+                                У вас пока нет пользовательских правил. Нажмите "Добавить правило" для создания нового.
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                this.customRules.forEach(rule => {
+                    const ruleItem = document.createElement('div');
+                    ruleItem.className = `rule-item ${rule.active ? 'rule-active' : 'rule-inactive'}`;
+                    ruleItem.innerHTML = `
+                        <div>
+                            <strong>${rule.name}</strong>
+                            <div class="text-muted">Пользовательское правило</div>
+                        </div>
+                        <span class="rule-severity severity-${rule.severity}">
+                            ${rule.severity === 'high' ? 'Высокая' : 
+                              rule.severity === 'medium' ? 'Средняя' : 
+                              rule.severity === 'low' ? 'Низкая' : 'Информация'}
+                        </span>
+                    `;
+                    
+                    this.customRulesList.appendChild(ruleItem);
+                });
+            }
+            
+            toggleTrafficFilter() {
+                this.trafficFilter.style.display = this.trafficFilter.style.display === 'none' ? 'flex' : 'none';
+            }
+            
+            generateReport() {
+                this.addSystemLog('Сгенерирован отчет о безопасности');
+                this.addNotification('Отчет о безопасности успешно сгенерирован', 'info');
+                
+                // Имитация создания отчета
+                const reportData = {
+                    date: new Date().toLocaleDateString(),
+                    attacksPrevented: this.threatCount,
+                    packetsScanned: this.trafficCount,
+                    blockedIPs: this.blockedIPs.size,
+                    topThreats: this.attackTypes.slice(0, 5).map(t => t.name),
+                    systemStatus: this.isRunning ? 'Активен' : 'Неактивен'
+                };
+                
+                // В реальном приложении здесь был бы экспорт в PDF
+                this.showAlert(`Отчет за ${reportData.date} готов к экспорту. Атак предотвращено: ${reportData.attacksPrevented}`, 'success');
+            }
+        }
+        
+        // Вспомогательные функции
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            
+            const tabButtons = document.getElementsByClassName('tab-btn');
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove('active');
+            }
+            
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+        
+        function openSettingsTab(evt, tabName) {
+            const tabContents = document.querySelectorAll('#settings-modal .tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            const tabButtons = document.querySelectorAll('#settings-modal .tab-btn');
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+        
+        function exportLogs() {
+            const logs = document.getElementById('system-logs').textContent;
+            const blob = new Blob([logs], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ids-ips-logs-${new Date().toISOString().slice(0,10)}.log`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            new IDSIPSDemo().addSystemLog('Журнал событий экспортирован');
+            new IDSIPSDemo().addNotification('Журнал событий успешно экспортирован', 'info');
+        }
+        
+        function clearLogs() {
+            if (confirm('Вы уверены, что хотите очистить журнал событий?')) {
+                document.getElementById('system-logs').textContent = '';
+                new IDSIPSDemo().addSystemLog('Журнал событий очищен вручную');
+            }
+        }
+        
+        function scrollToTop() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+        
+        // Обработчик прокрутки для кнопки "Наверх"
+        window.onscroll = function() {
+            const button = document.querySelector('.back-to-top');
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                button.style.display = "flex";
+            } else {
+                button.style.display = "none";
+            }
+        };
+        
+        // Анимация появления секций
+        window.onload = () => {
+            const sections = document.querySelectorAll("section");
+            sections.forEach((section, index) => {
+                setTimeout(() => {
+                    section.classList.add('visible');
+                }, index * 300);
+            });
+            
+            // Инициализация системы
+            const idsIps = new IDSIPSDemo();
+        };
+    </script>
+</body>
+</html>

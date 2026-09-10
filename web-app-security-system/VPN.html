@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VPN - Виртуальные частные сети</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-image: url(2ed335b16e62c39b6d5b7725ff09d5e9.gif);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+            color: white;
+        }
+
+        header {
+            background: url(5a) no-repeat center center/cover;
+            color: #ffffff;
+            padding: 40px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+        }
+
+        header p {
+            font-size: 1.2em;
+            margin: 10px 0 20px;
+            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+        }
+
+        .home-button {
+            display: inline-block;
+            background-color: rgba(53, 66, 74, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+
+        .home-button:hover {
+            background-color: rgba(44, 62, 80, 0.9);
+            transform: scale(1.05);
+        }
+
+        main {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        section {
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.103);
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px #ccc;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            border: 2px solid rgb(0, 0, 0);
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card {
+            background: rgba(30, 30, 30, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4da6ff;
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background: rgba(40, 40, 40, 0.8);
+        }
+
+        h2, h3 {
+            color: #4da6ff;
+        }
+
+        .technology-icon {
+            margin-right: 10px;
+            color: #f3f3f3;
+            font-size: 1.5em;
+        }
+
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #abb2bf;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .keyword {
+            color: #c678dd;
+        }
+
+        .string {
+            color: #98c379;
+        }
+
+        .comment {
+            color: #5c6370;
+            font-style: italic;
+        }
+
+        .function {
+            color: #61afef;
+        }
+
+        .param {
+            color: #e06c75;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: -1px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: rgba(53, 66, 74, 0.7);
+            border: 1px solid #2d3e50;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            margin-right: 5px;
+            color: white;
+        }
+
+        .tab.active {
+            background: rgba(30, 30, 30, 0.7);
+            border-bottom: 1px solid rgba(30, 30, 30, 0.7);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: rgba(30, 30, 30, 0.7);
+            border: 1px solid #2d3e50;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .feature {
+            flex: 1;
+            min-width: 250px;
+            background: rgba(40, 40, 40, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted #666;
+            cursor: help;
+            color: #4da6ff;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 300px;
+            background-color: #333;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -150px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background: rgba(0, 0, 0, 0);
+            color: #ffffff;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(53, 66, 74, 0.9);
+            color: #ffffff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+            transition: all 0.3s;
+        }
+
+        .back-to-top:hover {
+            background: rgba(44, 62, 80, 0.9);
+            transform: scale(1.1);
+        }
+
+        .interactive-demo {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(40, 40, 40, 0.7);
+            border-radius: 8px;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .demo-controls input, .demo-controls select, .demo-controls button {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .demo-controls button {
+            background: #4da6ff;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .demo-controls button:hover {
+            background: #3a8bd6;
+        }
+
+        .demo-controls button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .demo-result {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            min-height: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-connected {
+            background: #4CAF50;
+            box-shadow: 0 0 5px #4CAF50;
+        }
+
+        .status-disconnected {
+            background: #F44336;
+        }
+
+        .connection-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .connection-info div {
+            background: rgba(40, 40, 40, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .ping-time {
+            color: #4da6ff;
+            font-weight: bold;
+        }
+
+        .ping-excellent {
+            color: #4CAF50;
+        }
+
+        .ping-good {
+            color: #8BC34A;
+        }
+
+        .ping-fair {
+            color: #FFC107;
+        }
+
+        .ping-poor {
+            color: #FF9800;
+        }
+
+        .ping-bad {
+            color: #F44336;
+        }
+
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .protocol-icon {
+            margin-right: 8px;
+            color: #4da6ff;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 30px 0;
+            }
+            
+            header h1 {
+                font-size: 2em;
+            }
+            
+            .home-button {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+            
+            .demo-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .demo-controls input, .demo-controls select, .demo-controls button {
+                width: 100%;
+            }
+            
+            .connection-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1><i class="fas fa-lock technology-icon"></i> VPN (Virtual Private Network)</h1>
+            <p>Технология создания защищённого соединения поверх ненадёжной сети</p>
+            <a href="index.html" class="home-button">На главную</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="overview">
+            <h2><i class="fas fa-info-circle technology-icon"></i>Обзор технологии</h2>
+            <div class="card">
+                <p>VPN (Virtual Private Network) - это технология, которая создает зашифрованное соединение между устройством пользователя и VPN-сервером, обеспечивая конфиденциальность и безопасность данных при передаче через ненадежные сети, такие как публичный Wi-Fi.</p>
+                
+                <div class="feature-list">
+                    <div class="feature">
+                        <h3><i class="fas fa-user-secret"></i> Конфиденциальность</h3>
+                        <p>Шифрует весь интернет-трафик, скрывая вашу активность от провайдера и злоумышленников.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <h3><i class="fas fa-globe"></i> Доступ к ресурсам</h3>
+                        <p>Позволяет обходить географические ограничения и получать доступ к заблокированным ресурсам.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <h3><i class="fas fa-shield-alt"></i> Безопасность</h3>
+                        <p>Защищает данные при использовании публичных сетей Wi-Fi, предотвращая перехват информации.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="protocols">
+            <h2><i class="fas fa-network-wired technology-icon"></i>Протоколы VPN</h2>
+            
+            <div class="card">
+                <div class="tabs">
+                    <div class="tab active" onclick="openTab(event, 'openvpn')">OpenVPN</div>
+                    <div class="tab" onclick="openTab(event, 'ipsec')">IPSec</div>
+                    <div class="tab" onclick="openTab(event, 'wireguard')">WireGuard</div>
+                </div>
+                
+                <div id="openvpn" class="tab-content active">
+                    <h3><i class="fas fa-key protocol-icon"></i>OpenVPN</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Установка OpenVPN на Ubuntu</span><br>
+                        sudo apt update<br>
+                        sudo apt install openvpn<br><br>
+                        
+                        <span class="comment"># Запуск клиента OpenVPN с конфигурационным файлом</span><br>
+                        sudo openvpn --config client.ovpn<br><br>
+                        
+                        <span class="comment"># Пример конфигурационного файла клиента (client.ovpn)</span><br>
+                        client<br>
+                        dev tun<br>
+                        proto udp<br>
+                        remote vpn.example.com 1194<br>
+                        resolv-retry infinite<br>
+                        nobind<br>
+                        persist-key<br>
+                        persist-tun<br>
+                        ca ca.crt<br>
+                        cert client.crt<br>
+                        key client.key<br>
+                        cipher AES-256-CBC<br>
+                        verb 3
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация работы OpenVPN</h4>
+                        <div class="demo-controls">
+                            <button id="start-openvpn-btn">Подключиться через OpenVPN</button>
+                            <button id="stop-openvpn-btn" disabled>Отключиться</button>
+                            <span id="openvpn-status"><span class="status-indicator status-disconnected"></span>Не подключено</span>
+                        </div>
+                        <div class="demo-result" id="openvpn-result"></div>
+                    </div>
+                    
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle"></i> Преимущества OpenVPN
+                        <div class="tooltiptext">
+                            <strong>Основные преимущества OpenVPN:</strong><br>
+                            - Открытый исходный код<br>
+                            - Поддержка множества алгоритмов шифрования<br>
+                            - Кроссплатформенность (Windows, Linux, macOS, Android, iOS)<br>
+                            - Гибкость конфигурации<br>
+                            - Поддержка TCP и UDP<br>
+                            - Высокая стабильность соединения<br><br>
+                            
+                            <strong>Недостатки:</strong><br>
+                            - Более высокая нагрузка на CPU по сравнению с новыми протоколами<br>
+                            - Требует установки дополнительного ПО
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="ipsec" class="tab-content">
+                    <h3><i class="fas fa-shield-alt protocol-icon"></i>IPSec</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Настройка IPSec на Linux (strongSwan)</span><br>
+                        sudo apt install strongswan<br><br>
+                        
+                        <span class="comment"># Пример конфигурации /etc/ipsec.conf</span><br>
+                        conn myvpn<br>
+                        &nbsp;&nbsp;left=192.168.1.100 <span class="comment"># Ваш локальный IP</span><br>
+                        &nbsp;&nbsp;leftsubnet=192.168.1.0/24<br>
+                        &nbsp;&nbsp;leftid=user@example.com<br>
+                        &nbsp;&nbsp;right=vpn.example.com<br>
+                        &nbsp;&nbsp;rightsubnet=0.0.0.0/0<br>
+                        &nbsp;&nbsp;auto=start<br>
+                        &nbsp;&nbsp;authby=secret<br>
+                        &nbsp;&nbsp;ike=aes256-sha1-modp1024<br>
+                        &nbsp;&nbsp;esp=aes256-sha1<br>
+                        &nbsp;&nbsp;keyexchange=ikev1<br><br>
+                        
+                        <span class="comment"># Запуск IPSec</span><br>
+                        sudo ipsec start<br>
+                        sudo ipsec up myvpn
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация работы IPSec</h4>
+                        <div class="demo-controls">
+                            <button id="start-ipsec-btn">Подключиться через IPSec</button>
+                            <button id="stop-ipsec-btn" disabled>Отключиться</button>
+                            <span id="ipsec-status"><span class="status-indicator status-disconnected"></span>Не подключено</span>
+                        </div>
+                        <div class="demo-result" id="ipsec-result"></div>
+                    </div>
+                    
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle"></i> Особенности IPSec
+                        <div class="tooltiptext">
+                            <strong>Характеристики IPSec:</strong><br>
+                            - Работает на сетевом уровне (Layer 3)<br>
+                            - Встроен в большинство операционных систем<br>
+                            - Поддерживает два режима: транспортный и туннельный<br>
+                            - Использует IKE для установки безопасного соединения<br>
+                            - Может работать с NAT (NAT-Traversal)<br><br>
+                            
+                            <strong>Использование:</strong><br>
+                            - Корпоративные VPN-решения<br>
+                            - Site-to-site соединения<br>
+                            - Подключение удаленных сотрудников<br>
+                            - Часто используется с L2TP (L2TP/IPSec)
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="wireguard" class="tab-content">
+                    <h3><i class="fas fa-bolt protocol-icon"></i>WireGuard</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Установка WireGuard на Ubuntu</span><br>
+                        sudo apt update<br>
+                        sudo apt install wireguard<br><br>
+                        
+                        <span class="comment"># Генерация ключей</span><br>
+                        wg genkey | tee privatekey | wg pubkey > publickey<br><br>
+                        
+                        <span class="comment"># Пример конфигурации клиента (/etc/wireguard/wg0.conf)</span><br>
+                        [Interface]<br>
+                        PrivateKey = &lt;ваш_приватный_ключ&gt;<br>
+                        Address = 10.0.0.2/24<br>
+                        DNS = 1.1.1.1<br><br>
+                        
+                        [Peer]<br>
+                        PublicKey = &lt;публичный_ключ_сервера&gt;<br>
+                        Endpoint = vpn.example.com:51820<br>
+                        AllowedIPs = 0.0.0.0/0<br>
+                        PersistentKeepalive = 25
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация работы WireGuard</h4>
+                        <div class="demo-controls">
+                            <button id="start-wireguard-btn">Подключиться через WireGuard</button>
+                            <button id="stop-wireguard-btn" disabled>Отключиться</button>
+                            <span id="wireguard-status"><span class="status-indicator status-disconnected"></span>Не подключено</span>
+                        </div>
+                        <div class="demo-result" id="wireguard-result"></div>
+                    </div>
+                    
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle"></i> Почему WireGuard?
+                        <div class="tooltiptext">
+                            <strong>Преимущества WireGuard:</strong><br>
+                            - Простота конфигурации<br>
+                            - Высокая производительность<br>
+                            - Современная криптография<br>
+                            - Минимальный кодовая база (~4000 строк)<br>
+                            - Встроен в ядро Linux 5.6+<br>
+                            - Низкие задержки<br><br>
+                            
+                            <strong>Особенности:</strong><br>
+                            - Использует UDP<br>
+                            - Нет поддержки динамического добавления пиров без перезагрузки<br>
+                            - Меньшая гибкость по сравнению с OpenVPN<br>
+                            - Статическая IP-адресация
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="usage">
+            <h2><i class="fas fa-laptop-code technology-icon"></i>Примеры использования</h2>
+            
+            <div class="card">
+                <div class="tabs">
+                    <div class="tab active" onclick="openTab(event, 'privacy')">Конфиденциальность</div>
+                    <div class="tab" onclick="openTab(event, 'remote')">Удалённый доступ</div>
+                    <div class="tab" onclick="openTab(event, 'bypass')">Обход блокировок</div>
+                </div>
+                
+                <div id="privacy" class="tab-content active">
+                    <h3>Защита конфиденциальности</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Проверка IP-адреса до подключения VPN</span><br>
+                        curl ifconfig.me<br><br>
+                        
+                        <span class="comment"># Подключение к VPN серверу (пример для OpenVPN)</span><br>
+                        sudo openvpn --config vpn-config.ovpn<br><br>
+                        
+                        <span class="comment"># Проверка IP-адреса после подключения</span><br>
+                        curl ifconfig.me<br><br>
+                        
+                        <span class="comment"># Проверка DNS-утечек</span><br>
+                        nslookup example.com<br>
+                        <span class="comment"># Или использовать специализированные сервисы: dnsleaktest.com</span>
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация защиты конфиденциальности</h4>
+                        <div class="demo-controls">
+                            <button id="check-ip-btn">Проверить мой IP</button>
+                            <button id="start-privacy-vpn-btn">Включить VPN</button>
+                            <button id="check-dns-btn">Проверить DNS</button>
+                        </div>
+                        <div class="demo-result" id="privacy-result"></div>
+                    </div>
+                    
+                    <div class="connection-info" id="privacy-info" style="display: none;">
+                        <div>
+                            <strong>Реальный IP:</strong>
+                            <span id="real-ip">Не определен</span>
+                        </div>
+                        <div>
+                            <strong>VPN IP:</strong>
+                            <span id="vpn-ip">Не подключено</span>
+                        </div>
+                        <div>
+                            <strong>Провайдер:</strong>
+                            <span id="real-isp">Не определен</span>
+                        </div>
+                        <div>
+                            <strong>VPN сервер:</strong>
+                            <span id="vpn-server">Не подключено</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="remote" class="tab-content">
+                    <h3>Удалённый доступ к ресурсам</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Подключение к корпоративной сети через VPN</span><br>
+                        <span class="comment"># (пример для Windows PowerShell)</span><br>
+                        Add-VpnConnection -Name "CorporateVPN" `<br>
+                        &nbsp;&nbsp;-ServerAddress "vpn.company.com" `<br>
+                        &nbsp;&nbsp;-TunnelType L2tp `<br>
+                        &nbsp;&nbsp;-L2tpPsk "shared_key" `<br>
+                        &nbsp;&nbsp;-EncryptionLevel Required `<br>
+                        &nbsp;&nbsp;-AuthenticationMethod MSChapv2 `<br>
+                        &nbsp;&nbsp;-RememberCredential<br><br>
+                        
+                        <span class="comment"># Подключение к VPN</span><br>
+                        rasdial CorporateVPN username password<br><br>
+                        
+                        <span class="comment"># Доступ к внутренним ресурсам компании</span><br>
+                        ping internal-server.company.local<br>
+                        ssh user@internal-server.company.local
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация удалённого доступа</h4>
+                        <div class="demo-controls">
+                            <input type="text" id="remote-host" placeholder="internal-server.company.local" style="flex-grow: 1;">
+                            <button id="test-remote-btn">Проверить доступ</button>
+                            <button id="connect-remote-btn">Подключиться к корпоративному VPN</button>
+                        </div>
+                        <div class="demo-result" id="remote-result"></div>
+                    </div>
+                </div>
+                
+                <div id="bypass" class="tab-content">
+                    <h3>Обход географических блокировок</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Выбор сервера в нужной стране</span><br>
+                        <span class="comment"># (пример для NordVPN командной строки)</span><br>
+                        nordvpn connect United_States<br><br>
+                        
+                        <span class="comment"># Проверка доступности контента</span><br>
+                        curl https://www.netflix.com<br><br>
+                        
+                        <span class="comment"># Альтернативный вариант с OpenVPN</span><br>
+                        <span class="comment"># Скачать конфиг для нужной страны и подключиться:</span><br>
+                        sudo openvpn --config us-california.ovpn
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация обхода блокировок</h4>
+                        <div class="demo-controls">
+                            <select id="country-select">
+                                <option value="us">США</option>
+                                <option value="uk">Великобритания</option>
+                                <option value="de">Германия</option>
+                                <option value="jp">Япония</option>
+                            </select>
+                            <button id="connect-country-btn">Подключиться</button>
+                            <button id="test-content-btn">Проверить доступ к контенту</button>
+                        </div>
+                        <div class="demo-result" id="bypass-result"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="security">
+            <h2><i class="fas fa-shield-alt technology-icon"></i>Безопасность VPN</h2>
+            
+            <div class="card">
+                <div class="tabs">
+                    <div class="tab active" onclick="openTab(event, 'encryption')">Шифрование</div>
+                    <div class="tab" onclick="openTab(event, 'logs')">Логирование</div>
+                    <div class="tab" onclick="openTab(event, 'leaks')">Утечки</div>
+                </div>
+                
+                <div id="encryption" class="tab-content active">
+                    <h3>Методы шифрования</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Современные алгоритмы шифрования в VPN</span><br>
+                        <span class="comment">## OpenVPN</span><br>
+                        cipher AES-256-CBC <span class="comment"># Симметричное шифрование</span><br>
+                        auth SHA512 <span class="comment"># Алгоритм аутентификации</span><br>
+                        tls-crypt key.pem <span class="comment"># Шифрование TLS-метаданных</span><br><br>
+                        
+                        <span class="comment">## WireGuard</span><br>
+                        <span class="comment"># Использует:</span><br>
+                        - ChaCha20 для симметричного шифрования<br>
+                        - Poly1305 для аутентификации<br>
+                        - Curve25519 для ECDH<br>
+                        - BLAKE2s для хеширования<br><br>
+                        
+                        <span class="comment">## IPSec</span><br>
+                        ike=aes256-sha256-modp2048 <span class="comment"># IKEv2 параметры</span><br>
+                        esp=aes256gcm16 <span class="comment"># ESP параметры</span>
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Тестирование шифрования</h4>
+                        <div class="demo-controls">
+                            <select id="encryption-method">
+                                <option value="aes256">AES-256</option>
+                                <option value="aes128">AES-128</option>
+                                <option value="chacha20">ChaCha20</option>
+                                <option value="none">Без шифрования</option>
+                            </select>
+                            <button id="test-encryption-btn">Протестировать</button>
+                        </div>
+                        <div class="demo-result" id="encryption-result"></div>
+                    </div>
+                </div>
+                
+                <div id="logs" class="tab-content">
+                    <h3>Политика логирования</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Проверка политики логирования VPN-провайдера</span><br>
+                        <span class="comment"># Пример для OpenVPN конфигурации</span><br>
+                        <span class="comment"># Отключение логирования (если возможно)</span><br>
+                        log /dev/null<br>
+                        status /dev/null<br>
+                        verb 0<br><br>
+                        
+                        <span class="comment"># Проверка VPN-провайдеров с нулевым логированием</span><br>
+                        <span class="comment"># Исследовать их privacy policy и transparency reports</span><br><br>
+                        
+                        <span class="comment"># Самостоятельный VPN сервер без логирования</span><br>
+                        <span class="comment"># (пример для OpenVPN)</span><br>
+                        syslog<br>
+                        log /var/log/openvpn.log<br>
+                        <span class="comment"># Затем регулярно очищать логи:</span><br>
+                        echo "" > /var/log/openvpn.log
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Проверка VPN на логирование</h4>
+                        <div class="demo-controls">
+                            <select id="vpn-provider">
+                                <option value="nologs">Без логов (рекомендуется)</option>
+                                <option value="somelogs">Частичное логирование</option>
+                                <option value="fulllogs">Полное логирование</option>
+                            </select>
+                            <button id="check-logs-btn">Проверить политику</button>
+                        </div>
+                        <div class="demo-result" id="logs-result"></div>
+                    </div>
+                </div>
+                
+                <div id="leaks" class="tab-content">
+                    <h3>Тестирование на утечки</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Проверка IP-утечки</span><br>
+                        curl https://api.ipify.org<br>
+                        <span class="comment"># Сравнить с IP в VPN</span><br><br>
+                        
+                        <span class="comment"># Проверка DNS-утечки</span><br>
+                        nslookup example.com<br>
+                        <span class="comment"># Или использовать специализированные сервисы</span><br><br>
+                        
+                        <span class="comment"># Проверка WebRTC утечки</span><br>
+                        <span class="comment"># В браузере ввести в консоли:</span><br>
+                        async function checkWebRTC() {<br>
+                        &nbsp;&nbsp;const pc = new RTCPeerConnection({iceServers:[]});<br>
+                        &nbsp;&nbsp;pc.createDataChannel('');<br>
+                        &nbsp;&nbsp;const offer = await pc.createOffer();<br>
+                        &nbsp;&nbsp;console.log(offer.sdp);<br>
+                        }<br>
+                        checkWebRTC();
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация тестирования утечек</h4>
+                        <div class="demo-controls">
+                            <button id="test-ip-leak-btn">Проверить IP-утечку</button>
+                            <button id="test-dns-leak-btn">Проверить DNS-утечку</button>
+                            <button id="test-webrtc-leak-btn">Проверить WebRTC</button>
+                        </div>
+                        <div class="demo-result" id="leaks-result"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="best-practices">
+            <h2><i class="fas fa-check-circle technology-icon"></i>Рекомендации по использованию</h2>
+            
+            <div class="card">
+                <h3>Как выбрать VPN-сервис</h3>
+                <ul>
+                    <li><strong>Политика логирования:</strong> Выбирайте провайдеров с политикой "no logs"</li>
+                    <li><strong>Юрисдикция:</strong> Предпочтительны компании из стран с сильными законами о приватности</li>
+                    <li><strong>Протоколы:</strong> Поддержка современных протоколов (WireGuard, OpenVPN)</li>
+                    <li><strong>Скорость:</strong> Достаточная пропускная способность для ваших нужд</li>
+                    <li><strong>Количество серверов:</strong> Чем больше выбор стран, тем лучше</li>
+                </ul>
+                
+                <h3>Безопасная настройка VPN</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                    <span class="comment"># Рекомендуемые параметры для OpenVPN</span><br>
+                    cipher AES-256-GCM<br>
+                    auth SHA512<br>
+                    tls-version-min 1.2<br>
+                    tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384<br>
+                    reneg-sec 3600<br>
+                    comp-lzo no<br>
+                    persist-key<br>
+                    persist-tun<br>
+                    verify-x509-name server_name name<br>
+                    remote-cert-tls server
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>Оптимизация VPN соединения</h4>
+                    <div class="demo-controls">
+                        <select id="optimization-select">
+                            <option value="speed">Максимальная скорость</option>
+                            <option value="security">Максимальная безопасность</option>
+                            <option value="balanced">Сбалансированная</option>
+                        </select>
+                        <button id="apply-settings-btn">Применить настройки</button>
+                    </div>
+                    <div class="demo-result" id="optimization-result"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="selfhosted">
+            <h2><i class="fas fa-server technology-icon"></i>Собственный VPN сервер</h2>
+            
+            <div class="card">
+                <h3>Развертывание VPN сервера</h3>
+                
+                <div class="tabs">
+                    <div class="tab active" onclick="openTab(event, 'algo')">Algo VPN</div>
+                    <div class="tab" onclick="openTab(event, 'openvpn-server')">OpenVPN</div>
+                    <div class="tab" onclick="openTab(event, 'wg-server')">WireGuard</div>
+                </div>
+                
+                <div id="algo" class="tab-content active">
+                    <h3>Algo VPN - автоматизированная установка</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Установка Algo VPN на Ubuntu</span><br>
+                        sudo apt update<br>
+                        sudo apt install -y python3-virtualenv<br>
+                        git clone https://github.com/trailofbits/algo<br>
+                        cd algo<br><br>
+                        
+                        <span class="comment"># Создание виртуального окружения</span><br>
+                        python3 -m virtualenv --python=$(which python3) env<br>
+                        source env/bin/activate<br>
+                        python3 -m pip install -U pip<br>
+                        python3 -m pip install -r requirements.txt<br><br>
+                        
+                        <span class="comment"># Запуск установки</span><br>
+                        ./algo<br><br>
+                        
+                        <span class="comment"># Следуйте инструкциям интерактивного установщика</span><br>
+                        <span class="comment"># После установки конфиги будут в configs/</span>
+                    </div>
+                </div>
+                
+                <div id="openvpn-server" class="tab-content">
+                    <h3>Настройка OpenVPN сервера</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Установка OpenVPN и Easy-RSA</span><br>
+                        sudo apt update<br>
+                        sudo apt install openvpn easy-rsa<br><br>
+                        
+                        <span class="comment"># Настройка PKI</span><br>
+                        make-cadir ~/openvpn-ca<br>
+                        cd ~/openvpn-ca<br>
+                        <span class="comment"># Редактируем vars файл перед генерацией сертификатов</span><br>
+                        source vars<br>
+                        ./clean-all<br>
+                        ./build-ca<br>
+                        ./build-key-server server<br>
+                        ./build-dh<br>
+                        openvpn --genkey --secret keys/ta.key<br><br>
+                        
+                        <span class="comment"># Генерация клиентских сертификатов</span><br>
+                        ./build-key client1<br><br>
+                        
+                        <span class="comment"># Настройка сервера</span><br>
+                        sudo cp ~/openvpn-ca/keys/{server.crt,server.key,ca.crt,ta.key,dh2048.pem} /etc/openvpn/<br>
+                        sudo cp /usr/share/doc/openvpn/examples/sample-config-files/server.conf.gz /etc/openvpn/<br>
+                        sudo gzip -d /etc/openvpn/server.conf.gz<br>
+                        <span class="comment"># Редактируем server.conf</span>
+                    </div>
+                </div>
+                
+                <div id="wg-server" class="tab-content">
+                    <h3>Настройка WireGuard сервера</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Установка WireGuard</span><br>
+                        sudo apt update<br>
+                        sudo apt install wireguard<br><br>
+                        
+                        <span class="comment"># Генерация ключей</span><br>
+                        umask 077<br>
+                        wg genkey | tee privatekey | wg pubkey > publickey<br><br>
+                        
+                        <span class="comment"># Настройка сервера (/etc/wireguard/wg0.conf)</span><br>
+                        [Interface]<br>
+                        Address = 10.0.0.1/24<br>
+                        ListenPort = 51820<br>
+                        PrivateKey = &lt;серверный_приватный_ключ&gt;<br>
+                        PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE<br>
+                        PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE<br><br>
+                        
+                        [Peer]<br>
+                        PublicKey = &lt;публичный_ключ_клиента&gt;<br>
+                        AllowedIPs = 10.0.0.2/32
+                    </div>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>Тестирование собственного VPN</h4>
+                    <div class="demo-controls">
+                        <input type="text" id="server-ip" placeholder="IP вашего сервера">
+                        <button id="test-server-btn">Проверить подключение</button>
+                    </div>
+                    <div class="demo-result" id="server-result"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 VPN Technologies | Все права защищены</p>
+        <div style="margin-top: 10px;">
+            <a href="#" style="color: #4da6ff; margin: 0 10px;">Политика конфиденциальности</a>
+            <a href="#" style="color: #4da6ff; margin: 0 10px;">Условия использования</a>
+        </div>
+    </footer>
+
+    <button class="back-to-top" onclick="topFunction()" id="backToTopBtn" title="Наверх"><i class="fas fa-arrow-up"></i></button>
+
+    <script>
+        // Анимация появления секций при скролле
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('section');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {threshold: 0.1});
+            
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+
+        // Кнопка "Наверх"
+        window.onscroll = function() {scrollFunction()};
+        
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("backToTopBtn").style.display = "block";
+            } else {
+                document.getElementById("backToTopBtn").style.display = "none";
+            }
+        }
+        
+        function topFunction() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        // Функции для табов
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+            
+            const tabs = document.getElementsByClassName("tab");
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove("active");
+            }
+            
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        // Копирование кода
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const range = document.createRange();
+            range.selectNode(codeBlock);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
+            
+            const originalText = btn.textContent;
+            btn.textContent = "Скопировано!";
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 2000);
+        }
+
+        // Демо-функционал для VPN подключений
+        document.addEventListener('DOMContentLoaded', function() {
+            // OpenVPN демо
+            const openvpnBtn = document.getElementById('start-openvpn-btn');
+            const stopOpenvpnBtn = document.getElementById('stop-openvpn-btn');
+            const openvpnStatus = document.getElementById('openvpn-status');
+            const openvpnResult = document.getElementById('openvpn-result');
+            
+            openvpnBtn.addEventListener('click', function() {
+                openvpnBtn.disabled = true;
+                stopOpenvpnBtn.disabled = false;
+                openvpnStatus.innerHTML = '<span class="status-indicator status-connected"></span>Подключено (OpenVPN, UDP, AES-256)';
+                
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 10;
+                    openvpnResult.textContent = `[${new Date().toLocaleTimeString()}] Подключение к vpn-server-ams-01...\n`
+                        + `[${new Date().toLocaleTimeString()}] Установка TLS соединения...\n`
+                        + `[${new Date().toLocaleTimeString()}] Проверка сертификата...\n`
+                        + `[${new Date().toLocaleTimeString()}] Установка шифрованного канала (AES-256-GCM)...\n`
+                        + `[${new Date().toLocaleTimeString()}] Успешно подключен! Новый IP: 185.107.94.${Math.floor(Math.random() * 255)}`;
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                    }
+                }, 500);
+                
+                stopOpenvpnBtn.onclick = function() {
+                    clearInterval(interval);
+                    openvpnBtn.disabled = false;
+                    stopOpenvpnBtn.disabled = true;
+                    openvpnStatus.innerHTML = '<span class="status-indicator status-disconnected"></span>Не подключено';
+                    openvpnResult.textContent = `[${new Date().toLocaleTimeString()}] Соединение разорвано`;
+                };
+            });
+            
+            // IPSec демо
+            const ipsecBtn = document.getElementById('start-ipsec-btn');
+            const stopIpsecBtn = document.getElementById('stop-ipsec-btn');
+            const ipsecStatus = document.getElementById('ipsec-status');
+            const ipsecResult = document.getElementById('ipsec-result');
+            
+            ipsecBtn.addEventListener('click', function() {
+                ipsecBtn.disabled = true;
+                stopIpsecBtn.disabled = false;
+                ipsecStatus.innerHTML = '<span class="status-indicator status-connected"></span>Подключено (IPSec/IKEv2, AES-256)';
+                
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 10;
+                    ipsecResult.textContent = `[${new Date().toLocaleTimeString()}] Инициализация IKEv2...\n`
+                        + `[${new Date().toLocaleTimeString()}] Обмен ключами (DH group 14)...\n`
+                        + `[${new Date().toLocaleTimeString()}] Аутентификация (PSK)...\n`
+                        + `[${new Date().toLocaleTimeString()}] Установка ESP туннеля (AES-256-GCM)...\n`
+                        + `[${new Date().toLocaleTimeString()}] Успешно подключен! Новый IP: 194.156.120.${Math.floor(Math.random() * 255)}`;
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                    }
+                }, 500);
+                
+                stopIpsecBtn.onclick = function() {
+                    clearInterval(interval);
+                    ipsecBtn.disabled = false;
+                    stopIpsecBtn.disabled = true;
+                    ipsecStatus.innerHTML = '<span class="status-indicator status-disconnected"></span>Не подключено';
+                    ipsecResult.textContent = `[${new Date().toLocaleTimeString()}] Соединение разорвано`;
+                };
+            });
+            
+            // WireGuard демо
+            const wgBtn = document.getElementById('start-wireguard-btn');
+            const stopWgBtn = document.getElementById('stop-wireguard-btn');
+            const wgStatus = document.getElementById('wireguard-status');
+            const wgResult = document.getElementById('wireguard-result');
+            
+            wgBtn.addEventListener('click', function() {
+                wgBtn.disabled = true;
+                stopWgBtn.disabled = false;
+                wgStatus.innerHTML = '<span class="status-indicator status-connected"></span>Подключено (WireGuard, ChaCha20)';
+                
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 20;
+                    wgResult.textContent = `[${new Date().toLocaleTimeString()}] Инициализация WireGuard...\n`
+                        + `[${new Date().toLocaleTimeString()}] Обмен ключами (Curve25519)...\n`
+                        + `[${new Date().toLocaleTimeString()}] Установка UDP туннеля (ChaCha20-Poly1305)...\n`
+                        + `[${new Date().toLocaleTimeString()}] Успешно подключен! Новый IP: 104.244.76.${Math.floor(Math.random() * 255)}`;
+                    
+                    if (progress >= 100) {
+                        clearInterval(interval);
+                    }
+                }, 300);
+                
+                stopWgBtn.onclick = function() {
+                    clearInterval(interval);
+                    wgBtn.disabled = false;
+                    stopWgBtn.disabled = true;
+                    wgStatus.innerHTML = '<span class="status-indicator status-disconnected"></span>Не подключено';
+                    wgResult.textContent = `[${new Date().toLocaleTimeString()}] Соединение разорвано`;
+                };
+            });
+            
+            // Демо проверки IP
+            const checkIpBtn = document.getElementById('check-ip-btn');
+            const privacyVpnBtn = document.getElementById('start-privacy-vpn-btn');
+            const checkDnsBtn = document.getElementById('check-dns-btn');
+            const privacyResult = document.getElementById('privacy-result');
+            const privacyInfo = document.getElementById('privacy-info');
+            
+            checkIpBtn.addEventListener('click', function() {
+                privacyInfo.style.display = 'grid';
+                document.getElementById('real-ip').textContent = `192.168.1.${Math.floor(10 + Math.random() * 90)}`;
+                document.getElementById('real-isp').textContent = 'Ростелеком';
+                
+                privacyResult.textContent = `Ваш реальный IP: ${document.getElementById('real-ip').textContent}\n`
+                    + `Провайдер: ${document.getElementById('real-isp').textContent}\n`
+                    + `Местоположение: Россия, Москва`;
+            });
+            
+            privacyVpnBtn.addEventListener('click', function() {
+                const vpnIps = ['185.107.94.123', '194.156.120.87', '104.244.76.45'];
+                const vpnServers = ['Нидерланды, Амстердам', 'Германия, Франкфурт', 'США, Нью-Йорк'];
+                const random = Math.floor(Math.random() * vpnIps.length);
+                
+                document.getElementById('vpn-ip').textContent = vpnIps[random];
+                document.getElementById('vpn-server').textContent = vpnServers[random];
+                
+                privacyResult.textContent = `VPN подключен!\n`
+                    + `Новый IP: ${vpnIps[random]}\n`
+                    + `Сервер: ${vpnServers[random]}\n`
+                    + `Шифрование: AES-256-GCM`;
+            });
+            
+            checkDnsBtn.addEventListener('click', function() {
+                const dnsServers = ['1.1.1.1', '8.8.8.8', '9.9.9.9', '208.67.222.222'];
+                const isLeaking = Math.random() > 0.8;
+                
+                if (isLeaking) {
+                    privacyResult.textContent = `Обнаружена DNS-утечка!\n`
+                        + `Ваш DNS: ${dnsServers[Math.floor(Math.random() * dnsServers.length)]}\n`
+                        + `Рекомендуется включить VPN и проверить снова`;
+                } else {
+                    privacyResult.textContent = `DNS-утечек не обнаружено\n`
+                        + `Все DNS-запросы идут через VPN туннель`;
+                }
+            });
+            
+            // Демо удаленного доступа
+            const testRemoteBtn = document.getElementById('test-remote-btn');
+            const connectRemoteBtn = document.getElementById('connect-remote-btn');
+            const remoteHost = document.getElementById('remote-host');
+            const remoteResult = document.getElementById('remote-result');
+            
+            connectRemoteBtn.addEventListener('click', function() {
+                remoteResult.textContent = `[${new Date().toLocaleTimeString()}] Подключение к корпоративному VPN...\n`
+                    + `[${new Date().toLocaleTimeString()}] Аутентификация...\n`
+                    + `[${new Date().toLocaleTimeString()}] Успешно подключен к внутренней сети компании`;
+            });
+            
+            testRemoteBtn.addEventListener('click', function() {
+                const host = remoteHost.value || 'internal-server.company.local';
+                const isConnected = Math.random() > 0.3;
+                
+                if (isConnected) {
+                    remoteResult.textContent = `[${new Date().toLocaleTimeString()}] Запрос к ${host}...\n`
+                        + `[${new Date().toLocaleTimeString()}] Ответ от ${host}: 64 bytes from 10.0.1.${Math.floor(Math.random() * 255)}: icmp_seq=1 ttl=64 time=${(Math.random() * 5).toFixed(2)} ms\n`
+                        + `Соединение установлено`;
+                } else {
+                    remoteResult.textContent = `[${new Date().toLocaleTimeString()}] Запрос к ${host}...\n`
+                        + `[${new Date().toLocaleTimeString()}] Ошибка: хост недоступен\n`
+                        + `Попробуйте подключиться к корпоративному VPN`;
+                }
+            });
+            
+            // Демо обхода блокировок
+            const countrySelect = document.getElementById('country-select');
+            const connectCountryBtn = document.getElementById('connect-country-btn');
+            const testContentBtn = document.getElementById('test-content-btn');
+            const bypassResult = document.getElementById('bypass-result');
+            
+            const countryServers = {
+                us: {ip: '104.244.76.45', name: 'США, Нью-Йорк'},
+                uk: {ip: '185.159.157.12', name: 'Великобритания, Лондон'},
+                de: {ip: '194.156.120.87', name: 'Германия, Франкфурт'},
+                jp: {ip: '45.76.212.34', name: 'Япония, Токио'}
+            };
+            
+            connectCountryBtn.addEventListener('click', function() {
+                const country = countrySelect.value;
+                bypassResult.textContent = `Подключение к серверу в ${countryServers[country].name}...\n`
+                    + `Новый IP: ${countryServers[country].ip}\n`
+                    + `Теперь вы можете получить доступ к контенту, доступному в ${countryServers[country].name.split(',')[0]}`;
+            });
+            
+            testContentBtn.addEventListener('click', function() {
+                const country = countrySelect.value;
+                const contents = {
+                    us: 'Netflix US, Hulu, HBO Max',
+                    uk: 'BBC iPlayer, ITV Hub, Channel 4',
+                    de: 'ZDF Mediathek, ARD Mediathek',
+                    jp: 'Abema TV, NHK World, Hulu Japan'
+                };
+                
+                bypassResult.textContent = `Доступные сервисы в ${countryServers[country].name.split(',')[0]}:\n`
+                    + `- ${contents[country]}\n`
+                    + `- Локальные новостные сайты\n`
+                    + `- Национальные спортивные трансляции`;
+            });
+            
+            // Демо тестирования шифрования
+            const encryptionMethod = document.getElementById('encryption-method');
+            const testEncryptionBtn = document.getElementById('test-encryption-btn');
+            const encryptionResult = document.getElementById('encryption-result');
+            
+            testEncryptionBtn.addEventListener('click', function() {
+                const method = encryptionMethod.value;
+                const speeds = {
+                    aes256: (50 + Math.random() * 50).toFixed(2),
+                    aes128: (70 + Math.random() * 60).toFixed(2),
+                    chacha20: (90 + Math.random() * 80).toFixed(2),
+                    none: (150 + Math.random() * 100).toFixed(2)
+                };
+                
+                const securityLevels = {
+                    aes256: 'Очень высокий',
+                    aes128: 'Высокий',
+                    chacha20: 'Высокий',
+                    none: 'Нет защиты'
+                };
+                
+                encryptionResult.textContent = `Тестирование метода: ${method.toUpperCase()}\n`
+                    + `Скорость передачи: ${speeds[method]} Mbps\n`
+                    + `Уровень безопасности: ${securityLevels[method]}\n`
+                    + `Загрузка CPU: ${method === 'chacha20' ? 'Низкая' : method === 'none' ? 'Минимальная' : 'Высокая'}`;
+            });
+            
+            // Демо проверки логов
+            const vpnProvider = document.getElementById('vpn-provider');
+            const checkLogsBtn = document.getElementById('check-logs-btn');
+            const logsResult = document.getElementById('logs-result');
+            
+            checkLogsBtn.addEventListener('click', function() {
+                const provider = vpnProvider.value;
+                const results = {
+                    nologs: '✅ Этот провайдер НЕ ведет логи вашей активности\n✅ Нет записи подключений, трафика или DNS-запросов\n✅ Подтверждено независимыми аудитами',
+                    somelogs: '⚠️ Этот провайдер ведет частичное логирование\n✅ Записывает время подключения и объем трафика\n❌ Может хранить IP-адреса в течение 30 дней',
+                    fulllogs: '❌ Этот провайдер ведет полное логирование\n❌ Записывает все ваши действия, IP-адреса и метаданные\n❌ Может передавать данные по запросу властей'
+                };
+                
+                logsResult.textContent = results[provider];
+            });
+            
+            // Демо тестирования утечек
+            const testIpLeakBtn = document.getElementById('test-ip-leak-btn');
+            const testDnsLeakBtn = document.getElementById('test-dns-leak-btn');
+            const testWebrtcLeakBtn = document.getElementById('test-webrtc-leak-btn');
+            const leaksResult = document.getElementById('leaks-result');
+            
+            testIpLeakBtn.addEventListener('click', function() {
+                const isLeaking = Math.random() > 0.7;
+                
+                if (isLeaking) {
+                    leaksResult.textContent = '⚠️ Обнаружена IP-утечка!\n'
+                        + 'Ваш реальный IP виден через WebRTC или другие методы\n'
+                        + 'Рекомендуется проверить настройки VPN и браузера';
+                } else {
+                    leaksResult.textContent = '✅ IP-утечек не обнаружено\n'
+                        + 'Ваш реальный IP-адрес надежно скрыт';
+                }
+            });
+            
+            testDnsLeakBtn.addEventListener('click', function() {
+                const isLeaking = Math.random() > 0.7;
+                const dnsServers = ['1.1.1.1', '8.8.8.8', '9.9.9.9'];
+                
+                if (isLeaking) {
+                    leaksResult.textContent = '⚠️ Обнаружена DNS-утечка!\n'
+                        + `Ваши DNS-запросы идут через: ${dnsServers[Math.floor(Math.random() * dnsServers.length)]}\n`
+                        + 'Включите "DNS leak protection" в настройках VPN';
+                } else {
+                    leaksResult.textContent = '✅ DNS-утечек не обнаружено\n'
+                        + 'Все DNS-запросы идут через VPN туннель';
+                }
+            });
+            
+            testWebrtcLeakBtn.addEventListener('click', function() {
+                const isLeaking = Math.random() > 0.7;
+                
+                if (isLeaking) {
+                    leaksResult.textContent = '⚠️ Обнаружена WebRTC утечка!\n'
+                        + 'Ваш локальный IP-адрес виден через WebRTC\n'
+                        + 'Отключите WebRTC в настройках браузера или используйте расширения для блокировки';
+                } else {
+                    leaksResult.textContent = '✅ WebRTC утечек не обнаружено\n'
+                        + 'Ваш локальный IP-адрес не раскрывается';
+                }
+            });
+            
+            // Демо оптимизации VPN
+            const optimizationSelect = document.getElementById('optimization-select');
+            const applySettingsBtn = document.getElementById('apply-settings-btn');
+            const optimizationResult = document.getElementById('optimization-result');
+            
+            applySettingsBtn.addEventListener('click', function() {
+                const mode = optimizationSelect.value;
+                const settings = {
+                    speed: {
+                        protocol: 'WireGuard',
+                        cipher: 'ChaCha20',
+                        mtu: '1280',
+                        compression: 'Отключено',
+                        notes: 'Максимальная скорость, умеренная защита'
+                    },
+                    security: {
+                        protocol: 'OpenVPN',
+                        cipher: 'AES-256-GCM',
+                        mtu: '1500',
+                        compression: 'LZO',
+                        notes: 'Максимальная защита, сниженная скорость'
+                    },
+                    balanced: {
+                        protocol: 'OpenVPN',
+                        cipher: 'AES-128-GCM',
+                        mtu: '1400',
+                        compression: 'LZ4',
+                        notes: 'Сбалансированные настройки'
+                    }
+                };
+                
+                const config = settings[mode];
+                optimizationResult.textContent = `Применены настройки для ${mode === 'speed' ? 'максимальной скорости' : mode === 'security' ? 'максимальной безопасности' : 'сбалансированной работы'}:\n`
+                    + `Протокол: ${config.protocol}\n`
+                    + `Шифрование: ${config.cipher}\n`
+                    + `MTU: ${config.mtu}\n`
+                    + `Сжатие: ${config.compression}\n`
+                    + `Примечание: ${config.notes}`;
+            });
+            
+            // Демо тестирования собственного сервера
+            const serverIp = document.getElementById('server-ip');
+            const testServerBtn = document.getElementById('test-server-btn');
+            const serverResult = document.getElementById('server-result');
+            
+            testServerBtn.addEventListener('click', function() {
+                const ip = serverIp.value || 'vpn.example.com';
+                const isOnline = Math.random() > 0.2;
+                
+                if (isOnline) {
+                    serverResult.textContent = `[${new Date().toLocaleTimeString()}] Проверка сервера ${ip}...\n`
+                        + `[${new Date().toLocaleTimeString()}] Сервер доступен\n`
+                        + `[${new Date().toLocaleTimeString()}] Ping: ${(Math.random() * 20).toFixed(2)} ms\n`
+                        + `[${new Date().toLocaleTimeString()}] Пропускная способность: ${(50 + Math.random() * 50).toFixed(2)} Mbps`;
+                } else {
+                    serverResult.textContent = `[${new Date().toLocaleTimeString()}] Проверка сервера ${ip}...\n`
+                        + `[${new Date().toLocaleTimeString()}] Ошибка: сервер недоступен\n`
+                        + `[${new Date().toLocaleTimeString()}] Проверьте настройки брандмауэра и VPN сервера`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

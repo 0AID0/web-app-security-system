@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OWASP ZAP - Тестирование безопасности веб-приложений</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-image: url(2ed335b16e62c39b6d5b7725ff09d5e9.gif);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+            color: white;
+        }
+
+        header {
+            background: url(5a) no-repeat center center/cover;
+            color: #ffffff;
+            padding: 40px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+        }
+
+        header p {
+            font-size: 1.2em;
+            margin: 10px 0 20px;
+            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+        }
+
+        .home-button {
+            display: inline-block;
+            background-color: rgba(53, 66, 74, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+
+        .home-button:hover {
+            background-color: rgba(44, 62, 80, 0.9);
+            transform: scale(1.05);
+        }
+
+        main {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        section {
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.103);
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px #ccc;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            border: 2px solid rgb(0, 0, 0);
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card {
+            background: rgba(30, 30, 30, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4da6ff;
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background: rgba(40, 40, 40, 0.8);
+        }
+
+        h2, h3 {
+            color: #4da6ff;
+        }
+
+        .technology-icon {
+            margin-right: 10px;
+            color: #f3f3f3;
+            font-size: 1.5em;
+        }
+
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #abb2bf;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .keyword {
+            color: #c678dd;
+        }
+
+        .string {
+            color: #98c379;
+        }
+
+        .comment {
+            color: #5c6370;
+            font-style: italic;
+        }
+
+        .function {
+            color: #61afef;
+        }
+
+        .param {
+            color: #e06c75;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: -1px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: rgba(53, 66, 74, 0.7);
+            border: 1px solid #2d3e50;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            margin-right: 5px;
+            color: white;
+        }
+
+        .tab.active {
+            background: rgba(30, 30, 30, 0.7);
+            border-bottom: 1px solid rgba(30, 30, 30, 0.7);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: rgba(30, 30, 30, 0.7);
+            border: 1px solid #2d3e50;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .feature {
+            flex: 1;
+            min-width: 250px;
+            background: rgba(40, 40, 40, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted #666;
+            cursor: help;
+            color: #4da6ff;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 300px;
+            background-color: #333;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -150px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background: rgba(0, 0, 0, 0);
+            color: #ffffff;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(53, 66, 74, 0.9);
+            color: #ffffff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+            transition: all 0.3s;
+        }
+
+        .back-to-top:hover {
+            background: rgba(44, 62, 80, 0.9);
+            transform: scale(1.1);
+        }
+
+        .interactive-demo {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(40, 40, 40, 0.7);
+            border-radius: 8px;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .demo-controls input, .demo-controls button {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .demo-controls button {
+            background: #4da6ff;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .demo-controls button:hover {
+            background: #3a8bd6;
+        }
+
+        .demo-controls button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .demo-result {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            min-height: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-active {
+            background: #4CAF50;
+            box-shadow: 0 0 5px #4CAF50;
+        }
+
+        .status-inactive {
+            background: #F44336;
+        }
+
+        .vulnerability-high {
+            color: #F44336;
+            font-weight: bold;
+        }
+
+        .vulnerability-medium {
+            color: #FF9800;
+            font-weight: bold;
+        }
+
+        .vulnerability-low {
+            color: #FFC107;
+        }
+
+        .vulnerability-info {
+            color: #4CAF50;
+        }
+
+        .scan-progress {
+            width: 100%;
+            background-color: #333;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            height: 20px;
+            border-radius: 5px;
+            background-color: #4da6ff;
+            width: 0%;
+            transition: width 0.5s;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .report-table th, .report-table td {
+            border: 1px solid #444;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .report-table th {
+            background-color: rgba(53, 66, 74, 0.7);
+        }
+
+        .report-table tr:nth-child(even) {
+            background-color: rgba(40, 40, 40, 0.5);
+        }
+
+        .report-table tr:hover {
+            background-color: rgba(77, 166, 255, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 30px 0;
+            }
+            
+            header h1 {
+                font-size: 2em;
+            }
+            
+            .home-button {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+            
+            .demo-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .demo-controls input, .demo-controls button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1><i class="fas fa-shield-alt technology-icon"></i> OWASP ZAP</h1>
+            <p>Инструмент для тестирования безопасности веб-приложений с открытым исходным кодом</p>
+            <a href="index.html" class="home-button">На главную</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="overview">
+            <h2><i class="fas fa-info-circle technology-icon"></i>Обзор инструмента</h2>
+            <div class="card">
+                <p>OWASP ZAP (Zed Attack Proxy) - это один из самых популярных в мире инструментов для тестирования безопасности веб-приложений с открытым исходным кодом, разрабатываемый под эгидой OWASP (Open Web Application Security Project).</p>
+                
+                <div class="feature-list">
+                    <div class="feature">
+                        <h3><i class="fas fa-bug"></i> Поиск уязвимостей</h3>
+                        <p>Автоматическое обнаружение уязвимостей, таких как SQL-инъекции, XSS, CSRF и другие.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <h3><i class="fas fa-spider"></i> Сканирование</h3>
+                        <p>Активное и пассивное сканирование веб-приложений для выявления проблем безопасности.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <h3><i class="fas fa-terminal"></i> Интерфейсы</h3>
+                        <p>Доступен через графический интерфейс, командную строку и API для интеграции в CI/CD.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="installation">
+            <h2><i class="fas fa-download technology-icon"></i>Установка и настройка</h2>
+            
+            <div class="card">
+                <div class="tabs">
+                    <div class="tab active" onclick="openTab(event, 'install')">Установка</div>
+                    <div class="tab" onclick="openTab(event, 'config')">Конфигурация</div>
+                    <div class="tab" onclick="openTab(event, 'docker')">Docker</div>
+                </div>
+                
+                <div id="install" class="tab-content active">
+                    <h3>Установка OWASP ZAP</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Установка на Windows</span><br>
+                        <span class="comment">1. Скачайте установщик с https://www.zaproxy.org/download/</span><br>
+                        <span class="comment">2. Запустите установщик и следуйте инструкциям</span><br><br>
+                        
+                        <span class="comment"># Установка на Linux (Debian/Ubuntu)</span><br>
+                        sudo apt update<br>
+                        sudo apt install zaproxy<br><br>
+                        
+                        <span class="comment"># Установка на macOS с Homebrew</span><br>
+                        brew install --cask owasp-zap<br><br>
+                        
+                        <span class="comment"># Запуск ZAP</span><br>
+                        zap.sh <span class="comment"># Linux/macOS</span><br>
+                        <span class="comment">Или через ярлык на рабочем столе в Windows</span>
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация установки</h4>
+                        <div class="demo-controls">
+                            <select id="os-select">
+                                <option value="windows">Windows</option>
+                                <option value="linux">Linux</option>
+                                <option value="macos">macOS</option>
+                            </select>
+                            <button id="install-demo-btn">Показать инструкции</button>
+                        </div>
+                        <div class="demo-result" id="install-result"></div>
+                    </div>
+                </div>
+                
+                <div id="config" class="tab-content">
+                    <h3>Базовая конфигурация</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Настройка прокси в браузере</span><br>
+                        <span class="comment">1. Откройте настройки сети браузера</span><br>
+                        <span class="comment">2. Установите ручные настройки прокси:</span><br>
+                        &nbsp;&nbsp;- Адрес: 127.0.0.1<br>
+                        &nbsp;&nbsp;- Порт: 8080<br><br>
+                        
+                        <span class="comment"># Настройка контекста в ZAP</span><br>
+                        <span class="comment">1. Правой кнопкой на "Контексты" → Новый контекст</span><br>
+                        <span class="comment">2. Укажите URL вашего приложения</span><br>
+                        <span class="comment">3. Настройте область действия (Scope)</span><br><br>
+                        
+                        <span class="comment"># Настройка аутентификации (если требуется)</span><br>
+                        <span class="comment">1. В контексте перейдите на вкладку "Аутентификация"</span><br>
+                        <span class="comment">2. Выберите тип аутентификации</span><br>
+                        <span class="comment">3. Укажите параметры входа</span>
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Тестирование прокси</h4>
+                        <div class="demo-controls">
+                            <button id="test-proxy-btn">Проверить прокси-соединение</button>
+                            <span id="proxy-status"><span class="status-indicator status-inactive"></span>Прокси неактивен</span>
+                        </div>
+                        <div class="demo-result" id="proxy-result"></div>
+                    </div>
+                </div>
+                
+                <div id="docker" class="tab-content">
+                    <h3>Запуск в Docker</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Запуск ZAP в Docker</span><br>
+                        docker pull owasp/zap2docker-stable<br>
+                        docker run -u zap -p 8080:8080 -i owasp/zap2docker-stable zap.sh -daemon -port 8080 -host 0.0.0.0 -config api.disablekey=true<br><br>
+                        
+                        <span class="comment"># Запуск автоматического сканирования</span><br>
+                        docker run -i owasp/zap2docker-stable zap-baseline.py -t https://example.com<br><br>
+                        
+                        <span class="comment"># Запуск полного сканирования</span><br>
+                        docker run -i owasp/zap2docker-stable zap-full-scan.py -t https://example.com<br><br>
+                        
+                        <span class="comment"># Запуск API сканирования</span><br>
+                        docker run -i owasp/zap2docker-stable zap-api-scan.py -t https://example.com/api.json -f openapi
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация Docker</h4>
+                        <div class="demo-controls">
+                            <input type="text" id="target-url" placeholder="https://example.com" style="flex-grow: 1;">
+                            <button id="run-docker-btn">Запустить сканирование</button>
+                        </div>
+                        <div class="demo-result" id="docker-result"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="scanning">
+            <h2><i class="fas fa-search technology-icon"></i>Сканирование веб-приложений</h2>
+            
+            <div class="card">
+                <div class="tabs">
+                    <div class="tab active" onclick="openTab(event, 'quick')">Быстрое сканирование</div>
+                    <div class="tab" onclick="openTab(event, 'spider')">Spider</div>
+                    <div class="tab" onclick="openTab(event, 'active')">Активное сканирование</div>
+                </div>
+                
+                <div id="quick" class="tab-content active">
+                    <h3>Быстрое сканирование</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Запуск быстрого сканирования</span><br>
+                        <span class="comment">1. Введите URL в поле "URL для атаки"</span><br>
+                        <span class="comment">2. Нажмите кнопку "Быстрая атака"</span><br>
+                        <span class="comment">3. Дождитесь завершения сканирования</span><br><br>
+                        
+                        <span class="comment"># Из командной строки</span><br>
+                        zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' -s all -r report.html http://example.com
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация быстрого сканирования</h4>
+                        <div class="demo-controls">
+                            <input type="text" id="quick-scan-url" placeholder="https://example.com" style="flex-grow: 1;">
+                            <button id="start-quick-scan">Начать сканирование</button>
+                        </div>
+                        <div class="scan-progress">
+                            <div id="quick-scan-progress" class="progress-bar"></div>
+                        </div>
+                        <div class="demo-result" id="quick-scan-result"></div>
+                    </div>
+                </div>
+                
+                <div id="spider" class="tab-content">
+                    <h3>Использование Spider</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Запуск Spider</span><br>
+                        <span class="comment">1. Убедитесь, что URL добавлен в контекст</span><br>
+                        <span class="comment">2. Правой кнопкой на URL → Атака → Spider</span><br>
+                        <span class="comment">3. Настройте параметры (глубина, потоки и т.д.)</span><br>
+                        <span class="comment">4. Нажмите "Запустить Spider"</span><br><br>
+                        
+                        <span class="comment"># Из командной строки</span><br>
+                        zap-cli spider http://example.com<br><br>
+                        
+                        <span class="comment"># Параметры Spider</span><br>
+                        --max-depth 5 <span class="comment"># Максимальная глубина</span><br>
+                        --threads 10 <span class="comment"># Количество потоков</span><br>
+                        --post-form <span class="comment"># Анализ форм POST</span>
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация Spider</h4>
+                        <div class="demo-controls">
+                            <input type="text" id="spider-url" placeholder="https://example.com" style="flex-grow: 1;">
+                            <button id="start-spider">Запустить Spider</button>
+                        </div>
+                        <div class="scan-progress">
+                            <div id="spider-progress" class="progress-bar"></div>
+                        </div>
+                        <div class="demo-result" id="spider-result"></div>
+                    </div>
+                </div>
+                
+                <div id="active" class="tab-content">
+                    <h3>Активное сканирование</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Запуск активного сканирования</span><br>
+                        <span class="comment">1. Убедитесь, что URL добавлен в контекст</span><br>
+                        <span class="comment">2. Правой кнопкой на URL → Атака → Активное сканирование</span><br>
+                        <span class="comment">3. Настройте политику сканирования</span><br>
+                        <span class="comment">4. Нажмите "Запустить активное сканирование"</span><br><br>
+                        
+                        <span class="comment"># Из командной строки</span><br>
+                        zap-cli active-scan http://example.com<br><br>
+                        
+                        <span class="comment"># Политики сканирования</span><br>
+                        <span class="comment">Default Policy - базовые проверки</span><br>
+                        <span class="comment">SQL Injection - проверки SQL-инъекций</span><br>
+                        <span class="comment">XSS - проверки межсайтового скриптинга</span><br>
+                        <span class="comment">Custom - пользовательская политика</span>
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация активного сканирования</h4>
+                        <div class="demo-controls">
+                            <input type="text" id="active-scan-url" placeholder="https://example.com" style="flex-grow: 1;">
+                            <select id="scan-policy">
+                                <option value="default">Default Policy</option>
+                                <option value="sql">SQL Injection</option>
+                                <option value="xss">XSS</option>
+                                <option value="full">Full Scan</option>
+                            </select>
+                            <button id="start-active-scan">Начать сканирование</button>
+                        </div>
+                        <div class="scan-progress">
+                            <div id="active-scan-progress" class="progress-bar"></div>
+                        </div>
+                        <div class="demo-result" id="active-scan-result"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="reporting">
+            <h2><i class="fas fa-file-alt technology-icon"></i>Отчеты и анализ</h2>
+            
+            <div class="card">
+                <div class="tabs">
+                    <div class="tab active" onclick="openTab(event, 'alerts')">Предупреждения</div>
+                    <div class="tab" onclick="openTab(event, 'reports')">Отчеты</div>
+                    <div class="tab" onclick="openTab(event, 'analysis')">Анализ</div>
+                </div>
+                
+                <div id="alerts" class="tab-content active">
+                    <h3>Анализ предупреждений</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Просмотр предупреждений</span><br>
+                        <span class="comment">1. Перейдите на вкладку "Предупреждения"</span><br>
+                        <span class="comment">2. Фильтруйте по риску (High, Medium, Low, Informational)</span><br>
+                        <span class="comment">3. Нажмите на предупреждение для деталей</span><br><br>
+                        
+                        <span class="comment"># Из командной строки</span><br>
+                        zap-cli alerts <span class="comment"># Список всех предупреждений</span><br>
+                        zap-cli alerts --risk High <span class="comment"># Только высокий риск</span><br>
+                        zap-cli alerts --confidence Certain <span class="comment"># Только подтвержденные</span>
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Примеры предупреждений</h4>
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Риск</th>
+                                    <th>Название</th>
+                                    <th>URL</th>
+                                    <th>Описание</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="vulnerability-high">High</td>
+                                    <td>SQL Injection</td>
+                                    <td>https://example.com/login</td>
+                                    <td>Возможна SQL-инъекция через параметр 'username'</td>
+                                </tr>
+                                <tr>
+                                    <td class="vulnerability-medium">Medium</td>
+                                    <td>Cross-Site Scripting (Reflected)</td>
+                                    <td>https://example.com/search</td>
+                                    <td>XSS через параметр 'query' без санитизации</td>
+                                </tr>
+                                <tr>
+                                    <td class="vulnerability-low">Low</td>
+                                    <td>Missing Anti-Clickjacking Header</td>
+                                    <td>https://example.com</td>
+                                    <td>Отсутствует заголовок X-Frame-Options</td>
+                                </tr>
+                                <tr>
+                                    <td class="vulnerability-info">Info</td>
+                                    <td>Application Error Disclosure</td>
+                                    <td>https://example.com/error</td>
+                                    <td>Страница ошибки раскрывает информацию о сервере</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div id="reports" class="tab-content">
+                    <h3>Генерация отчетов</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Генерация HTML отчета</span><br>
+                        zap-cli report -o report.html -f html<br><br>
+                        
+                        <span class="comment"># Другие форматы отчетов</span><br>
+                        zap-cli report -o report.xml -f xml<br>
+                        zap-cli report -o report.json -f json<br>
+                        zap-cli report -o report.md -f md<br><br>
+                        
+                        <span class="comment"># Из GUI</span><br>
+                        <span class="comment">1. Файл → Экспорт отчета</span><br>
+                        <span class="comment">2. Выберите формат (HTML, XML, JSON и т.д.)</span><br>
+                        <span class="comment">3. Укажите имя файла и сохраните</span>
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация отчетов</h4>
+                        <div class="demo-controls">
+                            <select id="report-format">
+                                <option value="html">HTML</option>
+                                <option value="xml">XML</option>
+                                <option value="json">JSON</option>
+                                <option value="markdown">Markdown</option>
+                            </select>
+                            <button id="generate-report-btn">Сгенерировать отчет</button>
+                        </div>
+                        <div class="demo-result" id="report-result"></div>
+                    </div>
+                </div>
+                
+                <div id="analysis" class="tab-content">
+                    <h3>Анализ результатов</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment"># Анализ уязвимостей</span><br>
+                        <span class="comment">1. Сгруппируйте предупреждения по типу или риску</span><br>
+                        <span class="comment">2. Проверьте ложные срабатывания</span><br>
+                        <span class="comment">3. Оцените критичность каждой уязвимости</span><br><br>
+                        
+                        <span class="comment"># Планирование исправлений</span><br>
+                        <span class="comment">1. Начните с уязвимостей High риска</span><br>
+                        <span class="comment">2. Разработайте план исправлений</span><br>
+                        <span class="comment">3. Проведите повторное тестирование</span><br><br>
+                        
+                        <span class="comment"># Интеграция с системами</span><br>
+                        <span class="comment">- JIRA: экспорт задач на исправление</span><br>
+                        <span class="comment">- Jenkins: автоматическое тестирование</span><br>
+                        <span class="comment">- SonarQube: интеграция с анализом кода</span>
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Рекомендации по исправлению</h4>
+                        <div class="demo-controls">
+                            <select id="vulnerability-type">
+                                <option value="sql">SQL Injection</option>
+                                <option value="xss">XSS</option>
+                                <option value="csrf">CSRF</option>
+                                <option value="headers">Security Headers</option>
+                            </select>
+                            <button id="show-fix-btn">Показать рекомендации</button>
+                        </div>
+                        <div class="demo-result" id="fix-result"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="best-practices">
+            <h2><i class="fas fa-shield-alt technology-icon"></i>Лучшие практики</h2>
+            
+            <div class="card">
+                <div class="feature-list">
+                    <div class="feature">
+                        <h3><i class="fas fa-check-circle"></i> Регулярное тестирование</h3>
+                        <ul>
+                            <li>Интегрируйте ZAP в CI/CD pipeline</li>
+                            <li>Проводите тестирование перед каждым релизом</li>
+                            <li>Автоматизируйте повторяющиеся проверки</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature">
+                        <h3><i class="fas fa-user-secret"></i> Контекстное тестирование</h3>
+                        <ul>
+                            <li>Настраивайте контексты для разных частей приложения</li>
+                            <li>Используйте аутентификацию для тестирования закрытых зон</li>
+                            <li>Определяйте точные границы сканирования</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature">
+                        <h3><i class="fas fa-chart-line"></i> Анализ и улучшение</h3>
+                        <ul>
+                            <li>Анализируйте тенденции по отчетам</li>
+                            <li>Сравнивайте результаты разных сканирований</li>
+                            <li>Измеряйте прогресс в устранении уязвимостей</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>Планировщик тестирования</h4>
+                    <div class="demo-controls">
+                        <input type="text" id="app-name" placeholder="Название приложения" style="width: 200px;">
+                        <input type="text" id="app-url" placeholder="URL приложения" style="flex-grow: 1;">
+                        <button id="plan-scan-btn">Запланировать тестирование</button>
+                    </div>
+                    <div class="demo-result" id="plan-result"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Системы кибербезопасности. Все права защищены.</p>
+    </footer>
+
+    <button class="back-to-top" onclick="scrollToTop()">Наверх</button>
+
+    <script>
+        // Глобальное состояние для демонстраций
+        const demoState = {
+            proxyActive: false,
+            scanInProgress: false,
+            vulnerabilities: [
+                {
+                    type: 'SQL Injection',
+                    risk: 'High',
+                    url: 'https://example.com/login',
+                    description: 'SQL-инъекция возможна через параметр username',
+                    solution: 'Используйте параметризованные запросы или ORM'
+                },
+                {
+                    type: 'XSS',
+                    risk: 'Medium',
+                    url: 'https://example.com/search',
+                    description: 'Межсайтовый скриптинг через параметр query',
+                    solution: 'Санитизируйте пользовательский ввод и используйте CSP'
+                },
+                {
+                    type: 'Missing Security Headers',
+                    risk: 'Low',
+                    url: 'https://example.com',
+                    description: 'Отсутствуют важные заголовки безопасности',
+                    solution: 'Добавьте X-Content-Type-Options, X-Frame-Options и др.'
+                }
+            ],
+            scanResults: {},
+            reportFormats: {
+                html: '<h1>Security Report</h1><p>Found 3 vulnerabilities...</p>',
+                xml: '<report><vulnerability>SQL Injection</vulnerability></report>',
+                json: '{"vulnerabilities": [{"type": "SQL Injection"}]}',
+                markdown: '# Security Report\n\n- SQL Injection (High)'
+            },
+            fixRecommendations: {
+                sql: 'Для исправления SQL-инъекций:\n1. Используйте параметризованные запросы\n2. Применяйте ORM\n3. Ограничьте привилегии БД\n4. Регулярно обновляйте СУБД',
+                xss: 'Для защиты от XSS:\n1. Санитизируйте весь пользовательский ввод\n2. Используйте Content Security Policy (CSP)\n3. Кодируйте вывод в HTML, JS и URL\n4. Установите HttpOnly флаг для кук',
+                csrf: 'Защита от CSRF:\n1. Используйте CSRF-токены\n2. Проверяйте заголовок Origin/Referer\n3. Применяйте SameSite атрибут для кук\n4. Ограничьте время жизни сессий',
+                headers: 'Безопасные заголовки:\n1. X-Content-Type-Options: nosniff\n2. X-Frame-Options: DENY\n3. Content-Security-Policy\n4. Strict-Transport-Security\n5. X-XSS-Protection: 1; mode=block'
+            }
+        };
+
+        // Инициализация при загрузке страницы
+        document.addEventListener("DOMContentLoaded", function() {
+            // Инициализация вкладок
+            const firstTab = document.querySelector(".tab");
+            if (firstTab) firstTab.click();
+            
+            // Показываем первую секцию сразу
+            document.querySelector("section").classList.add('visible');
+            
+            // Настройка обработчиков событий
+            setupEventListeners();
+            
+            // Инициализация tooltips
+            initTooltips();
+        });
+
+        function initTooltips() {
+            // Добавляем обработчики для всех элементов с классом tooltip
+            document.querySelectorAll('.tooltip').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    // Закрываем все открытые tooltips
+                    document.querySelectorAll('.tooltip .tooltiptext').forEach(t => {
+                        t.style.visibility = 'hidden';
+                    });
+                    // Показываем текущий
+                    this.querySelector('.tooltiptext').style.visibility = 'visible';
+                });
+            });
+    
+            // Закрываем tooltips при клике вне их
+            document.addEventListener('click', function() {
+                document.querySelectorAll('.tooltip .tooltiptext').forEach(t => {
+                    t.style.visibility = 'hidden';
+                });
+            });
+        }
+
+        function setupEventListeners() {
+            // Установка
+            document.getElementById('install-demo-btn').addEventListener('click', showInstallInstructions);
+            
+            // Прокси
+            document.getElementById('test-proxy-btn').addEventListener('click', toggleProxy);
+            
+            // Docker
+            document.getElementById('run-docker-btn').addEventListener('click', runDockerScan);
+            
+            // Сканирование
+            document.getElementById('start-quick-scan').addEventListener('click', startQuickScan);
+            document.getElementById('start-spider').addEventListener('click', startSpider);
+            document.getElementById('start-active-scan').addEventListener('click', startActiveScan);
+            
+            // Отчеты
+            document.getElementById('generate-report-btn').addEventListener('click', generateReport);
+            document.getElementById('show-fix-btn').addEventListener('click', showFixRecommendations);
+            
+            // Планирование
+            document.getElementById('plan-scan-btn').addEventListener('click', planScan);
+            
+            // Кнопка "Наверх"
+            window.onscroll = handleScroll;
+            document.querySelector('.back-to-top').addEventListener('click', scrollToTop);
+        }
+
+        function showInstallInstructions() {
+            const os = document.getElementById('os-select').value;
+            const resultElement = document.getElementById('install-result');
+            
+            resultElement.textContent = 'Получение инструкций для ' + os + '...';
+            resultElement.classList.add('loading');
+            
+            setTimeout(() => {
+                let instructions = '';
+                switch(os) {
+                    case 'windows':
+                        instructions = '1. Скачайте установщик с https://www.zaproxy.org/download/\n2. Запустите установщик\n3. Следуйте инструкциям мастера установки\n4. После установки запустите OWASP ZAP через меню Пуск';
+                        break;
+                    case 'linux':
+                        instructions = '1. Откройте терминал\n2. Выполните команду: sudo apt update\n3. Затем: sudo apt install zaproxy\n4. После установки запустите командой: zaproxy';
+                        break;
+                    case 'macos':
+                        instructions = '1. Установите Homebrew (если не установлен)\n2. Выполните команду: brew install --cask owasp-zap\n3. После установки запустите через Spotlight или из папки Applications';
+                        break;
+                }
+                
+                resultElement.textContent = instructions;
+                resultElement.classList.remove('loading');
+            }, 500);
+        }
+
+        function toggleProxy() {
+            const statusElement = document.getElementById('proxy-status');
+            const resultElement = document.getElementById('proxy-result');
+            const button = document.getElementById('test-proxy-btn');
+            
+            if (demoState.proxyActive) {
+                button.textContent = 'Проверить прокси-соединение';
+                statusElement.innerHTML = '<span class="status-indicator status-inactive"></span>Прокси неактивен';
+                resultElement.textContent = 'Прокси-сервер OWASP ZAP остановлен';
+            } else {
+                button.textContent = 'Остановить прокси';
+                statusElement.innerHTML = '<span class="status-indicator status-active"></span>Прокси активен (localhost:8080)';
+                resultElement.textContent = 'Прокси-сервер OWASP ZAP успешно запущен\nВсе HTTP/HTTPS запросы теперь проходят через ZAP\nНастройте браузер на использование прокси 127.0.0.1:8080';
+            }
+            
+            demoState.proxyActive = !demoState.proxyActive;
+        }
+
+        function runDockerScan() {
+            const url = document.getElementById('target-url').value || 'https://example.com';
+            const resultElement = document.getElementById('docker-result');
+            
+            resultElement.textContent = `Запуск сканирования ${url} в Docker...`;
+            resultElement.classList.add('loading');
+            
+            setTimeout(() => {
+                resultElement.innerHTML = `
+                    <strong>Сканирование завершено для ${url}</strong>
+                    <div style="margin-top: 10px;">
+                        <div>Найдено уязвимостей:</div>
+                        <div>- Высокий риск: 2</div>
+                        <div>- Средний риск: 5</div>
+                        <div>- Низкий риск: 3</div>
+                    </div>
+                    <button class="demo-button" style="margin-top: 15px;" onclick="showDockerReport()">
+                        <i class="fas fa-file-alt"></i> Показать полный отчет
+                    </button>
+                `;
+                resultElement.classList.remove('loading');
+            }, 1500);
+        }
+
+        function showDockerReport() {
+            const resultElement = document.getElementById('docker-result');
+            resultElement.innerHTML = `
+                <strong>Полный отчет Docker сканирования</strong>
+                <div style="margin-top: 10px;">
+                    <div><span class="vulnerability-high">[High]</span> SQL Injection found in /login</div>
+                    <div><span class="vulnerability-high">[High]</span> XSS in /search?query=</div>
+                    <div><span class="vulnerability-medium">[Medium]</span> CSRF missing token in /profile</div>
+                    <div><span class="vulnerability-medium">[Medium]</span> Sensitive data in URL /reset-password</div>
+                    <div><span class="vulnerability-low">[Low]</span> Missing security headers</div>
+                </div>
+                <button class="demo-button" style="margin-top: 15px;" onclick="runDockerScan()">
+                    <i class="fas fa-redo"></i> Запустить новое сканирование
+                </button>
+            `;
+        }
+
+        function startQuickScan() {
+            if (demoState.scanInProgress) return;
+            
+            const url = document.getElementById('quick-scan-url').value || 'https://example.com';
+            const progressBar = document.getElementById('quick-scan-progress');
+            const resultElement = document.getElementById('quick-scan-result');
+            const button = document.getElementById('start-quick-scan');
+            
+            demoState.scanInProgress = true;
+            button.disabled = true;
+            resultElement.textContent = `Начато быстрое сканирование ${url}...`;
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress > 100) progress = 100;
+                progressBar.style.width = `${progress}%`;
+                
+                if (progress === 100) {
+                    clearInterval(interval);
+                    demoState.scanInProgress = false;
+                    button.disabled = false;
+                    
+                    const vulnsFound = Math.floor(Math.random() * 5) + 1;
+                    resultElement.innerHTML = `
+                        <strong>Сканирование завершено!</strong>
+                        <div>Проверено URL: ${Math.floor(Math.random() * 50) + 10}</div>
+                        <div>Найдено уязвимостей: ${vulnsFound}</div>
+                        <button class="demo-button" style="margin-top: 10px;" onclick="showQuickScanDetails()">
+                            <i class="fas fa-search"></i> Показать детали
+                        </button>
+                    `;
+                }
+            }, 300);
+        }
+
+        function showQuickScanDetails() {
+            const resultElement = document.getElementById('quick-scan-result');
+            resultElement.innerHTML = `
+                <strong>Результаты быстрого сканирования</strong>
+                <table class="report-table" style="margin-top: 10px;">
+                    <tr>
+                        <th>Тип</th>
+                        <th>Риск</th>
+                        <th>URL</th>
+                    </tr>
+                    <tr>
+                        <td>XSS</td>
+                        <td class="vulnerability-medium">Medium</td>
+                        <td>/search?query=test</td>
+                    </tr>
+                    <tr>
+                        <td>Missing Security Headers</td>
+                        <td class="vulnerability-low">Low</td>
+                        <td>/</td>
+                    </tr>
+                    <tr>
+                        <td>CSRF</td>
+                        <td class="vulnerability-medium">Medium</td>
+                        <td>/profile</td>
+                    </tr>
+                </table>
+            `;
+        }
+
+        function startSpider() {
+            if (demoState.scanInProgress) return;
+            
+            const url = document.getElementById('spider-url').value || 'https://example.com';
+            const progressBar = document.getElementById('spider-progress');
+            const resultElement = document.getElementById('spider-result');
+            const button = document.getElementById('start-spider');
+            
+            demoState.scanInProgress = true;
+            button.disabled = true;
+            resultElement.textContent = `Запуск Spider для ${url}...`;
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 5;
+                if (progress > 100) progress = 100;
+                progressBar.style.width = `${progress}%`;
+                
+                if (progress % 20 === 0) {
+                    resultElement.textContent += `\nНайдено URL: ${Math.floor(progress / 5)}`;
+                }
+                
+                if (progress === 100) {
+                    clearInterval(interval);
+                    demoState.scanInProgress = false;
+                    button.disabled = false;
+                    
+                    resultElement.innerHTML = `
+                        <strong>Spider завершен!</strong>
+                        <div>Найдено URL: ${Math.floor(Math.random() * 100) + 50}</div>
+                        <div>Глубина сканирования: ${Math.floor(Math.random() * 5) + 1}</div>
+                        <button class="demo-button" style="margin-top: 10px;" onclick="showSpiderResults()">
+                            <i class="fas fa-sitemap"></i> Показать карту сайта
+                        </button>
+                    `;
+                }
+            }, 300);
+        }
+
+        function showSpiderResults() {
+            const resultElement = document.getElementById('spider-result');
+            resultElement.innerHTML = `
+                <strong>Карта сайта, найденная Spider</strong>
+                <div style="margin-top: 10px; font-family: monospace;">
+                    <div>├── /</div>
+                    <div>│   ├── /about</div>
+                    <div>│   ├── /contact</div>
+                    <div>│   └── /products</div>
+                    <div>│       ├── /1</div>
+                    <div>│       └── /2</div>
+                    <div>├── /login</div>
+                    <div>└── /admin</div>
+                    <div>    ├── /users</div>
+                    <div>    └── /settings</div>
+                </div>
+            `;
+        }
+
+        function startActiveScan() {
+            if (demoState.scanInProgress) return;
+            
+            const url = document.getElementById('active-scan-url').value || 'https://example.com';
+            const policy = document.getElementById('scan-policy').value;
+            const progressBar = document.getElementById('active-scan-progress');
+            const resultElement = document.getElementById('active-scan-result');
+            const button = document.getElementById('start-active-scan');
+            
+            demoState.scanInProgress = true;
+            button.disabled = true;
+            resultElement.textContent = `Запуск активного сканирования (${policy}) для ${url}...`;
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 3;
+                if (progress > 100) progress = 100;
+                progressBar.style.width = `${progress}%`;
+                
+                if (progress % 15 === 0) {
+                    const vulnTypes = ['SQLi', 'XSS', 'CSRF', 'Info Leak', 'RCE'];
+                    const randomVuln = vulnTypes[Math.floor(Math.random() * vulnTypes.length)];
+                    resultElement.textContent += `\nПроверка ${randomVuln}...`;
+                }
+                
+                if (progress === 100) {
+                    clearInterval(interval);
+                    demoState.scanInProgress = false;
+                    button.disabled = false;
+                    
+                    const vulnsFound = Math.floor(Math.random() * 10) + 3;
+                    resultElement.innerHTML = `
+                        <strong>Активное сканирование завершено!</strong>
+                        <div>Политика: ${policy}</div>
+                        <div>Найдено уязвимостей: ${vulnsFound}</div>
+                        <div>Высокий риск: ${Math.floor(vulnsFound / 3)}</div>
+                        <button class="demo-button" style="margin-top: 10px;" onclick="showActiveScanResults()">
+                            <i class="fas fa-bug"></i> Показать уязвимости
+                        </button>
+                    `;
+                }
+            }, 300);
+        }
+
+        function showActiveScanResults() {
+            const resultElement = document.getElementById('active-scan-result');
+            resultElement.innerHTML = `
+                <strong>Найденные уязвимости</strong>
+                <table class="report-table" style="margin-top: 10px;">
+                    <tr>
+                        <th>Тип</th>
+                        <th>Риск</th>
+                        <th>URL</th>
+                        <th>Описание</th>
+                    </tr>
+                    <tr>
+                        <td>SQL Injection</td>
+                        <td class="vulnerability-high">High</td>
+                        <td>/login</td>
+                        <td>Возможна SQL-инъекция через параметр username</td>
+                    </tr>
+                    <tr>
+                        <td>XSS</td>
+                        <td class="vulnerability-medium">Medium</td>
+                        <td>/search</td>
+                        <td>Межсайтовый скриптинг через параметр query</td>
+                    </tr>
+                    <tr>
+                        <td>CSRF</td>
+                        <td class="vulnerability-medium">Medium</td>
+                        <td>/profile/update</td>
+                        <td>Отсутствует CSRF-токен в форме</td>
+                    </tr>
+                    <tr>
+                        <td>Info Disclosure</td>
+                        <td class="vulnerability-low">Low</td>
+                        <td>/error</td>
+                        <td>Раскрытие версии сервера в ошибках</td>
+                    </tr>
+                </table>
+            `;
+        }
+
+        function generateReport() {
+            const format = document.getElementById('report-format').value;
+            const resultElement = document.getElementById('report-result');
+            
+            resultElement.textContent = 'Генерация отчета в формате ' + format + '...';
+            resultElement.classList.add('loading');
+            
+            setTimeout(() => {
+                resultElement.textContent = demoState.reportFormats[format];
+                resultElement.classList.remove('loading');
+                
+                if (format === 'html') {
+                    resultElement.innerHTML = `
+                        <h3>Отчет о безопасности</h3>
+                        <p>Дата: ${new Date().toLocaleDateString()}</p>
+                        <table border="1">
+                            <tr>
+                                <th>Уязвимость</th>
+                                <th>Риск</th>
+                                <th>Количество</th>
+                            </tr>
+                            <tr>
+                                <td>SQL Injection</td>
+                                <td class="vulnerability-high">High</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>XSS</td>
+                                <td class="vulnerability-medium">Medium</td>
+                                <td>3</td>
+                            </tr>
+                        </table>
+                        <button class="demo-button" style="margin-top: 10px;" onclick="downloadReport()">
+                            <i class="fas fa-download"></i> Скачать отчет
+                        </button>
+                    `;
+                }
+            }, 800);
+        }
+
+        function downloadReport() {
+            alert('В реальном приложении здесь была бы загрузка отчета');
+        }
+
+        function showFixRecommendations() {
+            const type = document.getElementById('vulnerability-type').value;
+            const resultElement = document.getElementById('fix-result');
+            
+            resultElement.textContent = 'Получение рекомендаций...';
+            resultElement.classList.add('loading');
+            
+            setTimeout(() => {
+                resultElement.textContent = demoState.fixRecommendations[type];
+                resultElement.classList.remove('loading');
+            }, 500);
+        }
+
+        function planScan() {
+            const appName = document.getElementById('app-name').value || 'Мое приложение';
+            const appUrl = document.getElementById('app-url').value || 'https://example.com';
+            const resultElement = document.getElementById('plan-result');
+            
+            resultElement.textContent = 'Планирование тестирования...';
+            resultElement.classList.add('loading');
+            
+            setTimeout(() => {
+                resultElement.innerHTML = `
+                    <strong>Тестирование запланировано</strong>
+                    <div style="margin-top: 10px;">
+                        <div>Приложение: ${appName}</div>
+                        <div>URL: ${appUrl}</div>
+                        <div>Тип тестирования: Полное сканирование</div>
+                        <div>Дата: ${new Date(Date.now() + 86400000).toLocaleDateString()}</div>
+                    </div>
+                    <button class="demo-button" style="margin-top: 10px;" onclick="startPlannedScan()">
+                        <i class="fas fa-play"></i> Запустить тестирование сейчас
+                    </button>
+                `;
+                resultElement.classList.remove('loading');
+            }, 700);
+        }
+
+        function startPlannedScan() {
+            const resultElement = document.getElementById('plan-result');
+            resultElement.innerHTML = `
+                <strong>Тестирование запущено</strong>
+                <div style="margin-top: 10px;">
+                    <div>Выполняется полное сканирование...</div>
+                    <div class="scan-progress" style="margin-top: 10px;">
+                        <div class="progress-bar" style="width: 0%" id="planned-scan-progress"></div>
+                    </div>
+                </div>
+            `;
+            
+            let progress = 0;
+            const progressBar = document.getElementById('planned-scan-progress');
+            const interval = setInterval(() => {
+                progress += Math.random() * 5;
+                if (progress > 100) progress = 100;
+                progressBar.style.width = `${progress}%`;
+                
+                if (progress === 100) {
+                    clearInterval(interval);
+                    resultElement.innerHTML += `
+                        <div style="margin-top: 10px;">Сканирование завершено!</div>
+                        <button class="demo-button" style="margin-top: 10px;" onclick="showPlannedScanResults()">
+                            <i class="fas fa-file-alt"></i> Показать результаты
+                        </button>
+                    `;
+                }
+            }, 300);
+        }
+
+        function showPlannedScanResults() {
+            const resultElement = document.getElementById('plan-result');
+            resultElement.innerHTML = `
+                <strong>Результаты планового тестирования</strong>
+                <div style="margin-top: 10px;">
+                    <div>Найдено уязвимостей: 8</div>
+                    <div>- Высокий риск: 2</div>
+                    <div>- Средний риск: 3</div>
+                    <div>- Низкий риск: 3</div>
+                </div>
+                <button class="demo-button" style="margin-top: 10px;" onclick="generateReport()">
+                    <i class="fas fa-file-export"></i> Создать отчет
+                </button>
+            `;
+        }
+
+        function handleScroll() {
+            const button = document.querySelector('.back-to-top');
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                button.style.display = "block";
+            } else {
+                button.style.display = "none";
+            }
+    
+            // Анимация появления секций при скролле
+            const sections = document.querySelectorAll("section");
+            sections.forEach(section => {
+                const sectionTop = section.getBoundingClientRect().top;
+                if (sectionTop < window.innerHeight - 100) {
+                    section.classList.add('visible');
+                }
+            });
+        }
+    
+        function scrollToTop() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+    
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+            
+            const tabs = document.getElementsByClassName("tab");
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove("active");
+            }
+            
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+        
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const range = document.createRange();
+            range.selectNode(codeBlock);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    const originalText = btn.textContent;
+                    btn.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error('Ошибка при копировании:', err);
+            }
+            
+            window.getSelection().removeAllRanges();
+        }
+    </script>
+</body>
+</html>

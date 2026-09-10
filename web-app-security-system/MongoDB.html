@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB с шифрованием - Демонстрация</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4da6ff;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --warning-color: #f39c12;
+            --bg-dark: rgba(0, 0, 0, 0.3);
+            --bg-light: rgba(255, 255, 255, 0.1);
+            --text-color: white;
+            --border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            background-image: url(2ed335b16e62c39b6d5b7725ff09d5e9.gif);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+
+        header {
+            background: url(5a) no-repeat center center/cover;
+            color: var(--text-color);
+            padding: 2rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+            font-weight: 600;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            margin: 0.5rem 0 1.5rem;
+            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+            opacity: 0.9;
+        }
+
+        .home-button {
+            display: inline-block;
+            background-color: rgba(53, 66, 74, 0.9);
+            color: var(--text-color);
+            padding: 0.6rem 1.2rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .home-button:hover {
+            background-color: rgba(44, 62, 80, 0.9);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(77, 166, 255, 0.3);
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        nav ul li {
+            margin: 0 0.5rem;
+        }
+
+        nav a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h1, h2, h3, h4 {
+            color: var(--text-color);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            margin-top: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 2.2rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 0.8rem;
+            font-weight: 600;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        pre {
+            background: var(--bg-dark);
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1.5rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(77, 166, 255, 0.8);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            gap: 0.5rem;
+        }
+
+        .back-button:hover {
+            background: rgba(59, 140, 196, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 10px rgba(77, 166, 255, 0.3);
+        }
+
+        form {
+            margin-top: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        form:hover {
+            transform: translateY(-3px);
+        }
+
+        input[type="text"],
+        input[type="password"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1rem;
+            background: var(--bg-dark);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(77, 166, 255, 0.3);
+        }
+
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 1.5rem;
+            background: rgba(77, 166, 255, 0.8);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin-right: 0.8rem;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background: rgba(59, 140, 196, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 10px rgba(77, 166, 255, 0.3);
+        }
+
+        .button-secondary {
+            background: rgba(46, 204, 113, 0.8);
+        }
+
+        .button-secondary:hover {
+            background: rgba(39, 174, 96, 0.9);
+        }
+
+        .button-danger {
+            background: rgba(231, 76, 60, 0.8);
+        }
+
+        .button-danger:hover {
+            background: rgba(192, 57, 43, 0.9);
+        }
+
+        .button-warning {
+            background: rgba(243, 156, 18, 0.8);
+        }
+
+        .button-warning:hover {
+            background: rgba(211, 136, 16, 0.9);
+        }
+
+        .result-box {
+            background: var(--bg-dark);
+            padding: 1.5rem;
+            border-radius: 5px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .result-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .copy-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(102, 102, 102, 0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            margin-left: 0.8rem;
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            gap: 0.3rem;
+        }
+
+        .copy-btn:hover {
+            background: rgba(68, 68, 68, 0.9);
+            transform: translateY(-2px);
+        }
+
+        .info-box {
+            background: var(--bg-dark);
+            padding: 1.5rem;
+            border-radius: 5px;
+            margin: 1.5rem 0;
+            border-left: 4px solid #666;
+            transition: all 0.3s ease;
+        }
+
+        .info-box:hover {
+            background: rgba(0, 0, 0, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .tab {
+            display: flex;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            background-color: rgba(241, 241, 241, 0.1);
+            border-radius: 5px 5px 0 0;
+            flex-wrap: wrap;
+        }
+
+        .tab button {
+            flex: 1;
+            min-width: 150px;
+            background-color: inherit;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 0.8rem 1rem;
+            transition: all 0.3s ease;
+            color: var(--text-color);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .tab button:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .tab button.active {
+            background-color: rgba(77, 166, 255, 0.8);
+            color: white;
+        }
+
+        .tabcontent {
+            display: none;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            animation: fadeEffect 0.5s;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes fadeEffect {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .key-management {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .key-input {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1rem;
+            font-family: 'Courier New', monospace;
+            background: var(--bg-dark);
+            color: var(--text-color);
+            box-sizing: border-box;
+        }
+
+        .columns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .column {
+            flex: 1;
+            min-width: 300px;
+            background: var(--bg-dark);
+            padding: 1.5rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .column:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem 0;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text-color);
+            margin-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background: rgba(53, 66, 74, 0.9);
+            color: var(--text-color);
+            border: none;
+            padding: 0.8rem;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+            z-index: 99;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .back-to-top:hover {
+            background: rgba(44, 62, 80, 0.9);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(77, 166, 255, 0.5);
+        }
+
+        .technology-icon {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+            font-size: 1.2em;
+        }
+
+        .status {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 5px;
+            display: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .status.success {
+            background: rgba(39, 174, 96, 0.2);
+            color: var(--success-color);
+            display: block;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .status.error {
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--error-color);
+            display: block;
+            border-left: 4px solid var(--error-color);
+        }
+
+        .status.warning {
+            background: rgba(243, 156, 18, 0.2);
+            color: var(--warning-color);
+            display: block;
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .document-example {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .document-example:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .document-field {
+            display: flex;
+            margin-bottom: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .document-field label {
+            width: 120px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.3rem;
+        }
+
+        .document-field span {
+            flex: 1;
+            min-width: 0;
+            word-break: break-word;
+        }
+
+        .encrypted-field {
+            color: var(--error-color);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .decrypted-field {
+            color: var(--success-color);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 0.5rem;
+            width: auto;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            font-weight: normal;
+            color: var(--text-color);
+        }
+
+        /* Анимации и загрузчик */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader {
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+            margin: 0.5rem 0;
+            border-radius: 2px;
+        }
+
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--bg-light);
+            margin: 5% auto;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            animation: modalFadeIn 0.3s;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-modal:hover {
+            color: var(--text-color);
+        }
+
+        /* Стили для кнопки расшифровки */
+        .decrypt-btn {
+            background: rgba(243, 156, 18, 0.8);
+            margin-top: 0.5rem;
+        }
+
+        .decrypt-btn:hover {
+            background: rgba(211, 136, 16, 0.9);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            header {
+                padding: 1.5rem 0;
+            }
+            
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            header p {
+                font-size: 1rem;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            nav ul li {
+                margin: 0;
+                width: 100%;
+                text-align: center;
+            }
+            
+            nav a {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .container {
+                padding: 1.5rem;
+                margin: 1.5rem;
+            }
+            
+            .tab button {
+                min-width: 100%;
+                margin-bottom: 0.2rem;
+            }
+            
+            .columns {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .column {
+                min-width: 100%;
+            }
+            
+            button, .back-button, .copy-btn {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 0.8rem;
+                box-sizing: border-box;
+            }
+            
+            .modal-content {
+                width: 90%;
+                margin: 10% auto;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1><i class="fas fa-database technology-icon"></i> MongoDB с шифрованием</h1>
+            <p>Демонстрация работы с зашифрованными документами в MongoDB</p>
+            <nav>
+                <ul>
+                    <li><a href="index.html"><i class="fas fa-home"></i> Главная</a></li>
+                    <li><a href="about.html"><i class="fas fa-info-circle"></i> О проекте</a></li>
+                    <li><a href="Technologies.html"><i class="fas fa-microchip"></i> Технологии</a></li>
+                    <li><a href="contact.html"><i class="fas fa-envelope"></i> Контакты</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="info-box">
+            <p><strong><i class="fas fa-shield-alt"></i> Шифрование в MongoDB</strong> — MongoDB Enterprise поддерживает шифрование на уровне поля с использованием автоматического шифрования/дешифрования. В этом демо мы эмулируем этот процесс с помощью клиентского JavaScript.</p>
+            <p><i class="fas fa-info-circle"></i> В реальных проектах используйте официальный драйвер MongoDB с включенным шифрованием на стороне сервера.</p>
+        </div>
+
+        <div class="tab">
+            <button class="tablinks active" onclick="openTab(event, 'create-tab')"><i class="fas fa-plus-circle"></i> Создать документ</button>
+            <button class="tablinks" onclick="openTab(event, 'view-tab')"><i class="fas fa-eye"></i> Просмотр документов</button>
+            <button class="tablinks" onclick="openTab(event, 'encrypt-tab')"><i class="fas fa-key"></i> Управление ключами</button>
+        </div>
+
+        <div id="create-tab" class="tabcontent" style="display: block;">
+            <div class="columns">
+                <div class="column">
+                    <h2><i class="fas fa-file-alt"></i> Создать новый документ</h2>
+                    <form id="document-form">
+                        <label for="doc-name">Имя документа:</label>
+                        <input type="text" id="doc-name" placeholder="Введите имя документа" required>
+                        
+                        <label for="doc-content">Содержимое документа:</label>
+                        <textarea id="doc-content" placeholder="Введите содержимое документа" rows="6" required></textarea>
+                        
+                        <div class="key-management">
+                            <label><i class="fas fa-key"></i> Поля для шифрования:</label>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="encrypt-name" name="encrypt-fields">
+                                <label for="encrypt-name">Имя документа</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="encrypt-content" name="encrypt-fields" checked>
+                                <label for="encrypt-content">Содержимое документа</label>
+                            </div>
+                        </div>
+                        
+                        <div id="create-progress" class="progress-bar"></div>
+                        <div id="create-loader" class="loader"></div>
+                        
+                        <button type="submit" id="submit-btn"><i class="fas fa-save"></i> Сохранить документ</button>
+                    </form>
+                </div>
+                
+                <div class="column">
+                    <h3><i class="fas fa-lock"></i> Результат шифрования</h3>
+                    <div class="result-box">
+                        <pre id="encrypted-document">Здесь будет показан зашифрованный документ...</pre>
+                        <button class="copy-btn" onclick="copyToClipboard('encrypted-document')"><i class="fas fa-copy"></i> Копировать</button>
+                    </div>
+                    
+                    <div id="create-status" class="status"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-tab" class="tabcontent">
+            <div class="columns">
+                <div class="column">
+                    <h2><i class="fas fa-database"></i> Документы в коллекции</h2>
+                    <div class="key-management">
+                        <button onclick="loadDocuments()" class="button-secondary"><i class="fas fa-sync-alt"></i> Обновить</button>
+                        <button onclick="showClearConfirmation()" class="button-danger"><i class="fas fa-trash"></i> Очистить коллекцию</button>
+                        <button onclick="exportDocuments()" class="button-warning"><i class="fas fa-file-export"></i> Экспорт</button>
+                        <button onclick="document.getElementById('import-modal').style.display='block'" class="button-secondary"><i class="fas fa-file-import"></i> Импорт</button>
+                    </div>
+                    
+                    <div id="documents-list">
+                        <div class="loader" id="documents-loader"></div>
+                    </div>
+                </div>
+                
+                <div class="column">
+                    <h3><i class="fas fa-search"></i> Детали документа</h3>
+                    <div class="result-box" id="document-details">
+                        <p>Выберите документ для просмотра деталей</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <p><strong><i class="fas fa-info-circle"></i> Информация:</strong> Красным цветом показаны зашифрованные данные, зеленым - расшифрованные.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="encrypt-tab" class="tabcontent">
+            <div class="columns">
+                <div class="column">
+                    <h2><i class="fas fa-key"></i> Управление ключами шифрования</h2>
+                    
+                    <div class="key-management">
+                        <button onclick="generateKey()"><i class="fas fa-key"></i> Сгенерировать ключ</button>
+                        <button onclick="saveKey()"><i class="fas fa-save"></i> Сохранить ключ</button>
+                        <button onclick="loadKey()"><i class="fas fa-folder-open"></i> Загрузить ключ</button>
+                        <button onclick="showKeyConfirmation()" class="button-danger"><i class="fas fa-trash"></i> Очистить ключ</button>
+                        <button onclick="exportKey()" class="button-warning"><i class="fas fa-file-export"></i> Экспорт ключа</button>
+                    </div>
+                    
+                    <label for="encryption-key">Ключ шифрования:</label>
+                    <textarea id="encryption-key" class="key-input" placeholder="Введите или сгенерируйте ключ шифрования" rows="3"></textarea>
+                    
+                    <div class="info-box">
+                        <p><strong><i class="fas fa-exclamation-triangle"></i> Внимание:</strong> В реальном приложении ключи должны храниться в безопасном хранилище (KMS) и никогда не передаваться клиенту. Этот демо-пример использует localStorage только для демонстрационных целей.</p>
+                    </div>
+                    
+                    <div id="key-status" class="status"></div>
+                </div>
+                
+                <div class="column">
+                    <h3><i class="fas fa-info-circle"></i> Информация о шифровании</h3>
+                    <div class="info-box">
+                        <p>В этом демо используется алгоритм AES-256 для шифрования полей документов. Ключ генерируется случайным образом и может быть сохранен в localStorage.</p>
+                        <p>Реальный MongoDB Enterprise использует:</p>
+                        <ul>
+                            <li>Шифрование на уровне поля (FLE)</li>
+                            <li>Клиентское шифрование перед отправкой</li>
+                            <li>Интеграцию с Key Management Systems</li>
+                            <li>Автоматическое шифрование/дешифрование</li>
+                            <li>Поддержку аппаратных модулей безопасности (HSM)</li>
+                        </ul>
+                    </div>
+                    
+                    <h3><i class="fas fa-chart-pie"></i> Статистика</h3>
+                    <div class="result-box">
+                        <div class="document-field">
+                            <label>Всего документов:</label>
+                            <span id="total-docs">0</span>
+                        </div>
+                        <div class="document-field">
+                            <label>Зашифрованных полей:</label>
+                            <span id="encrypted-fields">0</span>
+                        </div>
+                        <div class="document-field">
+                            <label>Последнее обновление:</label>
+                            <span id="last-update">Никогда</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <p><strong><i class="fas fa-exclamation-triangle"></i> Ограничения демо:</strong> Это демонстрация клиентского шифрования. В реальных проектах используйте официальную поддержку шифрования в MongoDB Enterprise. Все данные хранятся только в вашем браузере и будут потеряны при очистке кеша.</p>
+        </div>
+
+        <a href="Technologies.html" class="back-button"><i class="fas fa-arrow-left"></i> Вернуться к списку технологий</a>
+    </div>
+
+    <!-- Модальное окно подтверждения -->
+    <div id="confirmation-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('confirmation-modal')">&times;</span>
+            <h3 id="confirmation-title">Подтверждение действия</h3>
+            <p id="confirmation-message">Вы уверены, что хотите выполнить это действие?</p>
+            <div class="key-management">
+                <button id="confirm-action" class="button-danger">Подтвердить</button>
+                <button onclick="closeModal('confirmation-modal')" class="button-secondary">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно импорта -->
+    <div id="import-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('import-modal')">&times;</span>
+            <h3>Импорт документов</h3>
+            <p>Вставьте JSON-данные документов для импорта:</p>
+            <textarea id="import-data" class="key-input" placeholder="Вставьте JSON-данные здесь" rows="10"></textarea>
+            <div class="checkbox-group">
+                <input type="checkbox" id="overwrite-data" checked>
+                <label for="overwrite-data">Перезаписать существующие документы</label>
+            </div>
+            <div class="key-management">
+                <button onclick="importDocuments()" class="button-secondary"><i class="fas fa-file-import"></i> Импорт</button>
+                <button onclick="closeModal('import-modal')" class="button-danger">Отмена</button>
+            </div>
+            <div id="import-status" class="status"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Системы кибербезопасности. Все права защищены.</p>
+    </footer>
+
+    <button class="back-to-top" onclick="scrollToTop()"><i class="fas fa-arrow-up"></i></button>
+
+    <script>
+        // Глобальные переменные
+        let encryptionKey = '';
+        let documents = [];
+        
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Анимация появления контейнера
+            setTimeout(() => {
+                const container = document.querySelector('.container');
+                if (container) container.classList.add('visible');
+            }, 300);
+            
+            // Загрузка сохраненных данных
+            await loadDocuments();
+            await loadKey();
+            updateStats();
+            
+            // Обработчики форм
+            const documentForm = document.getElementById('document-form');
+            if (documentForm) {
+                documentForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    await createDocument();
+                });
+            }
+            
+            // Кнопка "Наверх"
+            window.addEventListener('scroll', toggleBackToTopButton);
+            
+            // Инициализация кнопки "Наверх"
+            toggleBackToTopButton();
+        });
+        
+        // Шифрование данных с обработкой ошибок
+        async function encryptData(data) {
+            if (!data) return '';
+            
+            if (!encryptionKey) {
+                showStatus('create-status', 'Сначала сгенерируйте или загрузите ключ шифрования', 'error');
+                throw new Error('Ключ шифрования отсутствует');
+            }
+            
+            try {
+                // Добавляем соль для увеличения безопасности
+                const saltedData = data + '|' + CryptoJS.lib.WordArray.random(16).toString();
+                const encrypted = CryptoJS.AES.encrypt(saltedData, encryptionKey).toString();
+                return encrypted;
+            } catch (e) {
+                console.error('Ошибка шифрования:', e);
+                showStatus('create-status', 'Ошибка шифрования: ' + e.message, 'error');
+                throw e;
+            }
+        }
+        
+        // Дешифрование данных с обработкой ошибок
+        async function decryptData(encryptedData) {
+            if (!encryptedData) return { decrypted: '', needsKey: false, encrypted: '' };
+            
+            if (!encryptionKey) {
+                return { 
+                    decrypted: "Требуется ключ для дешифрования", 
+                    needsKey: true,
+                    encrypted: encryptedData 
+                };
+            }
+            
+            try {
+                const decryptedBytes = CryptoJS.AES.decrypt(encryptedData, encryptionKey);
+                const decryptedText = decryptedBytes.toString(CryptoJS.enc.Utf8);
+                
+                if (!decryptedText) {
+                    return { 
+                        decrypted: "Неверный ключ дешифрования", 
+                        needsKey: true,
+                        encrypted: encryptedData 
+                    };
+                }
+                
+                // Удаляем соль
+                const unsaltedData = decryptedText.split('|')[0];
+                return { 
+                    decrypted: unsaltedData, 
+                    needsKey: false,
+                    encrypted: encryptedData 
+                };
+            } catch (e) {
+                console.error('Ошибка дешифрования:', e);
+                return { 
+                    decrypted: "Ошибка дешифрования", 
+                    needsKey: true,
+                    encrypted: encryptedData 
+                };
+            }
+        }
+        
+        // Создание нового документа с анимацией загрузки
+        async function createDocument() {
+            const submitBtn = document.getElementById('submit-btn');
+            const loader = document.getElementById('create-loader');
+            const progressBar = document.getElementById('create-progress');
+            
+            if (!submitBtn || !loader || !progressBar) return;
+            
+            try {
+                // Показываем индикатор загрузки
+                submitBtn.disabled = true;
+                loader.style.display = 'block';
+                progressBar.style.width = '30%';
+                
+                const name = document.getElementById('doc-name')?.value.trim() || '';
+                const content = document.getElementById('doc-content')?.value.trim() || '';
+                const encryptName = document.getElementById('encrypt-name')?.checked || false;
+                const encryptContent = document.getElementById('encrypt-content')?.checked || false;
+                
+                // Валидация
+                if (!name || !content) {
+                    showStatus('create-status', 'Заполните все обязательные поля', 'error');
+                    return;
+                }
+                
+                progressBar.style.width = '60%';
+                
+                // Создаем документ
+                const doc = {
+                    id: Date.now().toString(),
+                    name: encryptName ? await encryptData(name) : name,
+                    content: encryptContent ? await encryptData(content) : content,
+                    isNameEncrypted: encryptName,
+                    isContentEncrypted: encryptContent,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                
+                progressBar.style.width = '80%';
+                
+                // Добавляем в коллекцию
+                documents.push(doc);
+                await saveDocuments();
+                
+                // Показываем зашифрованный документ
+                const encryptedDocElement = document.getElementById('encrypted-document');
+                if (encryptedDocElement) {
+                    encryptedDocElement.textContent = JSON.stringify({
+                        _id: doc.id,
+                        name: doc.name,
+                        content: doc.content.substring(0, 100) + (doc.content.length > 100 ? '...' : ''),
+                        isNameEncrypted: doc.isNameEncrypted,
+                        isContentEncrypted: doc.isContentEncrypted,
+                        createdAt: doc.createdAt
+                    }, null, 2);
+                }
+                
+                progressBar.style.width = '100%';
+                
+                // Обновляем список документов и статистику
+                await renderDocumentsList();
+                updateStats();
+                
+                showStatus('create-status', 'Документ успешно создан и сохранен', 'success');
+                
+                const documentForm = document.getElementById('document-form');
+                if (documentForm) documentForm.reset();
+                
+                // Переключаем на вкладку просмотра
+                setTimeout(() => {
+                    const viewTabBtn = document.querySelector('.tab button[onclick*="view-tab"]');
+                    if (viewTabBtn) viewTabBtn.click();
+                }, 1000);
+            } catch (e) {
+                console.error('Ошибка создания документа:', e);
+                showStatus('create-status', 'Ошибка при создании документа: ' + e.message, 'error');
+            } finally {
+                // Скрываем индикатор загрузки
+                if (submitBtn) submitBtn.disabled = false;
+                if (loader) loader.style.display = 'none';
+                setTimeout(() => {
+                    if (progressBar) progressBar.style.width = '0%';
+                }, 500);
+            }
+        }
+        
+        // Сохранение документов в localStorage
+        async function saveDocuments() {
+            return new Promise((resolve) => {
+                try {
+                    localStorage.setItem('mongoDocuments', JSON.stringify(documents));
+                    resolve();
+                } catch (e) {
+                    console.error('Ошибка сохранения документов:', e);
+                    showStatus('create-status', 'Ошибка сохранения документов', 'error');
+                    throw e;
+                }
+            });
+        }
+        
+        // Загрузка документов из localStorage
+        async function loadDocuments() {
+            return new Promise((resolve) => {
+                try {
+                    const savedDocs = localStorage.getItem('mongoDocuments');
+                    if (savedDocs) {
+                        documents = JSON.parse(savedDocs) || [];
+                        renderDocumentsList();
+                    }
+                    resolve();
+                } catch (e) {
+                    console.error('Ошибка загрузки документов:', e);
+                    showStatus('view-tab', 'Ошибка загрузки документов', 'error');
+                    throw e;
+                }
+            });
+        }
+        
+        // Отображение списка документов с анимацией
+        async function renderDocumentsList() {
+            const container = document.getElementById('documents-list');
+            const loader = document.getElementById('documents-loader');
+            
+            if (!container || !loader) return;
+            
+            try {
+                loader.style.display = 'block';
+                container.innerHTML = '';
+                
+                if (documents.length === 0) {
+                    container.innerHTML = '<p>Нет сохраненных документов</p>';
+                    return;
+                }
+                
+                // Сортируем документы по дате создания (новые сначала)
+                const sortedDocs = [...documents].sort((a, b) => 
+                    new Date(b.createdAt) - new Date(a.createdAt));
+                
+                // Создаем элементы документов с анимацией
+                sortedDocs.forEach((doc, index) => {
+                    setTimeout(() => {
+                        const docElement = document.createElement('div');
+                        docElement.className = 'document-example';
+                        docElement.innerHTML = `
+                            <div class="document-field">
+                                <label>ID:</label>
+                                <span>${doc.id}</span>
+                            </div>
+                            <div class="document-field">
+                                <label>Имя:</label>
+                                <span class="${doc.isNameEncrypted ? 'encrypted-field' : ''}">
+                                    ${doc.isNameEncrypted ? '***** (зашифровано)' : doc.name}
+                                </span>
+                            </div>
+                            <div class="document-field">
+                                <label>Создан:</label>
+                                <span>${new Date(doc.createdAt).toLocaleString()}</span>
+                            </div>
+                            <button onclick="viewDocumentDetails('${doc.id}')" class="button-secondary">
+                                <i class="fas fa-search"></i> Подробнее
+                            </button>
+                            <button onclick="deleteDocument('${doc.id}')" class="button-danger">
+                                <i class="fas fa-trash"></i> Удалить
+                            </button>
+                        `;
+                        docElement.style.opacity = '0';
+                        docElement.style.transform = 'translateY(20px)';
+                        docElement.style.transition = `all 0.3s ease ${index * 0.1}s`;
+                        
+                        container.appendChild(docElement);
+                        
+                        setTimeout(() => {
+                            docElement.style.opacity = '1';
+                            docElement.style.transform = 'translateY(0)';
+                        }, 50);
+                    }, index * 50);
+                });
+            } catch (e) {
+                console.error('Ошибка отображения документов:', e);
+                container.innerHTML = '<p>Ошибка загрузки документов</p>';
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        // Просмотр деталей документа
+        async function viewDocumentDetails(docId) {
+            const doc = documents.find(d => d.id === docId);
+            const detailsContainer = document.getElementById('document-details');
+            
+            if (!doc || !detailsContainer) return;
+            
+            detailsContainer.innerHTML = '<div class="loader"></div>';
+            
+            try {
+                // Дешифруем данные, если они зашифрованы
+                const nameResult = doc.isNameEncrypted ? await decryptData(doc.name) : { decrypted: doc.name, needsKey: false };
+                const contentResult = doc.isContentEncrypted ? await decryptData(doc.content) : { decrypted: doc.content, needsKey: false };
+                
+                let nameHtml = `<span class="${doc.isNameEncrypted ? 'decrypted-field' : ''}">
+                    ${nameResult.decrypted}
+                    ${doc.isNameEncrypted ? '<small>(расшифровано)</small>' : ''}
+                </span>`;
+                
+                let contentHtml = `<span class="${doc.isContentEncrypted ? 'decrypted-field' : ''}">
+                    ${contentResult.decrypted}
+                    ${doc.isContentEncrypted ? '<small>(расшифровано)</small>' : ''}
+                </span>`;
+                
+                // Добавляем кнопки для расшифровки, если требуется ключ
+                if (nameResult.needsKey && doc.isNameEncrypted) {
+                    nameHtml += `<button onclick="decryptField('${doc.id}', 'name', this)" class="decrypt-btn">
+                        <i class="fas fa-key"></i> Расшифровать
+                    </button>`;
+                }
+                
+                if (contentResult.needsKey && doc.isContentEncrypted) {
+                    contentHtml += `<button onclick="decryptField('${doc.id}', 'content', this)" class="decrypt-btn">
+                        <i class="fas fa-key"></i> Расшифровать
+                    </button>`;
+                }
+                
+                detailsContainer.innerHTML = `
+                    <h3>Детали документа</h3>
+                    <div class="document-field">
+                        <label>ID:</label>
+                        <span>${doc.id}</span>
+                    </div>
+                    <div class="document-field">
+                        <label>Имя:</label>
+                        ${nameHtml}
+                    </div>
+                    <div class="document-field">
+                        <label>Содержимое:</label>
+                        ${contentHtml}
+                    </div>
+                    <div class="document-field">
+                        <label>Зашифровано:</label>
+                        <span>
+                            ${doc.isNameEncrypted ? 'Имя, ' : ''}
+                            ${doc.isContentEncrypted ? 'Содержимое' : ''}
+                            ${!doc.isNameEncrypted && !doc.isContentEncrypted ? 'Нет' : ''}
+                        </span>
+                    </div>
+                    <div class="document-field">
+                        <label>Создан:</label>
+                        <span>${new Date(doc.createdAt).toLocaleString()}</span>
+                    </div>
+                    <div class="document-field">
+                        <label>Обновлен:</label>
+                        <span>${new Date(doc.updatedAt).toLocaleString()}</span>
+                    </div>
+                    <button onclick="deleteDocument('${doc.id}')" class="button-danger">
+                        <i class="fas fa-trash"></i> Удалить документ
+                    </button>
+                `;
+            } catch (e) {
+                console.error('Ошибка просмотра документа:', e);
+                detailsContainer.innerHTML = '<p>Ошибка загрузки деталей документа</p>';
+            }
+        }
+
+        // Расшифровка отдельного поля документа
+        async function decryptField(docId, fieldName, buttonElement) {
+            const doc = documents.find(d => d.id === docId);
+            if (!doc || !buttonElement) return;
+            
+            try {
+                // Получаем зашифрованные данные
+                const encryptedData = doc[fieldName];
+                
+                // Проверяем, есть ли ключ
+                if (!encryptionKey) {
+                    showStatus('key-status', 'Сначала загрузите ключ шифрования', 'error');
+                    return;
+                }
+                
+                // Показываем индикатор загрузки на кнопке
+                const originalHtml = buttonElement.innerHTML;
+                buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Расшифровка...';
+                buttonElement.disabled = true;
+                
+                // Дешифруем данные
+                const result = await decryptData(encryptedData);
+                
+                if (result.needsKey) {
+                    showStatus('key-status', 'Не удалось расшифровать - неверный ключ', 'error');
+                    buttonElement.innerHTML = originalHtml;
+                    buttonElement.disabled = false;
+                    return;
+                }
+                
+                // Обновляем отображение
+                const fieldElement = buttonElement.parentElement.querySelector('span');
+                if (fieldElement) {
+                    fieldElement.textContent = result.decrypted;
+                    fieldElement.className = 'decrypted-field';
+                }
+                
+                // Удаляем кнопку
+                buttonElement.remove();
+                
+            } catch (e) {
+                console.error('Ошибка расшифровки поля:', e);
+                showStatus('key-status', 'Ошибка при расшифровке поля', 'error');
+            }
+        }
+
+        // Удаление документа
+        async function deleteDocument(docId) {
+            showConfirmation(
+                'Удаление документа',
+                'Вы уверены, что хотите удалить этот документ?',
+                async () => {
+                    try {
+                        documents = documents.filter(d => d.id !== docId);
+                        await saveDocuments();
+                        await renderDocumentsList();
+                        updateStats();
+                        
+                        const detailsContainer = document.getElementById('document-details');
+                        if (detailsContainer) detailsContainer.innerHTML = '<p>Документ удален</p>';
+                        
+                        showStatus('view-tab', 'Документ успешно удален', 'success');
+                    } catch (e) {
+                        console.error('Ошибка удаления документа:', e);
+                        showStatus('view-tab', 'Ошибка при удалении документа', 'error');
+                    }
+                }
+            );
+        }
+
+        // Генерация ключа шифрования
+        async function generateKey() {
+            try {
+                // Генерируем случайный ключ длиной 32 байта (256 бит)
+                const key = CryptoJS.lib.WordArray.random(32).toString();
+                const keyInput = document.getElementById('encryption-key');
+                if (keyInput) keyInput.value = key;
+                encryptionKey = key;
+                
+                showStatus('key-status', 'Новый ключ успешно сгенерирован', 'success');
+            } catch (e) {
+                console.error('Ошибка генерации ключа:', e);
+                showStatus('key-status', 'Ошибка генерации ключа', 'error');
+            }
+        }
+
+        // Сохранение ключа в localStorage
+        async function saveKey() {
+            const keyInput = document.getElementById('encryption-key');
+            if (!keyInput) return;
+            
+            const key = keyInput.value.trim();
+            if (!key) {
+                showStatus('key-status', 'Введите ключ для сохранения', 'error');
+                return;
+            }
+            
+            try {
+                localStorage.setItem('encryptionKey', key);
+                encryptionKey = key;
+                
+                showStatus('key-status', 'Ключ успешно сохранен', 'success');
+            } catch (e) {
+                console.error('Ошибка сохранения ключа:', e);
+                showStatus('key-status', 'Ошибка сохранения ключа', 'error');
+            }
+        }
+
+        // Загрузка ключа из localStorage
+        async function loadKey() {
+            try {
+                const savedKey = localStorage.getItem('encryptionKey');
+                const keyInput = document.getElementById('encryption-key');
+                
+                if (savedKey && keyInput) {
+                    keyInput.value = savedKey;
+                    encryptionKey = savedKey;
+                    
+                    showStatus('key-status', 'Ключ успешно загружен', 'success');
+                } else if (!savedKey) {
+                    showStatus('key-status', 'Сохраненный ключ не найден', 'warning');
+                }
+            } catch (e) {
+                console.error('Ошибка загрузки ключа:', e);
+                showStatus('key-status', 'Ошибка загрузки ключа', 'error');
+            }
+        }
+
+        // Очистка ключа
+        function showKeyConfirmation() {
+            showConfirmation(
+                'Очистка ключа шифрования',
+                'Вы уверены, что хотите очистить ключ шифрования? Все зашифрованные данные станут недоступны!',
+                () => {
+                    encryptionKey = '';
+                    const keyInput = document.getElementById('encryption-key');
+                    if (keyInput) keyInput.value = '';
+                    localStorage.removeItem('encryptionKey');
+                    showStatus('key-status', 'Ключ шифрования очищен', 'success');
+                }
+            );
+        }
+
+        // Очистка всех документов
+        function showClearConfirmation() {
+            showConfirmation(
+                'Очистка коллекции',
+                'Вы уверены, что хотите удалить ВСЕ документы? Это действие нельзя отменить.',
+                async () => {
+                    try {
+                        documents = [];
+                        await saveDocuments();
+                        await renderDocumentsList();
+                        updateStats();
+                        
+                        const detailsContainer = document.getElementById('document-details');
+                        if (detailsContainer) detailsContainer.innerHTML = '<p>Выберите документ для просмотра деталей</p>';
+                        
+                        showStatus('view-tab', 'Все документы удалены', 'success');
+                    } catch (e) {
+                        console.error('Ошибка очистки документов:', e);
+                        showStatus('view-tab', 'Ошибка при очистке документов', 'error');
+                    }
+                }
+            );
+        }
+
+        // Экспорт документов
+        function exportDocuments() {
+            if (documents.length === 0) {
+                showStatus('view-tab', 'Нет документов для экспорта', 'warning');
+                return;
+            }
+            
+            try {
+                const dataStr = JSON.stringify(documents, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                
+                const exportName = 'mongodb-documents-' + new Date().toISOString().slice(0, 10) + '.json';
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportName);
+                linkElement.click();
+                
+                showStatus('view-tab', 'Документы успешно экспортированы', 'success');
+            } catch (e) {
+                console.error('Ошибка экспорта документов:', e);
+                showStatus('view-tab', 'Ошибка при экспорте документов', 'error');
+            }
+        }
+
+        // Импорт документов
+        function importDocuments() {
+            const importData = document.getElementById('import-data')?.value.trim() || '';
+            const overwrite = document.getElementById('overwrite-data')?.checked || false;
+            
+            if (!importData) {
+                showStatus('import-status', 'Введите данные для импорта', 'error');
+                return;
+            }
+            
+            try {
+                const parsedData = JSON.parse(importData);
+                if (!Array.isArray(parsedData)) {
+                    showStatus('import-status', 'Данные должны быть массивом документов', 'error');
+                    return;
+                }
+                
+                if (overwrite) {
+                    documents = parsedData;
+                } else {
+                    documents = [...documents, ...parsedData];
+                }
+                
+                saveDocuments();
+                renderDocumentsList();
+                updateStats();
+                closeModal('import-modal');
+                showStatus('view-tab', 'Документы успешно импортированы', 'success');
+            } catch (e) {
+                console.error('Ошибка импорта документов:', e);
+                showStatus('import-status', 'Ошибка при импорте документов: ' + e.message, 'error');
+            }
+        }
+
+        // Экспорт ключа
+        function exportKey() {
+            if (!encryptionKey) {
+                showStatus('key-status', 'Нет ключа для экспорта', 'warning');
+                return;
+            }
+            
+            try {
+                const dataStr = JSON.stringify({ key: encryptionKey }, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                
+                const exportName = 'mongodb-key-' + new Date().toISOString().slice(0, 10) + '.json';
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportName);
+                linkElement.click();
+                
+                showStatus('key-status', 'Ключ успешно экспортирован', 'success');
+            } catch (e) {
+                console.error('Ошибка экспорта ключа:', e);
+                showStatus('key-status', 'Ошибка при экспорте ключа', 'error');
+            }
+        }
+
+        // Обновление статистики
+        function updateStats() {
+            const encryptedFields = documents.reduce((acc, doc) => {
+                return acc + (doc.isNameEncrypted ? 1 : 0) + (doc.isContentEncrypted ? 1 : 0);
+            }, 0);
+            
+            const totalDocsElement = document.getElementById('total-docs');
+            const encryptedFieldsElement = document.getElementById('encrypted-fields');
+            const lastUpdateElement = document.getElementById('last-update');
+            
+            if (totalDocsElement) totalDocsElement.textContent = documents.length;
+            if (encryptedFieldsElement) encryptedFieldsElement.textContent = encryptedFields;
+            
+            if (documents.length > 0 && lastUpdateElement) {
+                const lastUpdated = documents.reduce((latest, doc) => {
+                    const docDate = new Date(doc.updatedAt);
+                    return docDate > latest ? docDate : latest;
+                }, new Date(0));
+                
+                lastUpdateElement.textContent = lastUpdated.toLocaleString();
+            } else if (lastUpdateElement) {
+                lastUpdateElement.textContent = 'Никогда';
+            }
+        }
+
+        // Показать модальное окно подтверждения
+        function showConfirmation(title, message, callback) {
+            const confirmationTitle = document.getElementById('confirmation-title');
+            const confirmationMessage = document.getElementById('confirmation-message');
+            const confirmBtn = document.getElementById('confirm-action');
+            const modal = document.getElementById('confirmation-modal');
+            
+            if (!confirmationTitle || !confirmationMessage || !confirmBtn || !modal) return;
+            
+            confirmationTitle.textContent = title;
+            confirmationMessage.textContent = message;
+            
+            confirmBtn.onclick = function() {
+                callback();
+                closeModal('confirmation-modal');
+            };
+            
+            modal.style.display = 'block';
+        }
+
+        // Закрыть модальное окно
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.style.display = 'none';
+        }
+
+        // Вспомогательные функции
+        function openTab(evt, tabName) {
+            const tabcontent = document.getElementsByClassName('tabcontent');
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = 'none';
+            }
+            
+            const tablinks = document.getElementsByClassName('tablinks');
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(' active', '');
+            }
+            
+            const tabToOpen = document.getElementById(tabName);
+            if (tabToOpen) tabToOpen.style.display = 'block';
+            
+            if (evt && evt.currentTarget) {
+                evt.currentTarget.className += ' active';
+            }
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            const text = element.textContent || element.innerText;
+            
+            if (!text || text.trim() === '') {
+                showStatus('key-status', 'Нет данных для копирования', 'error');
+                return;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = element.textContent;
+                element.textContent = 'Скопировано в буфер обмена!';
+                
+                setTimeout(() => {
+                    element.textContent = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Ошибка копирования:', err);
+                showStatus('key-status', 'Ошибка при копировании', 'error');
+            });
+        }
+
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            element.textContent = message;
+            element.className = `status ${type}`;
+            element.style.display = 'block';
+            
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        function toggleBackToTopButton() {
+            const button = document.querySelector('.back-to-top');
+            if (!button) return;
+            
+            if (window.pageYOffset > 300) {
+                button.style.display = 'flex';
+            } else {
+                button.style.display = 'none';
+            }
+        }
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    </script>
+</body>
+</html>

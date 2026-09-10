@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Express.js - Безопасный веб-фреймворк для Node.js</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-image: url(2ed335b16e62c39b6d5b7725ff09d5e9.gif);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+            color: white;
+        }
+
+        header {
+            background: url(5a) no-repeat center center/cover;
+            color: #ffffff;
+            padding: 40px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+        }
+
+        header p {
+            font-size: 1.2em;
+            margin: 10px 0 20px;
+            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+        }
+
+        .home-button {
+            display: inline-block;
+            background-color: rgba(53, 66, 74, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+
+        .home-button:hover {
+            background-color: rgba(44, 62, 80, 0.9);
+            transform: scale(1.05);
+        }
+
+        main {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        section {
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.103);
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px #ccc;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            border: 2px solid rgb(0, 0, 0);
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card {
+            background: rgba(30, 30, 30, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4da6ff;
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background: rgba(40, 40, 40, 0.8);
+        }
+
+        h2, h3 {
+            color: #4da6ff;
+        }
+
+        .technology-icon {
+            margin-right: 10px;
+            color: #f3f3f3;
+            font-size: 1.5em;
+        }
+
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #abb2bf;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .keyword {
+            color: #c678dd;
+        }
+
+        .string {
+            color: #98c379;
+        }
+
+        .comment {
+            color: #5c6370;
+            font-style: italic;
+        }
+
+        .function {
+            color: #61afef;
+        }
+
+        .param {
+            color: #e06c75;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: -1px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: rgba(53, 66, 74, 0.7);
+            border: 1px solid #2d3e50;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            margin-right: 5px;
+            color: white;
+        }
+
+        .tab.active {
+            background: rgba(30, 30, 30, 0.7);
+            border-bottom: 1px solid rgba(30, 30, 30, 0.7);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: rgba(30, 30, 30, 0.7);
+            border: 1px solid #2d3e50;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .feature {
+            flex: 1;
+            min-width: 250px;
+            background: rgba(40, 40, 40, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted #666;
+            cursor: help;
+            color: #4da6ff;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 300px;
+            background-color: #333;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -150px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background: rgba(0, 0, 0, 0);
+            color: #ffffff;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(53, 66, 74, 0.9);
+            color: #ffffff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+            transition: all 0.3s;
+        }
+
+        .back-to-top:hover {
+            background: rgba(44, 62, 80, 0.9);
+            transform: scale(1.1);
+        }
+
+        .interactive-demo {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(40, 40, 40, 0.7);
+            border-radius: 8px;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .demo-controls input, .demo-controls button {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .demo-controls button {
+            background: #4da6ff;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .demo-controls button:hover {
+            background: #3a8bd6;
+        }
+
+        .demo-controls button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .demo-result {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            min-height: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-connected {
+            background: #4CAF50;
+            box-shadow: 0 0 5px #4CAF50;
+        }
+
+        .status-disconnected {
+            background: #F44336;
+        }
+
+        #ping-time {
+            color: #4da6ff;
+            font-size: 0.9em;
+            margin-left: 15px;
+        }
+
+        #ping-ms {
+            font-weight: bold;
+        }
+
+        .ping-excellent {
+            color: #4CAF50;
+        }
+
+        .ping-good {
+            color: #8BC34A;
+        }
+
+        .ping-fair {
+            color: #FFC107;
+        }
+
+        .ping-poor {
+            color: #FF9800;
+        }
+
+        .ping-bad {
+            color: #F44336;
+        }
+
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 30px 0;
+            }
+            
+            header h1 {
+                font-size: 2em;
+            }
+            
+            .home-button {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+            
+            .demo-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .demo-controls input, .demo-controls button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1><i class="fab fa-node-js technology-icon"></i> Express.js</h1>
+            <p>Минималистичный веб-фреймворк для Node.js с поддержкой middleware безопасности</p>
+            <a href="index.html" class="home-button">На главную</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="overview">
+            <h2><i class="fas fa-info-circle technology-icon"></i>Обзор технологии</h2>
+            <div class="card">
+                <p>Express.js — это минималистичный и гибкий веб-фреймворк для Node.js, предоставляющий robust набор функций для веб- и мобильных приложений с мощной системой middleware для обеспечения безопасности.</p>
+                
+                <div class="feature-list">
+                    <div class="feature">
+                        <h3><i class="fas fa-shield-alt"></i> Безопасность</h3>
+                        <p>Встроенная поддержка middleware для защиты от CSRF, XSS, инъекций и других атак.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <h3><i class="fas fa-tachometer-alt"></i> Производительность</h3>
+                        <p>Высокая скорость работы благодаря асинхронной природе Node.js.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <h3><i class="fas fa-puzzle-piece"></i> Расширяемость</h3>
+                        <p>Богатая экосистема middleware и плагинов для любых задач.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="configuration">
+            <h2><i class="fas fa-cog technology-icon"></i>Базовое приложение Express</h2>
+            
+            <div class="card">
+                <div class="tabs">
+                    <div class="tab active" onclick="openTab(event, 'basic-app')">Базовое приложение</div>
+                    <div class="tab" onclick="openTab(event, 'middleware')">Middleware</div>
+                    <div class="tab" onclick="openTab(event, 'security')">Безопасность</div>
+                </div>
+                
+                <div id="basic-app" class="tab-content active">
+                    <h3>Минимальное приложение Express</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="comment">// Установка Express</span><br>
+                        <span class="keyword">npm</span> install express<br><br>
+                        
+                        <span class="comment">// server.js</span><br>
+                        <span class="keyword">const</span> express = <span class="function">require</span>(<span class="string">'express'</span>);<br>
+                        <span class="keyword">const</span> app = <span class="function">express</span>();<br><br>
+                        
+                        <span class="comment">// Маршрут для главной страницы</span><br>
+                        app.<span class="function">get</span>(<span class="string">'/'</span>, (<span class="param">req</span>, <span class="param">res</span>) => {<br>
+                        &nbsp;&nbsp;res.<span class="function">send</span>(<span class="string">'Добро пожаловать в Express.js!'</span>);<br>
+                        });<br><br>
+                        
+                        <span class="comment">// Запуск сервера</span><br>
+                        <span class="keyword">const</span> PORT = process.env.PORT || 3000;<br>
+                        app.<span class="function">listen</span>(PORT, () => {<br>
+                        &nbsp;&nbsp;console.<span class="function">log</span>(<span class="string">`Сервер запущен на порту </span>${PORT}<span class="string">`</span>);<br>
+                        });
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация работы сервера</h4>
+                        <div class="demo-controls">
+                            <button id="start-server-btn">Запустить сервер</button>
+                            <button id="stop-server-btn" disabled>Остановить сервер</button>
+                            <span id="server-status"><span class="status-indicator status-disconnected"></span>Сервер остановлен</span>
+                        </div>
+                        <div class="demo-result" id="server-result"></div>
+                    </div>
+                    
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle"></i> Основные команды
+                        <div class="tooltiptext">
+                            <strong>Основные команды для работы с Express:</strong><br>
+                            - <code>npm init</code> - инициализация проекта<br>
+                            - <code>npm install express</code> - установка Express<br>
+                            - <code>node server.js</code> - запуск сервера<br>
+                            - <code>npm install nodemon --save-dev</code> - установка nodemon для автоматического перезапуска<br>
+                            - <code>nodemon server.js</code> - запуск с автоматическим перезапуском<br><br>
+                            
+                            <strong>Полезные расширения:</strong><br>
+                            - <code>express-generator</code> - генератор каркаса приложения<br>
+                            - <code>body-parser</code> - middleware для обработки тела запроса<br>
+                            - <code>helmet</code> - набор middleware для безопасности
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="middleware" class="tab-content">
+                    <h3>Использование Middleware</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="keyword">const</span> express = <span class="function">require</span>(<span class="string">'express'</span>);<br>
+                        <span class="keyword">const</span> app = <span class="function">express</span>();<br><br>
+                        
+                        <span class="comment">// Middleware для логирования</span><br>
+                        app.<span class="function">use</span>((<span class="param">req</span>, <span class="param">res</span>, <span class="param">next</span>) => {<br>
+                        &nbsp;&nbsp;console.<span class="function">log</span>(<span class="string">`</span>${new <span class="function">Date</span>().<span class="function">toISOString</span>()}<span class="string"> - </span>${req.method}<span class="string"> </span>${req.url}<span class="string">`</span>);<br>
+                        &nbsp;&nbsp;<span class="function">next</span>();<br>
+                        });<br><br>
+                        
+                        <span class="comment">// Middleware для обработки JSON</span><br>
+                        app.<span class="function">use</span>(express.<span class="function">json</span>());<br><br>
+                        
+                        <span class="comment">// Middleware для статических файлов</span><br>
+                        app.<span class="function">use</span>(express.<span class="function">static</span>(<span class="string">'public'</span>));<br><br>
+                        
+                        <span class="comment">// Обработка POST запроса</span><br>
+                        app.<span class="function">post</span>(<span class="string">'/api/data'</span>, (<span class="param">req</span>, <span class="param">res</span>) => {<br>
+                        &nbsp;&nbsp;<span class="keyword">const</span> data = req.body;<br>
+                        &nbsp;&nbsp;res.<span class="function">json</span>({ received: data });<br>
+                        });<br><br>
+                        
+                        app.<span class="function">listen</span>(3000);
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Тестирование Middleware</h4>
+                        <div class="demo-controls">
+                            <select id="middleware-select">
+                                <option value="json">JSON Middleware</option>
+                                <option value="static">Static Files</option>
+                                <option value="logger">Logger</option>
+                                <option value="error">Error Handler</option>
+                            </select>
+                            <button id="test-middleware-btn">Протестировать</button>
+                        </div>
+                        <div class="demo-result" id="middleware-result"></div>
+                    </div>
+                    
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle"></i> Популярные Middleware
+                        <div class="tooltiptext">
+                            <strong>Популярные middleware для Express:</strong><br>
+                            - <code>body-parser</code>: Парсинг тела запроса<br>
+                            - <code>cookie-parser</code>: Работа с cookies<br>
+                            - <code>compression</code>: Сжатие ответов<br>
+                            - <code>cors</code>: Включение CORS<br>
+                            - <code>helmet</code>: Безопасность HTTP-заголовков<br>
+                            - <code>morgan</code>: Логирование запросов<br>
+                            - <code>express-session</code>: Управление сессиями<br>
+                            - <code>csurf</code>: Защита от CSRF<br><br>
+                            
+                            <strong>Порядок middleware важен!</strong> Они выполняются в порядке их объявления.
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="security" class="tab-content">
+                    <h3>Безопасность в Express</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="keyword">const</span> express = <span class="function">require</span>(<span class="string">'express'</span>);<br>
+                        <span class="keyword">const</span> helmet = <span class="function">require</span>(<span class="string">'helmet'</span>);<br>
+                        <span class="keyword">const</span> rateLimit = <span class="function">require</span>(<span class="string">'express-rate-limit'</span>);<br>
+                        <span class="keyword">const</span> csrf = <span class="function">require</span>(<span class="string">'csurf'</span>);<br>
+                        <span class="keyword">const</span> cookieParser = <span class="function">require</span>(<span class="string">'cookie-parser'</span>);<br><br>
+                        
+                        <span class="keyword">const</span> app = <span class="function">express</span>();<br><br>
+                        
+                        <span class="comment">// Безопасные HTTP-заголовки</span><br>
+                        app.<span class="function">use</span>(<span class="function">helmet</span>());<br><br>
+                        
+                        <span class="comment">// Ограничение запросов</span><br>
+                        app.<span class="function">use</span>(<span class="function">rateLimit</span>({<br>
+                        &nbsp;&nbsp;windowMs: 15 * 60 * 1000, <span class="comment">// 15 минут</span><br>
+                        &nbsp;&nbsp;max: 100 <span class="comment">// максимум 100 запросов с одного IP</span><br>
+                        }));<br><br>
+                        
+                        <span class="comment">// Защита от CSRF</span><br>
+                        app.<span class="function">use</span>(<span class="function">cookieParser</span>());<br>
+                        app.<span class="function">use</span>(<span class="function">csrf</span>({ cookie: <span class="keyword">true</span> }));<br><br>
+                        
+                        <span class="comment">// Обработка POST с CSRF-токеном</span><br>
+                        app.<span class="function">post</span>(<span class="string">'/secure'</span>, (<span class="param">req</span>, <span class="param">res</span>) => {<br>
+                        &nbsp;&nbsp;<span class="keyword">if</span> (!req.csrfToken()) {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> res.<span class="function">status</span>(403).<span class="function">send</span>(<span class="string">'Неверный CSRF-токен'</span>);<br>
+                        &nbsp;&nbsp;}<br>
+                        &nbsp;&nbsp;res.<span class="function">send</span>(<span class="string">'Защищенный запрос выполнен'</span>);<br>
+                        });
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Проверка безопасности</h4>
+                        <div class="demo-controls">
+                            <button id="check-headers-btn">Проверить заголовки</button>
+                            <button id="test-csrf-btn">Тест CSRF</button>
+                            <button id="test-rate-limit-btn">Тест ограничения запросов</button>
+                        </div>
+                        <div class="demo-result" id="security-result"></div>
+                    </div>
+                    
+                    <div class="tooltip">
+                        <i class="fas fa-info-circle"></i> Рекомендации по безопасности
+                        <div class="tooltiptext">
+                            <strong>Основные рекомендации по безопасности:</strong><br>
+                            1. Всегда используйте <code>helmet</code> для безопасных заголовков<br>
+                            2. Ограничивайте запросы с помощью <code>express-rate-limit</code><br>
+                            3. Используйте HTTPS с помощью <code>express-enforces-ssl</code><br>
+                            4. Проверяйте входные данные (санитизация)<br>
+                            5. Используйте CSRF-токены для форм<br>
+                            6. Храните секреты в переменных окружения<br>
+                            7. Обновляйте зависимости (<code>npm audit</code>)<br>
+                            8. Используйте ORM/ODM для защиты от инъекций<br>
+                            9. Настройте CORS только для нужных доменов<br>
+                            10. Используйте куки с флагами Secure и HttpOnly
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="examples">
+            <h2><i class="fas fa-code technology-icon"></i>Примеры приложений</h2>
+            
+            <div class="card">
+                <div class="tabs">
+                    <div class="tab active" onclick="openTab(event, 'rest-api')">REST API</div>
+                    <div class="tab" onclick="openTab(event, 'auth')">Аутентификация</div>
+                    <div class="tab" onclick="openTab(event, 'websocket')">WebSocket</div>
+                </div>
+                
+                <div id="rest-api" class="tab-content active">
+                    <h3>Создание REST API</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="keyword">const</span> express = <span class="function">require</span>(<span class="string">'express'</span>);<br>
+                        <span class="keyword">const</span> app = <span class="function">express</span>();<br>
+                        app.<span class="function">use</span>(express.<span class="function">json</span>());<br><br>
+                        
+                        <span class="comment">// "База данных"</span><br>
+                        <span class="keyword">let</span> products = [<br>
+                        &nbsp;&nbsp;{ id: 1, name: <span class="string">'Ноутбук'</span>, price: 50000 },<br>
+                        &nbsp;&nbsp;{ id: 2, name: <span class="string">'Смартфон'</span>, price: 30000 }<br>
+                        ];<br><br>
+                        
+                        <span class="comment">// GET /api/products</span><br>
+                        app.<span class="function">get</span>(<span class="string">'/api/products'</span>, (<span class="param">req</span>, <span class="param">res</span>) => {<br>
+                        &nbsp;&nbsp;res.<span class="function">json</span>(products);<br>
+                        });<br><br>
+                        
+                        <span class="comment">// GET /api/products/:id</span><br>
+                        app.<span class="function">get</span>(<span class="string">'/api/products/:id'</span>, (<span class="param">req</span>, <span class="param">res</span>) => {<br>
+                        &nbsp;&nbsp;<span class="keyword">const</span> product = products.<span class="function">find</span>(p => p.id === <span class="function">parseInt</span>(req.params.id));<br>
+                        &nbsp;&nbsp;<span class="keyword">if</span> (!product) <span class="keyword">return</span> res.<span class="function">status</span>(404).<span class="function">send</span>(<span class="string">'Продукт не найден'</span>);<br>
+                        &nbsp;&nbsp;res.<span class="function">json</span>(product);<br>
+                        });<br><br>
+                        
+                        <span class="comment">// POST /api/products</span><br>
+                        app.<span class="function">post</span>(<span class="string">'/api/products'</span>, (<span class="param">req</span>, <span class="param">res</span>) => {<br>
+                        &nbsp;&nbsp;<span class="keyword">const</span> product = {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;id: products.<span class="function">length</span> + 1,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;name: req.body.name,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;price: req.body.price<br>
+                        &nbsp;&nbsp;};<br>
+                        &nbsp;&nbsp;products.<span class="function">push</span>(product);<br>
+                        &nbsp;&nbsp;res.<span class="function">status</span>(201).<span class="function">json</span>(product);<br>
+                        });<br><br>
+                        
+                        <span class="comment">// PUT /api/products/:id</span><br>
+                        app.<span class="function">put</span>(<span class="string">'/api/products/:id'</span>, (<span class="param">req</span>, <span class="param">res</span>) => {<br>
+                        &nbsp;&nbsp;<span class="keyword">const</span> product = products.<span class="function">find</span>(p => p.id === <span class="function">parseInt</span>(req.params.id));<br>
+                        &nbsp;&nbsp;<span class="keyword">if</span> (!product) <span class="keyword">return</span> res.<span class="function">status</span>(404).<span class="function">send</span>(<span class="string">'Продукт не найден'</span>);<br>
+                        &nbsp;&nbsp;product.name = req.body.name;<br>
+                        &nbsp;&nbsp;product.price = req.body.price;<br>
+                        &nbsp;&nbsp;res.<span class="function">json</span>(product);<br>
+                        });<br><br>
+                        
+                        <span class="comment">// DELETE /api/products/:id</span><br>
+                        app.<span class="function">delete</span>(<span class="string">'/api/products/:id'</span>, (<span class="param">req</span>, <span class="param">res</span>) => {<br>
+                        &nbsp;&nbsp;products = products.<span class="function">filter</span>(p => p.id !== <span class="function">parseInt</span>(req.params.id));<br>
+                        &nbsp;&nbsp;res.<span class="function">status</span>(204).<span class="function">send</span>();<br>
+                        });<br><br>
+                        
+                        <span class="keyword">const</span> PORT = process.env.PORT || 3000;<br>
+                        app.<span class="function">listen</span>(PORT, () => console.<span class="function">log</span>(<span class="string">`Сервер запущен на порту </span>${PORT}<span class="string">`</span>));
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Тестирование API</h4>
+                        <div class="demo-controls">
+                            <select id="api-method">
+                                <option value="GET">GET</option>
+                                <option value="POST">POST</option>
+                                <option value="PUT">PUT</option>
+                                <option value="DELETE">DELETE</option>
+                            </select>
+                            <input type="text" id="api-url" placeholder="/api/products" style="flex-grow: 1;">
+                            <button id="send-api-request">Отправить</button>
+                        </div>
+                        <div class="demo-result" id="api-result"></div>
+                    </div>
+                </div>
+                
+                <div id="auth" class="tab-content">
+                    <h3>Аутентификация в Express</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="keyword">const</span> express = <span class="function">require</span>(<span class="string">'express'</span>);<br>
+                        <span class="keyword">const</span> bcrypt = <span class="function">require</span>(<span class="string">'bcrypt'</span>);<br>
+                        <span class="keyword">const</span> jwt = <span class="function">require</span>(<span class="string">'jsonwebtoken'</span>);<br>
+                        <span class="keyword">const</span> app = <span class="function">express</span>();<br><br>
+                        
+                        app.<span class="function">use</span>(express.<span class="function">json</span>());<br><br>
+                        
+                        <span class="comment">// "База данных" пользователей</span><br>
+                        <span class="keyword">const</span> users = [];<br><br>
+                        
+                        <span class="comment">// Регистрация</span><br>
+                        app.<span class="function">post</span>(<span class="string">'/api/register'</span>, <span class="keyword">async</span> (<span class="param">req</span>, <span class="param">res</span>) => {<br>
+                        &nbsp;&nbsp;<span class="keyword">try</span> {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">const</span> hashedPassword = <span class="keyword">await</span> bcrypt.<span class="function">hash</span>(req.body.password, 10);<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">const</span> user = {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id: <span class="function">Date</span>.<span class="function">now</span>().<span class="function">toString</span>(),<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: req.body.name,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;email: req.body.email,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password: hashedPassword<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;};<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;users.<span class="function">push</span>(user);<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;res.<span class="function">status</span>(201).<span class="function">send</span>();<br>
+                        &nbsp;&nbsp;} <span class="keyword">catch</span> {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;res.<span class="function">status</span>(500).<span class="function">send</span>();<br>
+                        &nbsp;&nbsp;}<br>
+                        });<br><br>
+                        
+                        <span class="comment">// Вход</span><br>
+                        app.<span class="function">post</span>(<span class="string">'/api/login'</span>, <span class="keyword">async</span> (<span class="param">req</span>, <span class="param">res</span>) => {<br>
+                        &nbsp;&nbsp;<span class="keyword">const</span> user = users.<span class="function">find</span>(u => u.email === req.body.email);<br>
+                        &nbsp;&nbsp;<span class="keyword">if</span> (!user) <span class="keyword">return</span> res.<span class="function">status</span>(400).<span class="function">send</span>(<span class="string">'Пользователь не найден'</span>);<br>
+                        &nbsp;&nbsp;<span class="keyword">try</span> {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> (<span class="keyword">await</span> bcrypt.<span class="function">compare</span>(req.body.password, user.password)) {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">const</span> accessToken = jwt.<span class="function">sign</span>(<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ id: user.id, name: user.name },<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;process.env.ACCESS_TOKEN_SECRET,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ expiresIn: <span class="string">'15m'</span> }<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;);<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.<span class="function">json</span>({ accessToken });<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;} <span class="keyword">else</span> {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res.<span class="function">send</span>(<span class="string">'Неверный пароль'</span>);<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                        &nbsp;&nbsp;} <span class="keyword">catch</span> {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;res.<span class="function">status</span>(500).<span class="function">send</span>();<br>
+                        &nbsp;&nbsp;}<br>
+                        });<br><br>
+                        
+                        <span class="comment">// Защищенный маршрут</span><br>
+                        app.<span class="function">get</span>(<span class="string">'/api/profile'</span>, <span class="function">authenticateToken</span>, (<span class="param">req</span>, <span class="param">res</span>) => {<br>
+                        &nbsp;&nbsp;res.<span class="function">json</span>(users.<span class="function">find</span>(u => u.id === req.user.id));<br>
+                        });<br><br>
+                        
+                        <span class="keyword">function</span> <span class="function">authenticateToken</span>(<span class="param">req</span>, <span class="param">res</span>, <span class="param">next</span>) {<br>
+                        &nbsp;&nbsp;<span class="keyword">const</span> authHeader = req.headers[<span class="string">'authorization'</span>];<br>
+                        &nbsp;&nbsp;<span class="keyword">const</span> token = authHeader && authHeader.<span class="function">split</span>(<span class="string">' '</span>)[1];<br>
+                        &nbsp;&nbsp;<span class="keyword">if</span> (!token) <span class="keyword">return</span> res.<span class="function">sendStatus</span>(401);<br>
+                        &nbsp;&nbsp;jwt.<span class="function">verify</span>(token, process.env.ACCESS_TOKEN_SECRET, (<span class="param">err</span>, <span class="param">user</span>) => {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> (err) <span class="keyword">return</span> res.<span class="function">sendStatus</span>(403);<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;req.user = user;<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="function">next</span>();<br>
+                        &nbsp;&nbsp;});<br>
+                        }<br><br>
+                        
+                        app.<span class="function">listen</span>(3000);
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация аутентификации</h4>
+                        <div class="demo-controls">
+                            <button id="register-btn">Регистрация</button>
+                            <button id="login-btn">Вход</button>
+                            <button id="profile-btn" disabled>Профиль</button>
+                            <span id="auth-status">Не авторизован</span>
+                        </div>
+                        <div class="demo-result" id="auth-result"></div>
+                    </div>
+                </div>
+                
+                <div id="websocket" class="tab-content">
+                    <h3>WebSocket с Express</h3>
+                    
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                        <span class="keyword">const</span> express = <span class="function">require</span>(<span class="string">'express'</span>);<br>
+                        <span class="keyword">const</span> http = <span class="function">require</span>(<span class="string">'http'</span>);<br>
+                        <span class="keyword">const</span> WebSocket = <span class="function">require</span>(<span class="string">'ws'</span>);<br><br>
+                        
+                        <span class="keyword">const</span> app = <span class="function">express</span>();<br>
+                        <span class="keyword">const</span> server = http.<span class="function">createServer</span>(app);<br>
+                        <span class="keyword">const</span> wss = <span class="keyword">new</span> <span class="function">WebSocket.Server</span>({ server });<br><br>
+                        
+                        <span class="comment">// HTTP маршрут</span><br>
+                        app.<span class="function">get</span>(<span class="string">'/'</span>, (<span class="param">req</span>, <span class="param">res</span>) => {<br>
+                        &nbsp;&nbsp;res.<span class="function">sendFile</span>(<span class="string">'index.html'</span>, { root: __dirname });<br>
+                        });<br><br>
+                        
+                        <span class="comment">// WebSocket соединения</span><br>
+                        wss.<span class="function">on</span>(<span class="string">'connection'</span>, (<span class="param">ws</span>) => {<br>
+                        &nbsp;&nbsp;console.<span class="function">log</span>(<span class="string">'Новое соединение'</span>);<br>
+                        &nbsp;&nbsp;ws.<span class="function">on</span>(<span class="string">'message'</span>, (<span class="param">message</span>) => {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;console.<span class="function">log</span>(<span class="string">'Получено: '</span>, message);<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// Отправить сообщение всем клиентам</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;wss.<span class="function">clients</span>.<span class="function">forEach</span>(<span class="param">client</span> => {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> (client.readyState === WebSocket.OPEN) {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;client.<span class="function">send</span>(message);<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;});<br>
+                        &nbsp;&nbsp;});<br>
+                        &nbsp;&nbsp;ws.<span class="function">send</span>(<span class="string">'Добро пожаловать в чат!'</span>);<br>
+                        });<br><br>
+                        
+                        server.<span class="function">listen</span>(3000, () => {<br>
+                        &nbsp;&nbsp;console.<span class="function">log</span>(<span class="string">'Сервер запущен на порту 3000'</span>);<br>
+                        });
+                    </div>
+                    
+                    <div class="interactive-demo">
+                        <h4>Демонстрация WebSocket</h4>
+                        <div class="demo-controls">
+                            <button id="connect-ws-btn">Подключиться</button>
+                            <button id="disconnect-ws-btn" disabled>Отключиться</button>
+                            <input type="text" id="ws-message" placeholder="Сообщение">
+                            <button id="send-ws-btn" disabled>Отправить</button>
+                        </div>
+                        <div class="demo-result" id="ws-result"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="best-practices">
+            <h2><i class="fas fa-shield-alt technology-icon"></i>Лучшие практики</h2>
+            
+            <div class="card">
+                <div class="feature-list">
+                    <div class="feature">
+                        <h3><i class="fas fa-lock"></i> Безопасность</h3>
+                        <ul>
+                            <li>Всегда используйте HTTPS</li>
+                            <li>Храните секреты в переменных окружения</li>
+                            <li>Регулярно обновляйте зависимости</li>
+                            <li>Используйте helmet для HTTP-заголовков</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature">
+                        <h3><i class="fas fa-tachometer-alt"></i> Производительность</h3>
+                        <ul>
+                            <li>Используйте gzip сжатие</li>
+                            <li>Кэшируйте статические файлы</li>
+                            <li>Оптимизируйте запросы к БД</li>
+                            <li>Используйте кластеризацию для многоядерных CPU</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature">
+                        <h3><i class="fas fa-code"></i> Код</h3>
+                        <ul>
+                            <li>Разделяйте код на модули</li>
+                            <li>Используйте middleware для общих задач</li>
+                            <li>Обрабатывайте ошибки централизованно</li>
+                            <li>Пишите тесты для API</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+                    <span class="comment">// Пример структуры проекта</span><br>
+                    project/<br>
+                    ├── config/         <span class="comment"># Конфигурации</span><br>
+                    │   ├── db.js       <span class="comment"># Настройки БД</span><br>
+                    │   └── passport.js <span class="comment"># Настройки аутентификации</span><br>
+                    ├── controllers/    <span class="comment"># Контроллеры</span><br>
+                    ├── middleware/     <span class="comment"># Пользовательские middleware</span><br>
+                    ├── models/         <span class="comment"># Модели данных</span><br>
+                    ├── routes/         <span class="comment"># Маршруты</span><br>
+                    ├── services/       <span class="comment"># Бизнес-логика</span><br>
+                    ├── public/         <span class="comment"># Статические файлы</span><br>
+                    ├── tests/          <span class="comment"># Тесты</span><br>
+                    ├── app.js          <span class="comment"># Основной файл приложения</span><br>
+                    └── server.js       <span class="comment"># Точка входа</span>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h4>Генератор Express приложения</h4>
+                    <div class="demo-controls">
+                        <input type="text" id="app-name" placeholder="Название приложения" style="flex-grow: 1;">
+                        <button id="generate-app-btn">Сгенерировать</button>
+                    </div>
+                    <div class="demo-result" id="generator-result"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Системы кибербезопасности. Все права защищены.</p>
+    </footer>
+
+    <button class="back-to-top" onclick="scrollToTop()">Наверх</button>
+
+    <script>
+        // Глобальное состояние для демонстраций
+        const demoState = {
+            serverRunning: false,
+            users: [],
+            currentUser: null,
+            wsConnection: null,
+            products: [
+                { id: 1, name: 'Ноутбук', price: 50000 },
+                { id: 2, name: 'Смартфон', price: 30000 }
+            ],
+            securityHeaders: {
+                'X-Content-Type-Options': 'nosniff',
+                'X-Frame-Options': 'DENY',
+                'X-XSS-Protection': '1; mode=block',
+                'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+                'Content-Security-Policy': "default-src 'self'"
+            },
+            requestCount: 0,
+            lastRequestTime: null
+        };
+    
+        // Инициализация при загрузке страницы
+        document.addEventListener("DOMContentLoaded", function() {
+            // Инициализация вкладок
+            const firstTab = document.querySelector(".tab");
+            if (firstTab) firstTab.click();
+            
+            // Показываем первую секцию сразу
+            document.querySelector("section").classList.add('visible');
+            
+            // Настройка обработчиков событий
+            setupEventListeners();
+            
+            // Инициализация tooltips
+            initTooltips();
+        });
+    
+        function initTooltips() {
+            // Добавляем обработчики для всех элементов с классом tooltip
+            document.querySelectorAll('.tooltip').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    // Закрываем все открытые tooltips
+                    document.querySelectorAll('.tooltip .tooltiptext').forEach(t => {
+                        t.style.visibility = 'hidden';
+                    });
+                    // Показываем текущий
+                    this.querySelector('.tooltiptext').style.visibility = 'visible';
+                });
+            });
+    
+            // Закрываем tooltips при клике вне их
+            document.addEventListener('click', function() {
+                document.querySelectorAll('.tooltip .tooltiptext').forEach(t => {
+                    t.style.visibility = 'hidden';
+                });
+            });
+        }
+    
+        function setupEventListeners() {
+            // Управление сервером
+            document.getElementById('start-server-btn').addEventListener('click', startServer);
+            document.getElementById('stop-server-btn').addEventListener('click', stopServer);
+            
+            // Middleware
+            document.getElementById('test-middleware-btn').addEventListener('click', testMiddleware);
+            
+            // Безопасность
+            document.getElementById('check-headers-btn').addEventListener('click', checkHeaders);
+            document.getElementById('test-csrf-btn').addEventListener('click', testCSRF);
+            document.getElementById('test-rate-limit-btn').addEventListener('click', testRateLimit);
+            
+            // REST API
+            document.getElementById('send-api-request').addEventListener('click', sendApiRequest);
+            
+            // Аутентификация
+            document.getElementById('register-btn').addEventListener('click', registerUser);
+            document.getElementById('login-btn').addEventListener('click', loginUser);
+            document.getElementById('profile-btn').addEventListener('click', getProfile);
+            
+            // WebSocket
+            document.getElementById('connect-ws-btn').addEventListener('click', connectWebSocket);
+            document.getElementById('disconnect-ws-btn').addEventListener('click', disconnectWebSocket);
+            document.getElementById('send-ws-btn').addEventListener('click', sendWsMessage);
+            document.getElementById('ws-message').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendWsMessage();
+            });
+            
+            // Генератор приложения
+            document.getElementById('generate-app-btn').addEventListener('click', generateApp);
+            
+            // Кнопка "Наверх"
+            window.onscroll = handleScroll;
+            document.querySelector('.back-to-top').addEventListener('click', scrollToTop);
+        }
+    
+        function startServer() {
+            const statusElement = document.getElementById('server-status');
+            const resultElement = document.getElementById('server-result');
+            const startBtn = document.getElementById('start-server-btn');
+            const stopBtn = document.getElementById('stop-server-btn');
+            
+            startBtn.disabled = true;
+            statusElement.innerHTML = '<span class="status-indicator loading"></span>Запуск сервера...';
+            
+            setTimeout(() => {
+                demoState.serverRunning = true;
+                statusElement.innerHTML = '<span class="status-indicator status-connected"></span>Сервер запущен на порту 3000';
+                resultElement.textContent = 'Express сервер успешно запущен\nДоступные маршруты:\n- GET /\n- GET /api/products\n- POST /api/products\n- PUT /api/products/:id\n- DELETE /api/products/:id';
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+            }, 1000);
+        }
+    
+        function stopServer() {
+            const statusElement = document.getElementById('server-status');
+            const resultElement = document.getElementById('server-result');
+            const startBtn = document.getElementById('start-server-btn');
+            const stopBtn = document.getElementById('stop-server-btn');
+            
+            stopBtn.disabled = true;
+            statusElement.innerHTML = '<span class="status-indicator loading"></span>Остановка сервера...';
+            
+            setTimeout(() => {
+                demoState.serverRunning = false;
+                statusElement.innerHTML = '<span class="status-indicator status-disconnected"></span>Сервер остановлен';
+                resultElement.textContent = 'Сервер Express успешно остановлен';
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+            }, 800);
+        }
+    
+        function testMiddleware() {
+            const middlewareType = document.getElementById('middleware-select').value;
+            const resultElement = document.getElementById('middleware-result');
+            
+            resultElement.textContent = 'Тестирование middleware...';
+            resultElement.classList.add('loading');
+            
+            setTimeout(() => {
+                let result = '';
+                switch(middlewareType) {
+                    case 'json':
+                        result = 'JSON middleware успешно обработал запрос\nТело запроса преобразовано в JavaScript объект';
+                        break;
+                    case 'static':
+                        result = 'Static middleware обслуживает файлы из папки "public"\nНапример: /styles.css -> public/styles.css';
+                        break;
+                    case 'logger':
+                        result = 'Лог запроса:\n' + new Date().toISOString() + ' - GET /test-middleware';
+                        break;
+                    case 'error':
+                        result = 'Обработчик ошибок перехватил исключение:\nError: Тестовая ошибка middleware';
+                        break;
+                }
+                
+                resultElement.textContent = result;
+                resultElement.classList.remove('loading');
+            }, 600);
+        }
+    
+        function checkHeaders() {
+            const resultElement = document.getElementById('security-result');
+            resultElement.innerHTML = '<strong>Проверка HTTP-заголовков безопасности:</strong>\n';
+            resultElement.classList.add('loading');
+            
+            setTimeout(() => {
+                for (const [header, value] of Object.entries(demoState.securityHeaders)) {
+                    resultElement.textContent += `${header}: ${value}\n`;
+                }
+                
+                resultElement.textContent += '\nВсе рекомендуемые заголовки безопасности установлены';
+                resultElement.classList.remove('loading');
+            }, 700);
+        }
+    
+        function testCSRF() {
+            const resultElement = document.getElementById('security-result');
+            resultElement.textContent = 'Тестирование CSRF защиты...';
+            resultElement.classList.add('loading');
+            
+            setTimeout(() => {
+                const isSuccess = Math.random() > 0.3;
+                if (isSuccess) {
+                    resultElement.textContent = 'CSRF защита успешно сработала:\n- Проверен CSRF-токен\n- Токен валиден\n- Запрос выполнен';
+                } else {
+                    resultElement.textContent = 'CSRF защита заблокировала запрос:\n- Неверный или отсутствующий CSRF-токен\n- HTTP статус: 403 Forbidden';
+                }
+                resultElement.classList.remove('loading');
+            }, 800);
+        }
+    
+        function testRateLimit() {
+            const resultElement = document.getElementById('security-result');
+            demoState.requestCount++;
+            const now = new Date();
+            
+            if (demoState.lastRequestTime && (now - demoState.lastRequestTime) < 1000) {
+                if (demoState.requestCount > 5) {
+                    resultElement.textContent = 'Ошибка 429: Слишком много запросов\nПопробуйте снова через 15 минут';
+                    return;
+                }
+            } else {
+                demoState.requestCount = 1;
+            }
+            
+            demoState.lastRequestTime = now;
+            resultElement.textContent = `Запрос выполнен (${demoState.requestCount}/5 запросов в секунду)`;
+        }
+    
+        function sendApiRequest() {
+            if (!demoState.serverRunning) {
+                document.getElementById('api-result').textContent = 'Ошибка: сервер не запущен';
+                return;
+            }
+            
+            const method = document.getElementById('api-method').value;
+            const url = document.getElementById('api-url').value || '/api/products';
+            const resultElement = document.getElementById('api-result');
+            
+            resultElement.textContent = `Отправка ${method} запроса на ${url}...`;
+            resultElement.classList.add('loading');
+            
+            setTimeout(() => {
+                let response;
+                if (url.includes('/api/products')) {
+                    if (method === 'GET' && !url.includes('/api/products/')) {
+                        response = demoState.products;
+                    } else if (method === 'GET' && url.includes('/api/products/')) {
+                        const id = parseInt(url.split('/').pop());
+                        const product = demoState.products.find(p => p.id === id);
+                        response = product || { error: 'Продукт не найден' };
+                    } else if (method === 'POST') {
+                        const newProduct = {
+                            id: demoState.products.length + 1,
+                            name: 'Новый продукт',
+                            price: 10000
+                        };
+                        demoState.products.push(newProduct);
+                        response = newProduct;
+                    } else if (method === 'PUT') {
+                        const id = parseInt(url.split('/').pop());
+                        const product = demoState.products.find(p => p.id === id);
+                        if (product) {
+                            product.name = 'Обновленный продукт';
+                            product.price = 15000;
+                            response = product;
+                        } else {
+                            response = { error: 'Продукт не найден' };
+                        }
+                    } else if (method === 'DELETE') {
+                        const id = parseInt(url.split('/').pop());
+                        demoState.products = demoState.products.filter(p => p.id !== id);
+                        response = { message: 'Продукт удален' };
+                    }
+                } else {
+                    response = { error: 'Маршрут не найден' };
+                }
+                
+                resultElement.textContent = `${method} ${url}\nСтатус: 200 OK\nОтвет:\n${JSON.stringify(response, null, 2)}`;
+                resultElement.classList.remove('loading');
+            }, 500);
+        }
+    
+        function registerUser() {
+            const resultElement = document.getElementById('auth-result');
+            const profileBtn = document.getElementById('profile-btn');
+            
+            resultElement.textContent = 'Регистрация нового пользователя...';
+            resultElement.classList.add('loading');
+            
+            setTimeout(() => {
+                const newUser = {
+                    id: Date.now().toString(),
+                    name: 'Тестовый пользователь',
+                    email: `user${demoState.users.length + 1}@example.com`,
+                    password: 'hashed_password_' + Math.random().toString(36).substr(2)
+                };
+                
+                demoState.users.push(newUser);
+                resultElement.textContent = `Пользователь успешно зарегистрирован:\nEmail: ${newUser.email}\nID: ${newUser.id}`;
+                resultElement.classList.remove('loading');
+                
+                // В демо-режиме автоматически входим после регистрации
+                loginUser();
+            }, 800);
+        }
+    
+        function loginUser() {
+            const resultElement = document.getElementById('auth-result');
+            const authStatus = document.getElementById('auth-status');
+            const loginBtn = document.getElementById('login-btn');
+            const profileBtn = document.getElementById('profile-btn');
+            
+            if (demoState.users.length === 0) {
+                resultElement.textContent = 'Нет зарегистрированных пользователей. Сначала зарегистрируйтесь.';
+                return;
+            }
+            
+            resultElement.textContent = 'Выполнение входа...';
+            resultElement.classList.add('loading');
+            
+            setTimeout(() => {
+                demoState.currentUser = demoState.users[0];
+                demoState.currentUser.token = 'fake_jwt_token_' + Math.random().toString(36).substr(2, 10);
+                
+                resultElement.textContent = `Вход выполнен успешно\nТокен доступа: ${demoState.currentUser.token}`;
+                resultElement.classList.remove('loading');
+                
+                authStatus.textContent = `Авторизован как ${demoState.currentUser.email}`;
+                loginBtn.disabled = true;
+                profileBtn.disabled = false;
+            }, 700);
+        }
+    
+        function getProfile() {
+            const resultElement = document.getElementById('auth-result');
+            
+            resultElement.textContent = 'Запрос профиля пользователя...';
+            resultElement.classList.add('loading');
+            
+            setTimeout(() => {
+                if (!demoState.currentUser) {
+                    resultElement.textContent = 'Ошибка: пользователь не авторизован';
+                    resultElement.classList.remove('loading');
+                    return;
+                }
+                
+                resultElement.textContent = `Данные профиля:\nID: ${demoState.currentUser.id}\nИмя: ${demoState.currentUser.name}\nEmail: ${demoState.currentUser.email}`;
+                resultElement.classList.remove('loading');
+            }, 600);
+        }
+    
+        function connectWebSocket() {
+            const resultElement = document.getElementById('ws-result');
+            const connectBtn = document.getElementById('connect-ws-btn');
+            const disconnectBtn = document.getElementById('disconnect-ws-btn');
+            const sendBtn = document.getElementById('send-ws-btn');
+            
+            resultElement.textContent = 'Установка WebSocket соединения...';
+            resultElement.classList.add('loading');
+            
+            setTimeout(() => {
+                demoState.wsConnection = {
+                    send: function(msg) {
+                        const message = `[${new Date().toLocaleTimeString()}] Сервер: ${msg}`;
+                        const div = document.createElement('div');
+                        div.textContent = message;
+                        resultElement.appendChild(div);
+                    },
+                    close: function() {
+                        resultElement.textContent += '\nСоединение закрыто';
+                        connectBtn.disabled = false;
+                        disconnectBtn.disabled = true;
+                        sendBtn.disabled = true;
+                    }
+                };
+                
+                resultElement.textContent = 'WebSocket соединение установлено\nОжидание сообщений...';
+                resultElement.classList.remove('loading');
+                
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                sendBtn.disabled = false;
+                
+                // Имитация приветственного сообщения
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.textContent = '[Сервер] Добро пожаловать в чат!';
+                    resultElement.appendChild(div);
+                }, 500);
+            }, 800);
+        }
+    
+        function disconnectWebSocket() {
+            if (demoState.wsConnection) {
+                demoState.wsConnection.close();
+                demoState.wsConnection = null;
+            }
+        }
+    
+        function sendWsMessage() {
+            const messageInput = document.getElementById('ws-message');
+            const message = messageInput.value.trim();
+            const resultElement = document.getElementById('ws-result');
+            
+            if (!message) return;
+            
+            if (demoState.wsConnection) {
+                const div = document.createElement('div');
+                div.textContent = `[${new Date().toLocaleTimeString()}] Вы: ${message}`;
+                resultElement.appendChild(div);
+                
+                // Имитация ответа
+                setTimeout(() => {
+                    const responses = [
+                        'Привет! Как дела?',
+                        'Ваше сообщение получено',
+                        'Сервер обрабатывает ваш запрос',
+                        'Понял вас, что-то еще?',
+                        'Извините, я всего лишь демо-чат'
+                    ];
+                    const response = responses[Math.floor(Math.random() * responses.length)];
+                    
+                    const div = document.createElement('div');
+                    div.textContent = `[${new Date().toLocaleTimeString()}] Сервер: ${response}`;
+                    resultElement.appendChild(div);
+                }, 500);
+                
+                messageInput.value = '';
+            }
+        }
+    
+        function generateApp() {
+            const appName = document.getElementById('app-name').value.trim() || 'my-express-app';
+            const resultElement = document.getElementById('generator-result');
+            
+            resultElement.textContent = 'Генерация Express приложения...';
+            resultElement.classList.add('loading');
+            
+            setTimeout(() => {
+                resultElement.innerHTML = `
+                    <strong>Сгенерировано Express приложение "${appName}"</strong>
+                    <div style="margin-top: 10px;">
+                        <div>1. Создана структура папок</div>
+                        <div>2. Установлены базовые зависимости</div>
+                        <div>3. Настроены основные маршруты</div>
+                        <div>4. Добавлены middleware безопасности</div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <strong>Следующие шаги:</strong>
+                        <div style="margin-top: 5px;">
+                            <code>cd ${appName} && npm install && npm start</code>
+                        </div>
+                    </div>
+                    <button class="demo-button" style="margin-top: 15px;" onclick="downloadDemoApp()">
+                        <i class="fas fa-download"></i> Скачать демо-приложение
+                    </button>
+                `;
+                resultElement.classList.remove('loading');
+            }, 1000);
+        }
+    
+        function downloadDemoApp() {
+            alert('В реальном приложении здесь была бы загрузка ZIP-архива сгенерированного приложения');
+        }
+    
+        function handleScroll() {
+            const button = document.querySelector('.back-to-top');
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                button.style.display = "block";
+            } else {
+                button.style.display = "none";
+            }
+    
+            // Анимация появления секций при скролле
+            const sections = document.querySelectorAll("section");
+            sections.forEach(section => {
+                const sectionTop = section.getBoundingClientRect().top;
+                if (sectionTop < window.innerHeight - 100) {
+                    section.classList.add('visible');
+                }
+            });
+        }
+    
+        function scrollToTop() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+    
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+            
+            const tabs = document.getElementsByClassName("tab");
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove("active");
+            }
+            
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+        
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const range = document.createRange();
+            range.selectNode(codeBlock);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    const originalText = btn.textContent;
+                    btn.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error('Ошибка при копировании:', err);
+            }
+            
+            window.getSelection().removeAllRanges();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberFirewall Pro | Системы кибербезопасности</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-image: url(2ed335b16e62c39b6d5b7725ff09d5e9.gif);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+            color: rgb(255, 255, 255);
+        }
+
+        header {
+            background: url(5a) no-repeat center center/cover;
+            color: #ffffff;
+            padding: 40px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 3px solid #4da6ff;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+        }
+
+        header p {
+            font-size: 1.2em;
+            margin: 10px 0 20px;
+            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+            text-decoration: none;
+        }
+
+        main {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        section {
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.103);
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            border: 2px solid rgba(0, 0, 0, 0.3);
+        }
+
+        section:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02) translateY(0);
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.25);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4da6ff;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background: rgba(77, 166, 255, 0.8);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background: rgba(59, 140, 196, 0.9);
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(77, 166, 255, 0.5);
+        }
+
+        .btn-danger {
+            background: rgba(231, 76, 60, 0.8);
+        }
+
+        .btn-danger:hover {
+            background: rgba(192, 57, 43, 0.9);
+        }
+
+        .btn-success {
+            background: rgba(46, 204, 113, 0.8);
+        }
+
+        .btn-success:hover {
+            background: rgba(39, 174, 96, 0.9);
+        }
+
+        .btn-warning {
+            background: rgba(241, 196, 15, 0.8);
+        }
+
+        .btn-warning:hover {
+            background: rgba(243, 156, 18, 0.9);
+        }
+
+        .btn-info {
+            background: rgba(52, 152, 219, 0.8);
+        }
+
+        .btn-info:hover {
+            background: rgba(41, 128, 185, 0.9);
+        }
+
+        input, select, textarea {
+            width: calc(100% - 24px);
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            font-size: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #4da6ff;
+            box-shadow: 0 0 10px rgba(77, 166, 255, 0.5);
+        }
+
+        .rule-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .rule-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #f39c12;
+            transition: all 0.3s;
+        }
+
+        .rule-item:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .rule-item.allowed {
+            border-left-color: #2ecc71;
+        }
+
+        .rule-item.denied {
+            border-left-color: #e74c3c;
+        }
+
+        .traffic-log {
+            height: 300px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .log-entry:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .log-entry.allowed {
+            color: #2ecc71;
+        }
+
+        .log-entry.denied {
+            color: #e74c3c;
+        }
+
+        .log-entry.info {
+            color: #3498db;
+        }
+
+        .log-entry.warning {
+            color: #f39c12;
+        }
+
+        .log-entry.system {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            transition: all 0.3s;
+        }
+
+        .status-active {
+            background: #2ecc71;
+            box-shadow: 0 0 8px #2ecc71;
+            animation: pulse 2s infinite;
+        }
+
+        .status-inactive {
+            background: #e74c3c;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 150px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            border-left: 4px solid #4da6ff;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 5px 0;
+            color: white;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4da6ff;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transform: translateX(200%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: #2ecc71;
+        }
+
+        .notification.error {
+            background: #e74c3c;
+        }
+
+        .notification.warning {
+            background: #f39c12;
+        }
+
+        .notification.info {
+            background: #3498db;
+        }
+
+        .columns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .column {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .column:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            background: rgba(0, 0, 0, 0.3);
+            color: #ffffff;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(53, 66, 74, 0.9);
+            color: #ffffff;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            transition: all 0.3s;
+            font-size: 18px;
+            z-index: 99;
+        }
+
+        .back-to-top:hover {
+            background: rgba(44, 62, 80, 0.9);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(77, 166, 255, 0.5);
+        }
+
+        .technology-icon {
+            margin-right: 10px;
+            color: #4da6ff;
+        }
+
+        @keyframes trafficEffect {
+            0% { transform: scale(0.5); opacity: 0; }
+            20% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0; }
+        }
+        
+        .traffic-effect {
+            animation: trafficEffect 1.5s forwards;
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        @media (max-width: 768px) {
+            .columns {
+                flex-direction: column;
+            }
+            
+            .rule-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .stats-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1><i class="fas fa-shield-alt technology-icon"></i> CyberFirewall Pro</h1>
+            <p>Продвинутая система сетевой безопасности для защиты вашей сети</p>
+            <nav>
+                <ul>
+                    <li><a href="index.html"><i class="fas fa-home"></i> Главная</a></li>
+                    <li><a href="firewall.html"><i class="fas fa-fire"></i> Firewall</a></li>
+                    <li><a href="Technologies.html"><i class="fas fa-microchip"></i> Технологии</a></li>
+                    <li><a href="contact.html"><i class="fas fa-envelope"></i> Контакты</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="firewall">
+            <div class="card">
+                <h2><i class="fas fa-chart-bar"></i> Статистика и статус</h2>
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-rules">0</div>
+                        <div class="stat-label">Всего правил</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="allowed-rules">0</div>
+                        <div class="stat-label">Разрешающих</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="denied-rules">0</div>
+                        <div class="stat-label">Запрещающих</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="traffic-count">0</div>
+                        <div class="stat-label">Пакетов обработано</div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: center; margin-top: 15px;">
+                    <span class="status-indicator" id="firewall-status-indicator"></span>
+                    <span id="firewall-status-text">Статус firewall</span>
+                    <button id="toggle-firewall-btn" class="btn" style="margin-left: auto;">Активировать Firewall</button>
+                    <button id="reset-btn" class="btn btn-warning" style="margin-left: 10px;">Сбросить всё</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="rules-section">
+            <div class="card">
+                <h2><i class="fas fa-filter"></i> Управление правилами</h2>
+                <div class="columns">
+                    <div class="column">
+                        <h3>Добавить новое правило</h3>
+                        <select id="rule-type">
+                            <option value="ip">По IP-адресу</option>
+                            <option value="port">По порту</option>
+                            <option value="protocol">По протоколу</option>
+                            <option value="domain">По домену</option>
+                        </select>
+                        
+                        <input type="text" id="rule-value" placeholder="Значение (например, 192.168.1.1)">
+                        
+                        <select id="rule-action">
+                            <option value="allow">Разрешить</option>
+                            <option value="deny">Запретить</option>
+                        </select>
+                        
+                        <button id="add-rule-btn" class="btn"><i class="fas fa-plus"></i> Добавить правило</button>
+                        <button id="import-rules-btn" class="btn btn-info"><i class="fas fa-file-import"></i> Импорт правил</button>
+                        <button id="export-rules-btn" class="btn btn-info"><i class="fas fa-file-export"></i> Экспорт правил</button>
+                    </div>
+                    
+                    <div class="column">
+                        <h3>Список правил</h3>
+                        <input type="text" id="search-rule" placeholder="Поиск правил...">
+                        <button id="clear-search-btn" class="btn btn-danger"><i class="fas fa-times"></i> Очистить</button>
+                        
+                        <ul class="rule-list" id="firewall-rules">
+                            <li>Нет правил. Добавьте первое правило.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="traffic-section">
+            <div class="card">
+                <h2><i class="fas fa-network-wired"></i> Симулятор сетевого трафика</h2>
+                <div class="columns">
+                    <div class="column">
+                        <h3>Параметры трафика</h3>
+                        <select id="traffic-direction">
+                            <option value="incoming">Входящий трафик</option>
+                            <option value="outgoing">Исходящий трафик</option>
+                        </select>
+                        
+                        <select id="traffic-protocol">
+                            <option value="tcp">TCP</option>
+                            <option value="udp">UDP</option>
+                            <option value="icmp">ICMP</option>
+                            <option value="http">HTTP</option>
+                            <option value="https">HTTPS</option>
+                            <option value="ftp">FTP</option>
+                            <option value="ssh">SSH</option>
+                            <option value="dns">DNS</option>
+                        </select>
+                        
+                        <input type="text" id="traffic-ip" placeholder="IP-адрес" value="192.168.1.105">
+                        
+                        <input type="number" id="traffic-port" placeholder="Порт" value="80" min="1" max="65535">
+                        
+                        <button id="send-traffic-btn" class="btn"><i class="fas fa-paper-plane"></i> Отправить трафик</button>
+                        <button id="auto-traffic-btn" class="btn btn-info"><i class="fas fa-bolt"></i> Автотрафик</button>
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button id="clear-log-btn" class="btn btn-danger"><i class="fas fa-trash"></i> Очистить журнал</button>
+                            <button id="save-log-btn" class="btn btn-info"><i class="fas fa-save"></i> Сохранить журнал</button>
+                            <button id="load-log-btn" class="btn btn-info"><i class="fas fa-folder-open"></i> Загрузить журнал</button>
+                        </div>
+                    </div>
+                    
+                    <div class="column">
+                        <h3>Журнал трафика</h3>
+                        <div class="traffic-log" id="traffic-log">
+                            <div class="log-entry system">Журнал сетевого трафика будет отображаться здесь...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Системы кибербезопасности. Все права защищены.</p>
+    </footer>
+
+    <div class="notification" id="notification">
+        <div id="notification-message"></div>
+    </div>
+
+    <button class="back-to-top" onclick="scrollToTop()"><i class="fas fa-arrow-up"></i></button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Анимация появления секций
+            const sections = document.querySelectorAll('section');
+            sections.forEach((section, index) => {
+                setTimeout(() => {
+                    section.classList.add('visible');
+                }, index * 300);
+            });
+
+            // Состояние firewall
+            let firewallActive = false;
+            let firewallRules = [];
+            let trafficCounter = 0;
+            let autoTrafficInterval = null;
+            let settings = {
+                defaultPolicy: 'deny',
+                logLevel: 'normal',
+                autoSave: 'enabled',
+                notifyNewRule: true,
+                notifyBlocked: true,
+                notifyStatusChange: true
+            };
+            
+            // Элементы DOM
+            const firewallStatusIndicator = document.getElementById('firewall-status-indicator');
+            const firewallStatusText = document.getElementById('firewall-status-text');
+            const toggleFirewallBtn = document.getElementById('toggle-firewall-btn');
+            const firewallRulesList = document.getElementById('firewall-rules');
+            const trafficLog = document.getElementById('traffic-log');
+            const notification = document.getElementById('notification');
+            
+            // Инициализация
+            updateFirewallStatus();
+            renderFirewallRules();
+            updateStats();
+            
+            // Обработчики событий
+            toggleFirewallBtn.addEventListener('click', toggleFirewall);
+            document.getElementById('add-rule-btn').addEventListener('click', addFirewallRule);
+            document.getElementById('send-traffic-btn').addEventListener('click', simulateTraffic);
+            document.getElementById('auto-traffic-btn').addEventListener('click', toggleAutoTraffic);
+            document.getElementById('clear-log-btn').addEventListener('click', clearTrafficLog);
+            document.getElementById('save-log-btn').addEventListener('click', saveTrafficLog);
+            document.getElementById('load-log-btn').addEventListener('click', loadTrafficLogFromFile);
+            document.getElementById('reset-btn').addEventListener('click', resetAll);
+            document.getElementById('search-rule').addEventListener('input', searchRules);
+            document.getElementById('clear-search-btn').addEventListener('click', clearSearch);
+            document.getElementById('import-rules-btn').addEventListener('click', importRules);
+            document.getElementById('export-rules-btn').addEventListener('click', exportRules);
+            
+            // Функции
+            function toggleFirewall() {
+                firewallActive = !firewallActive;
+                updateFirewallStatus();
+                
+                addLogEntry(`Firewall ${firewallActive ? 'активирован' : 'деактивирован'}`, 'system');
+                
+                if (settings.notifyStatusChange) {
+                    showNotification(`Firewall ${firewallActive ? 'активирован' : 'деактивирован'}`, firewallActive ? 'success' : 'error');
+                }
+            }
+            
+            function updateFirewallStatus() {
+                if (firewallActive) {
+                    firewallStatusIndicator.className = 'status-indicator status-active';
+                    firewallStatusText.textContent = 'Firewall активен';
+                    toggleFirewallBtn.textContent = 'Деактивировать Firewall';
+                    toggleFirewallBtn.classList.add('btn-danger');
+                    toggleFirewallBtn.classList.remove('btn-success');
+                } else {
+                    firewallStatusIndicator.className = 'status-indicator status-inactive';
+                    firewallStatusText.textContent = 'Firewall неактивен';
+                    toggleFirewallBtn.textContent = 'Активировать Firewall';
+                    toggleFirewallBtn.classList.add('btn-success');
+                    toggleFirewallBtn.classList.remove('btn-danger');
+                }
+                
+                if (settings.autoSave === 'enabled') {
+                    saveSettingsToStorage();
+                }
+            }
+            
+            function addFirewallRule() {
+                const type = document.getElementById('rule-type').value;
+                let value = document.getElementById('rule-value').value.trim();
+                const action = document.getElementById('rule-action').value;
+                
+                if (!value) {
+                    showNotification('Пожалуйста, укажите значение для правила', 'warning');
+                    return;
+                }
+                
+                if (type === 'ip' && !isValidIP(value)) {
+                    showNotification('Неверный формат IP-адреса', 'error');
+                    return;
+                }
+                
+                if (type === 'port') {
+                    const port = parseInt(value);
+                    if (isNaN(port) || port < 1 || port > 65535) {
+                        showNotification('Порт должен быть числом от 1 до 65535', 'error');
+                        return;
+                    }
+                    value = port.toString();
+                }
+                
+                let description = '';
+                if (type === 'ip') {
+                    description = `${action === 'allow' ? 'Разрешить' : 'Запретить'} IP ${value}`;
+                } else if (type === 'port') {
+                    description = `${action === 'allow' ? 'Разрешить' : 'Запретить'} порт ${value}`;
+                } else if (type === 'protocol') {
+                    description = `${action === 'allow' ? 'Разрешить' : 'Запретить'} протокол ${value.toUpperCase()}`;
+                } else if (type === 'domain') {
+                    description = `${action === 'allow' ? 'Разрешить' : 'Запретить'} домен ${value}`;
+                }
+                
+                const ruleExists = firewallRules.some(rule => 
+                    rule.type === type && rule.value === value && rule.action === action
+                );
+                
+                if (ruleExists) {
+                    showNotification('Такое правило уже существует', 'warning');
+                    return;
+                }
+                
+                firewallRules.push({ type, value, action, description });
+                renderFirewallRules();
+                updateStats();
+                
+                document.getElementById('rule-value').value = '';
+                
+                addLogEntry(`Добавлено новое правило: ${description}`, 'system');
+                
+                if (settings.notifyNewRule) {
+                    showNotification(`Добавлено новое правило: ${description}`, 'info');
+                }
+                
+                if (settings.autoSave === 'enabled') {
+                    saveRulesToStorage();
+                }
+            }
+            
+            function isValidIP(ip) {
+                const ipRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+                return ipRegex.test(ip);
+            }
+            
+            function renderFirewallRules() {
+                const searchQuery = document.getElementById('search-rule').value.toLowerCase();
+                let filteredRules = firewallRules;
+                
+                if (searchQuery) {
+                    filteredRules = firewallRules.filter(rule => 
+                        rule.description.toLowerCase().includes(searchQuery) ||
+                        rule.type.toLowerCase().includes(searchQuery) ||
+                        rule.value.toLowerCase().includes(searchQuery)
+                    );
+                }
+                
+                if (filteredRules.length === 0) {
+                    firewallRulesList.innerHTML = '<li>Правила не найдены</li>';
+                    return;
+                }
+                
+                firewallRulesList.innerHTML = '';
+                
+                filteredRules.forEach((rule, index) => {
+                    const li = document.createElement('li');
+                    li.className = `rule-item ${rule.action === 'allow' ? 'allowed' : 'denied'}`;
+                    
+                    li.innerHTML = `
+                        <div>
+                            <strong>${rule.description}</strong><br>
+                            <small>Тип: ${rule.type.toUpperCase()}, Значение: ${rule.value}</small>
+                        </div>
+                        <div>
+                            <button class="btn btn-danger delete-rule-btn" data-index="${index}">
+                                <i class="fas fa-trash"></i> Удалить
+                            </button>
+                        </div>
+                    `;
+                    
+                    firewallRulesList.appendChild(li);
+                });
+                
+                // Добавляем обработчики событий для новых кнопок удаления
+                document.querySelectorAll('.delete-rule-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const index = parseInt(this.dataset.index);
+                        deleteRule(index);
+                    });
+                });
+            }
+            
+            function deleteRule(index) {
+                const deletedRule = firewallRules.splice(index, 1)[0];
+                renderFirewallRules();
+                updateStats();
+                
+                addLogEntry(`Удалено правило: ${deletedRule.description}`, 'system');
+                showNotification(`Удалено правило: ${deletedRule.description}`, 'info');
+                
+                if (settings.autoSave === 'enabled') {
+                    saveRulesToStorage();
+                }
+            }
+            
+            function updateStats() {
+                document.getElementById('total-rules').textContent = firewallRules.length;
+                document.getElementById('allowed-rules').textContent = firewallRules.filter(rule => rule.action === 'allow').length;
+                document.getElementById('denied-rules').textContent = firewallRules.filter(rule => rule.action === 'deny').length;
+                document.getElementById('traffic-count').textContent = trafficCounter;
+            }
+            
+            function simulateTraffic() {
+                if (!firewallActive) {
+                    addLogEntry('Попытка симуляции трафика при выключенном firewall', 'warning');
+                    showNotification('Firewall неактивен. Включите его для фильтрации трафика.', 'warning');
+                    return;
+                }
+                
+                const direction = document.getElementById('traffic-direction').value;
+                const protocol = document.getElementById('traffic-protocol').value;
+                const ip = document.getElementById('traffic-ip').value.trim();
+                const port = document.getElementById('traffic-port').value.trim();
+                
+                if (!ip || !port) {
+                    showNotification('Пожалуйста, укажите IP-адрес и порт', 'warning');
+                    return;
+                }
+                
+                if (!isValidIP(ip)) {
+                    showNotification('Неверный формат IP-адреса', 'error');
+                    return;
+                }
+                
+                const portNum = parseInt(port);
+                if (isNaN(portNum) || portNum < 1 || portNum > 65535) {
+                    showNotification('Порт должен быть числом от 1 до 65535', 'error');
+                    return;
+                }
+                
+                trafficCounter++;
+                updateStats();
+                
+                // Проверяем правила
+                let action = settings.defaultPolicy; // Начинаем с политики по умолчанию
+                let matchedRule = null;
+                
+                // Проверяем правила в порядке их добавления (первое совпадение определяет действие)
+                for (const rule of firewallRules) {
+                    let matches = false;
+                    
+                    if (rule.type === 'ip' && rule.value === ip) {
+                        matches = true;
+                    } else if (rule.type === 'port' && rule.value === port) {
+                        matches = true;
+                    } else if (rule.type === 'protocol' && rule.value.toLowerCase() === protocol.toLowerCase()) {
+                        matches = true;
+                    } else if (rule.type === 'domain' && ip.includes(rule.value)) {
+                        matches = true;
+                    }
+                    
+                    if (matches) {
+                        action = rule.action;
+                        matchedRule = rule;
+                        break;
+                    }
+                }
+                
+                const logMessage = `${direction === 'incoming' ? 'Входящий' : 'Исходящий'} ${protocol.toUpperCase()} пакет от ${ip}:${port} - ${action === 'allow' ? 'РАЗРЕШЕН' : 'ЗАБЛОКИРОВАН'}`;
+                addLogEntry(logMessage, action === 'allow' ? 'allowed' : 'denied');
+                
+                // Визуальные эффекты для разных типов трафика
+                if (action === 'allow') {
+                    // Эффект для разрешенного трафика (зеленый)
+                    showNotification(`Трафик разрешен: ${ip}:${port}`, 'success');
+                    createTrafficEffect('rgba(46, 204, 113, 0.3)', '✔');
+                } else {
+                    // Эффект для заблокированного трафика (красный)
+                    if (settings.notifyBlocked) {
+                        showNotification(`Трафик заблокирован: ${ip}:${port}`, 'error');
+                    }
+                    createTrafficEffect('rgba(231, 76, 60, 0.3)', '✖');
+                }
+                
+                if (matchedRule) {
+                    addLogEntry(`Применено правило: ${matchedRule.description}`, 'info');
+                } else {
+                    addLogEntry(`Применена политика по умолчанию: ${settings.defaultPolicy === 'allow' ? 'Разрешить' : 'Запретить'}`, 'info');
+                }
+            }
+
+            function createTrafficEffect(color, symbol) {
+                const effect = document.createElement('div');
+                effect.className = 'traffic-effect';
+                effect.style.position = 'fixed';
+                effect.style.top = Math.random() * 80 + 10 + '%';
+                effect.style.left = Math.random() * 80 + 10 + '%';
+                effect.style.width = '60px';
+                effect.style.height = '60px';
+                effect.style.background = color;
+                effect.style.borderRadius = '50%';
+                effect.style.display = 'flex';
+                effect.style.justifyContent = 'center';
+                effect.style.alignItems = 'center';
+                effect.style.fontSize = '24px';
+                effect.style.color = 'white';
+                effect.style.pointerEvents = 'none';
+                effect.style.zIndex = '9999';
+                effect.textContent = symbol;
+                document.body.appendChild(effect);
+                
+                setTimeout(() => {
+                    document.body.removeChild(effect);
+                }, 1500);
+            }
+            
+            function toggleAutoTraffic() {
+                if (autoTrafficInterval) {
+                    clearInterval(autoTrafficInterval);
+                    autoTrafficInterval = null;
+                    document.getElementById('auto-traffic-btn').innerHTML = '<i class="fas fa-bolt"></i> Автотрафик';
+                    addLogEntry('Автоматическая генерация трафика остановлена', 'system');
+                } else {
+                    autoTrafficInterval = setInterval(() => {
+                        // Генерируем случайные параметры трафика
+                        const protocols = ['tcp', 'udp', 'icmp', 'http', 'https', 'ftp', 'ssh', 'dns'];
+                        const directions = ['incoming', 'outgoing'];
+                        const ips = ['192.168.1.' + Math.floor(Math.random() * 255), 
+                                   '10.0.0.' + Math.floor(Math.random() * 255),
+                                   '172.16.' + Math.floor(Math.random() * 16) + '.' + Math.floor(Math.random() * 255)];
+                        const ports = [80, 443, 22, 21, 53, 3389, 8080, 25, 110, 143];
+                        
+                        document.getElementById('traffic-direction').value = directions[Math.floor(Math.random() * directions.length)];
+                        document.getElementById('traffic-protocol').value = protocols[Math.floor(Math.random() * protocols.length)];
+                        document.getElementById('traffic-ip').value = ips[Math.floor(Math.random() * ips.length)];
+                        document.getElementById('traffic-port').value = ports[Math.floor(Math.random() * ports.length)];
+                        
+                        simulateTraffic();
+                    }, 2000);
+                    
+                    document.getElementById('auto-traffic-btn').innerHTML = '<i class="fas fa-stop"></i> Остановить';
+                    addLogEntry('Запущена автоматическая генерация трафика', 'system');
+                }
+            }
+            
+            function addLogEntry(message, type) {
+                const entry = document.createElement('div');
+                entry.className = `log-entry ${type}`;
+                entry.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+                trafficLog.appendChild(entry);
+                trafficLog.scrollTop = trafficLog.scrollHeight;
+            }
+            
+            function clearTrafficLog() {
+                trafficLog.innerHTML = '<div class="log-entry system">Журнал очищен</div>';
+            }
+            
+            function saveTrafficLog() {
+                let logContent = '';
+                document.querySelectorAll('#traffic-log .log-entry').forEach(entry => {
+                    logContent += entry.textContent + '\n';
+                });
+                
+                const blob = new Blob([logContent], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `firewall-log-${new Date().toISOString().slice(0, 10)}.log`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                addLogEntry('Журнал трафика сохранен в файл', 'system');
+                showNotification('Журнал трафика сохранен', 'success');
+            }
+            
+            function loadTrafficLogFromFile() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.log,.txt';
+                
+                input.onchange = e => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = event => {
+                        clearTrafficLog();
+                        const content = event.target.result;
+                        content.split('\n').forEach(line => {
+                            if (line.trim()) {
+                                const entry = document.createElement('div');
+                                entry.className = 'log-entry system';
+                                entry.textContent = line;
+                                trafficLog.appendChild(entry);
+                            }
+                        });
+                        
+                        addLogEntry(`Журнал загружен из файла: ${file.name}`, 'system');
+                        showNotification('Журнал загружен', 'success');
+                    };
+                    reader.readAsText(file);
+                };
+                
+                input.click();
+            }
+            
+            function showNotification(message, type) {
+                const notification = document.getElementById('notification');
+                const notificationMessage = document.getElementById('notification-message');
+                
+                notification.className = 'notification';
+                notification.classList.add(type);
+                notificationMessage.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            function resetAll() {
+                if (confirm('Вы уверены, что хотите сбросить все настройки и правила? Это действие нельзя отменить.')) {
+                    firewallActive = false;
+                    firewallRules = [];
+                    trafficCounter = 0;
+                    clearTrafficLog();
+                    
+                    if (autoTrafficInterval) {
+                        clearInterval(autoTrafficInterval);
+                        autoTrafficInterval = null;
+                        document.getElementById('auto-traffic-btn').innerHTML = '<i class="fas fa-bolt"></i> Автотрафик';
+                    }
+                    
+                    // Сброс настроек по умолчанию
+                    settings = {
+                        defaultPolicy: 'deny',
+                        logLevel: 'normal',
+                        autoSave: 'enabled',
+                        notifyNewRule: true,
+                        notifyBlocked: true,
+                        notifyStatusChange: true
+                    };
+                    
+                    updateFirewallStatus();
+                    renderFirewallRules();
+                    updateStats();
+                    
+                    addLogEntry('Все настройки и правила сброшены', 'system');
+                    showNotification('Все настройки и правила сброшены', 'info');
+                    
+                    // Очищаем локальное хранилище
+                    localStorage.removeItem('firewallRules');
+                    localStorage.removeItem('firewallSettings');
+                }
+            }
+            
+            function searchRules() {
+                renderFirewallRules();
+            }
+            
+            function clearSearch() {
+                document.getElementById('search-rule').value = '';
+                renderFirewallRules();
+            }
+            
+            function importRules() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                
+                input.onchange = e => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = event => {
+                        try {
+                            const importedRules = JSON.parse(event.target.result);
+                            if (Array.isArray(importedRules)) {
+                                firewallRules = importedRules;
+                                renderFirewallRules();
+                                updateStats();
+                                
+                                addLogEntry(`Правила импортированы из файла: ${file.name} (${importedRules.length} правил)`, 'system');
+                                showNotification('Правила успешно импортированы', 'success');
+                                
+                                if (settings.autoSave === 'enabled') {
+                                    saveRulesToStorage();
+                                }
+                            } else {
+                                throw new Error('Неправильный формат файла');
+                            }
+                        } catch (err) {
+                            addLogEntry(`Ошибка импорта правил: ${err.message}`, 'denied');
+                            showNotification('Ошибка импорта правил: ' + err.message, 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                
+                input.click();
+            }
+            
+            function exportRules() {
+                const dataStr = JSON.stringify(firewallRules, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `firewall-rules-${new Date().toISOString().slice(0, 10)}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                addLogEntry('Правила экспортированы в файл', 'system');
+                showNotification('Правила успешно экспортированы', 'success');
+            }
+            
+            function saveRulesToStorage() {
+                localStorage.setItem('firewallRules', JSON.stringify(firewallRules));
+            }
+            
+            function saveSettingsToStorage() {
+                localStorage.setItem('firewallSettings', JSON.stringify(settings));
+                localStorage.setItem('firewallActive', firewallActive.toString());
+            }
+            
+            function loadFromStorage() {
+                // Загружаем настройки
+                const savedSettings = localStorage.getItem('firewallSettings');
+                if (savedSettings) {
+                    try {
+                        settings = JSON.parse(savedSettings);
+                    } catch (e) {
+                        console.error('Ошибка загрузки настроек:', e);
+                    }
+                }
+                
+                // Загружаем правила
+                const savedRules = localStorage.getItem('firewallRules');
+                if (savedRules) {
+                    try {
+                        firewallRules = JSON.parse(savedRules);
+                        renderFirewallRules();
+                        updateStats();
+                    } catch (e) {
+                        console.error('Ошибка загрузки правил:', e);
+                    }
+                }
+                
+                // Загружаем статус firewall
+                const savedActive = localStorage.getItem('firewallActive');
+                if (savedActive) {
+                    firewallActive = savedActive === 'true';
+                    updateFirewallStatus();
+                }
+            }
+            
+            // Загрузка сохраненных данных
+            loadFromStorage();
+            
+            // Обработчик кнопки "Наверх"
+            window.onscroll = function() {
+                const backToTopBtn = document.querySelector('.back-to-top');
+                if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                    backToTopBtn.style.display = 'block';
+                } else {
+                    backToTopBtn.style.display = 'none';
+                }
+            };
+            
+            function scrollToTop() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    </script>
+</body>
+</html>
