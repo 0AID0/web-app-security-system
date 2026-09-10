@@ -117,8 +117,7 @@
 
 ### 🌐 Живая демонстрация
 
-**Скоро:** проект будет задеплоен на GitHub Pages.
-Ссылка появится здесь после публикации.
+🔗 **[Открыть сайт](https://0aid0.github.io/web-app-security-system/web-app-security-system/index.html)**
 
 ## 🎓 Чему я научился в проекте
 
